@@ -30,10 +30,6 @@ class Selection:
         return self.eye.map(self.race.find_contestant)
 
     @cached_property
-    def is_sequencial(self) -> bool:
-        return self.eye.is_sequencial
-
-    @cached_property
     def selected(self) -> Collection[Contestant]:
         return self.selection
 
@@ -49,7 +45,7 @@ class Selection:
         return self.rcounter.rank_zero_ave(contestant)
 
     @cached_property
-    def place_dict(self) -> Mapping[Contestant, float]:
+    def rank_dict(self) -> Mapping[Contestant, float]:
         return {c: self.rank(c) for c in self.race.constrants}
 
     @cached_property
@@ -57,7 +53,7 @@ class Selection:
         return set(RelationIterator(self.selected, self.unselected).iterator())
 
     def print_place(self) -> None:
-        for txt in sorted(f"{k}: {v}" for k, v in self.place_dict.items()):
+        for txt in sorted(f"{k}: {v}" for k, v in self.rank_dict.items()):
             print(txt)
 
     def print_relations(self) -> None:
