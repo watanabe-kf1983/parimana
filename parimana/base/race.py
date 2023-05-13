@@ -3,7 +3,7 @@ from typing import (
     Sequence,
     TypeVar,
 )
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 T = TypeVar("T")
@@ -26,7 +26,7 @@ class Contestant:
 
 @dataclass(frozen=True)
 class Race:
-    constrants: Sequence[Contestant]
+    constrants: Sequence[Contestant] = field(repr=False, hash=False)
     name: str = ""
 
     def find_contestant(self, name) -> Contestant:

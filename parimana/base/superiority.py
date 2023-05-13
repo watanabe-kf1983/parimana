@@ -1,4 +1,5 @@
 # from enum import Enum
+from functools import cached_property
 from typing import (
     Collection,
     Generic,
@@ -25,6 +26,10 @@ class SuperiorityRelation(Generic[T]):
 
     def __str__(self) -> str:
         return f"{self.superior}>{self.inferior}"
+
+    @cached_property
+    def record(self):
+        return {"sup": str(self.superior), "inf": str(self.inferior)}
 
 
 @dataclass(frozen=True)

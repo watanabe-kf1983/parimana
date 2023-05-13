@@ -49,7 +49,7 @@ class Selection:
         return {c: self.rank(c) for c in self.race.constrants}
 
     @cached_property
-    def relations(self) -> Set[SuperiorityRelation]:
+    def relations(self) -> Set[SuperiorityRelation[Contestant]]:
         return set(RelationIterator(self.selected, self.unselected).iterator())
 
     def print_place(self) -> None:

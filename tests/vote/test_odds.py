@@ -1,7 +1,6 @@
 from parimana.base.eye import BettingType
-from parimana.odds.odds import (
-    VoteTally,
-    calc_vote_tally,
+from parimana.vote.odds import (
+    VoteTally,    VoteTallyByType, calc_vote_tally,
     Odds,
 )
 
@@ -14,4 +13,4 @@ def test_calc_vote_tally():
     odds = [Odds.from_text(t) for t in odds_data]
     expected = [VoteTally.from_text(t) for t in vote_expected_data]
 
-    assert calc_vote_tally(odds, ratio_data, vote_total) == expected
+    assert calc_vote_tally(odds, VoteTallyByType(ratio_data, vote_total)) == expected
