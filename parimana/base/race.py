@@ -1,4 +1,3 @@
-# from enum import Enum
 from typing import (
     Sequence,
     TypeVar,
@@ -8,12 +7,8 @@ from dataclasses import dataclass, field
 
 T = TypeVar("T")
 
-# https://www.jra.go.jp/keiba/overseas/yougo/c10080_list.html
 
-# pari-mutuel betting
-
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Contestant:
     name: str
 
@@ -26,11 +21,11 @@ class Contestant:
 
 @dataclass(frozen=True)
 class Race:
-    constrants: Sequence[Contestant] = field(repr=False, hash=False)
+    contestants: Sequence[Contestant] = field(repr=False, hash=False)
     name: str = ""
 
     def find_contestant(self, name) -> Contestant:
-        matched = [c for c in self.constrants if c.match(name)]
+        matched = [c for c in self.contestants if c.match(name)]
         if matched:
             return matched[0]
         else:
@@ -38,7 +33,10 @@ class Race:
 
     @classmethod
     def no_absences(cls, number_of_contestants: int, name="") -> "Race":
-        constrants = [Contestant(str(i)) for i in range(1, number_of_contestants + 1)]
+        digits = len(str(number_of_contestants))
+        constrants = [
+            Contestant(f"{i:0{digits}}") for i in range(1, number_of_contestants + 1)
+        ]
         return Race(constrants, name)
 
 

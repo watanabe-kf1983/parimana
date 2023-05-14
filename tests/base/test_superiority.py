@@ -1,13 +1,43 @@
-from parimana.base.superiority import RelationIterator
+from parimana.base.superiority import iterate_relation
 
 
 def test_superiority_trifecta():
-    ri = RelationIterator([6, 5, 4], {3, 2})
-    relations = {str(r) for r in ri.iterator()}
-    assert relations == {"6>5", "6>4", "6>3", "6>2", "5>4", "5>3", "5>2", "4>3", "4>2"}
+    relations = [str(r) for r in sorted(iterate_relation([6, 5, 4], {3, 2}))]
+    assert relations == [
+        "2=2",
+        "2?3",
+        "2<4",
+        "2<5",
+        "2<6",
+        "3=3",
+        "3<4",
+        "3<5",
+        "3<6",
+        "4=4",
+        "4<5",
+        "4<6",
+        "5=5",
+        "5<6",
+        "6=6",
+    ]
 
 
 def test_superiority_trio():
-    ri = RelationIterator({6, 5, 4}, {3, 2})
-    relations = {str(r) for r in ri.iterator()}
-    assert relations == {"6>3", "6>2", "5>3", "5>2", "4>3", "4>2"}
+    relations = [str(r) for r in sorted(iterate_relation({6, 5, 4}, {3, 2}))]
+    assert relations == [
+        "2=2",
+        "2?3",
+        "2<4",
+        "2<5",
+        "2<6",
+        "3=3",
+        "3<4",
+        "3<5",
+        "3<6",
+        "4=4",
+        "4?5",
+        "4?6",
+        "5=5",
+        "5?6",
+        "6=6",
+    ]

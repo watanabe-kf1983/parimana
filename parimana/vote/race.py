@@ -1,11 +1,11 @@
 from functools import cached_property
-from typing import Collection, Mapping, Tuple, TypeVar
+from typing import Collection, Mapping, TypeVar
 from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 
-from parimana.base.race import Race, Contestant
+from parimana.base.race import Race
 from parimana.base.selection import Selection
 from parimana.vote.odds import Odds, VoteTally, VoteTallyByType, calc_vote_tally
 
@@ -23,40 +23,17 @@ class RaceVote:
 
     @cached_property
     def relations(self) -> pd.DataFrame:
-        cs = self.race.constrants
         records = [
-            {"sup": str(x), "inf": str(y), "weight": 0} for x in cs for y in cs
-        ] + [
             relation.record | {"weight": weight}
             for (selection, weight) in self.selections.items()
-            for relation in selection.relations
+            for relation in selection.relations.relations
         ]
-        df = (
+        return (
             pd.DataFrame.from_records(records)
-            .groupby(["inf", "sup"])
+            .groupby(["a", "b", "sa"])
             .sum()
             .reset_index()
         )
-        df2 = pd.merge(
-            df, df, how="left", left_on=["sup", "inf"], right_on=["inf", "sup"]
-        ).fillna(0)
-        df2["count"] = df2["weight_x"] + df2["weight_y"]
-        df2["ratio"] = df2["weight_x"] / df2["count"]
-        return pd.pivot_table(
-            df2,
-            index="sup_x",
-            columns="inf_x",
-            values=["ratio"],
-            aggfunc=np.sum,
-        )
-
-    @cached_property
-    def ranks(self) -> Collection[Tuple[Mapping[Contestant, float], float]]:
-        records = [
-            (selection.rank_dict | {"weight": weight})
-            for selection, weight in self.selections.items()
-        ]
-        return pd.DataFrame.from_records(records)
 
 
 @dataclass(frozen=True)
