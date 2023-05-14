@@ -6,13 +6,6 @@ def test_selection():
     race = Race.no_absences(5, "少頭数")
     selection = Selection.from_text(race, "2=3=4")
 
-    assert {k.name: v for k, v in selection.rank_dict.items()} == {
-        "1": -1.5,
-        "2": 1,
-        "3": 1,
-        "4": 1,
-        "5": -1.5,
-    }
     assert {str(r) for r in selection.relations} == {
         "2>1",
         "3>1",

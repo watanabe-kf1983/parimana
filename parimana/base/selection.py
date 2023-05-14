@@ -1,7 +1,5 @@
-# from enum import Enum
 from typing import (
     Collection,
-    Mapping,
     Set,
     TypeVar,
 )
@@ -9,7 +7,6 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from parimana.base.eye import Eye
-from parimana.base.rank import MixedRankCounter
 from parimana.base.race import Race, Contestant
 from parimana.base.superiority import SuperiorityRelation, RelationIterator
 
@@ -38,23 +35,8 @@ class Selection:
         return set(self.race.constrants) - set(self.selected)
 
     @cached_property
-    def rcounter(self) -> MixedRankCounter:
-        return MixedRankCounter(self.selected, set(self.unselected))
-
-    def rank(self, contestant: Contestant) -> float:
-        return self.rcounter.rank_zero_ave(contestant)
-
-    @cached_property
-    def rank_dict(self) -> Mapping[Contestant, float]:
-        return {c: self.rank(c) for c in self.race.constrants}
-
-    @cached_property
     def relations(self) -> Set[SuperiorityRelation[Contestant]]:
         return set(RelationIterator(self.selected, self.unselected).iterator())
-
-    def print_place(self) -> None:
-        for txt in sorted(f"{k}: {v}" for k, v in self.rank_dict.items()):
-            print(txt)
 
     def print_relations(self) -> None:
         for txt in sorted(str(r) for r in self.relations):

@@ -29,6 +29,5 @@ def test_race_odds():
 
 def test_race_vote():
     print(race_vote.relations)
-    print(race_vote.ranks)
 
     assert False
