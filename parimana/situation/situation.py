@@ -1,43 +1,28 @@
 from collections import defaultdict
+from functools import cached_property
 from typing import (
     Collection,
     Generic,
     Mapping,
+    Sequence,
     TypeVar,
 )
 from dataclasses import dataclass
-from functools import cached_property
 
-from parimana.base.eye import Eye
-from parimana.base.race import Race, Contestant
-from parimana.base.superiority import Relation, Superiority, iterate_relation
-from parimana.base.lang import Comparable
+from parimana.situation.compare import Comparable
+from parimana.situation.superiority import Superiority, Relation, iterate_relation
 
 T = TypeVar("T", bound=Comparable)
 
-# https://www.jra.go.jp/keiba/overseas/yougo/c10080_list.html
-
-# pari-mutuel betting
-
 
 @dataclass(frozen=True)
-class Selection:
-    race: Race
-    eye: Eye
+class Situation(Generic[T]):
+    relations: Collection[Relation[T]]
+    frequency: float = 1
 
     @cached_property
-    def relations(self) -> "Relations[Contestant]":
-        selected = self.eye.map(self.race.find_contestant)
-        unselected = set(self.race.contestants) - set(selected)
-        relations = sorted(iterate_relation(selected, unselected))
-
-        return Relations(relations, self.race.contestants)
-
-
-@dataclass(frozen=True)
-class Relations(Generic[T]):
-    relations: Collection[Relation[T]]
-    constrants: Collection[T]
+    def constrants(self) -> Sequence[T]:
+        return sorted(({r.a for r in self.relations} | {r.b for r in self.relations}))
 
     @cached_property
     def _relations_mapping(
@@ -62,3 +47,14 @@ class Relations(Generic[T]):
 
     def get_superiority(self, a: T, b: T) -> Superiority:
         return self._relations_mapping[a][b]
+
+    @classmethod
+    def from_collections(
+        cls, collections: Collection[Collection[T]], frequency: float = 1
+    ) -> "Situation[T]":
+        return Situation(sorted(iterate_relation(*collections)), frequency)
+
+
+@dataclass(frozen=True)
+class Distribution(Generic[T]):
+    situations: Collection[Situation[T]]

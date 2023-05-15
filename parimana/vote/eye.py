@@ -38,15 +38,15 @@ class Eye:
         size: int = len(self.names)
         return BettingType((sequencial, size))  # type: ignore
 
-    @cached_property
-    def record(self):
-        return {"eye": self.text, "type": self.type.name}
-
     def map(self, mapper: Callable[[str], T]) -> Collection[T]:
         if self.type.sequencial:
             return [mapper(n) for n in self.names]
         else:
             return {mapper(n) for n in self.names}
+
+    @cached_property
+    def record(self):
+        return {"eye": self.text, "type": self.type.name}
 
     @classmethod
     def from_record(cls, rec):

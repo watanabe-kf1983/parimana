@@ -1,9 +1,9 @@
-from parimana.base.superiority import iterate_relation
+from parimana.situation.superiority import iterate_relation
 
 
-def test_superiority_trifecta():
-    relations = [str(r) for r in sorted(iterate_relation([6, 5, 4], {3, 2}))]
-    assert relations == [
+def test_iteration_trifecta():
+    iterated = [str(r) for r in sorted(iterate_relation([6, 5, 4], {3, 2}))]
+    assert iterated == [
         "2=2",
         "2?3",
         "2<4",
@@ -22,9 +22,9 @@ def test_superiority_trifecta():
     ]
 
 
-def test_superiority_trio():
-    relations = [str(r) for r in sorted(iterate_relation({6, 5, 4}, {3, 2}))]
-    assert relations == [
+def test_iteration_trio():
+    iterated = [str(r) for r in sorted(iterate_relation({6, 5, 4}, {3, 2}))]
+    assert iterated == [
         "2=2",
         "2?3",
         "2<4",
