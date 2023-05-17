@@ -1,5 +1,5 @@
 from parimana.race.race import Race
-from parimana.situation.situation_pd import dataframes
+from parimana.situation.situationpd import dataframes
 from parimana.vote.eye import BettingType, Eye
 from parimana.vote.vote import (
     VoteTallyByType,
