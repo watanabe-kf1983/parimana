@@ -18,14 +18,15 @@ T = TypeVar("T", bound=Comparable)
 @dataclass(frozen=True)
 class Situation(Generic[T]):
     relations: Collection[Relation[T]]
+    name: str = ""
     frequency: float = 1
 
     @cached_property
-    def constrants(self) -> Sequence[T]:
+    def members(self) -> Sequence[T]:
         return sorted(({r.a for r in self.relations} | {r.b for r in self.relations}))
 
     @cached_property
-    def _relations_mapping(
+    def superiorities(
         self,
     ) -> Mapping[T, Mapping[T, Superiority]]:
         data: dict[T, dict[T, Superiority]] = defaultdict(dict)
@@ -36,25 +37,28 @@ class Situation(Generic[T]):
         return data
 
     @cached_property
-    def _score_mapping(self) -> Mapping[T, int]:
-        return {c: self._get_score(c) for c in self.constrants}
+    def scores(self) -> Mapping[T, int]:
+        return {c: self._get_score(c) for c in self.members}
 
     def _get_score(self, e: T) -> int:
-        return sum((v.score for _, v in self._relations_mapping[e].items()))
+        return sum((v.score for _, v in self.superiorities[e].items()))
 
     def get_score(self, e: T) -> int:
-        return self._score_mapping[e]
+        return self.scores[e]
 
     def get_superiority(self, a: T, b: T) -> Superiority:
-        return self._relations_mapping[a][b]
+        return self.superiorities[a][b]
 
     @classmethod
     def from_collections(
-        cls, collections: Collection[Collection[T]], frequency: float = 1
+        cls,
+        collections: Collection[Collection[T]],
+        name: str = "",
+        frequency: float = 1,
     ) -> "Situation[T]":
-        return Situation(sorted(iterate_relation(*collections)), frequency)
+        return Situation(sorted(iterate_relation(*collections)), name, frequency)
 
 
 @dataclass(frozen=True)
 class Distribution(Generic[T]):
-    situations: Collection[Situation[T]]
+    situations: Sequence[Situation[T]]

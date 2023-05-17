@@ -39,7 +39,7 @@ class Race:
     def situation(self, eye: Eye, frequency: float = 1) -> Situation[Contestant]:
         selected = eye.map(self._find_contestant)
         unselected = set(self.contestants.values()) - set(selected)
-        return Situation.from_collections((selected, unselected), frequency)
+        return Situation.from_collections((selected, unselected), eye.text, frequency)
 
     def destribution(
         self, vote_tallies: Collection[VoteTally]

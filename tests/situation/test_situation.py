@@ -5,7 +5,7 @@ from parimana.situation.situation import Situation
 def test_situation_score():
     rs = Situation.from_collections(([2, 3, 4], {1, 5}))
 
-    assert [f"{k}: {v}" for k, v in rs._score_mapping.items()] == [
+    assert [f"{k}: {v}" for k, v in rs.scores.items()] == [
         "1: -3",
         "2: 4",
         "3: 2",
