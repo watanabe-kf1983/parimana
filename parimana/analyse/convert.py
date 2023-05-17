@@ -77,7 +77,7 @@ class DistributionForPandas(Generic[T]):
         return pd.concat((s.scores for s in self._situ_4pds), ignore_index=True)
 
 
-def dataframes(distribution: Distribution[T]):
+def convert_to_dfs(distribution: Distribution[T]):
     members = [(m, str(m)) for m in distribution.situations[0].members]
     member_dict = {k: v for v, k in members}
     dfp = DistributionForPandas(distribution, members)
