@@ -26,10 +26,6 @@ def extract_correlation(scores: pd.DataFrame) -> pd.DataFrame:
     )
     gp = gp[["correlation"]]
 
-    table2 = pd.pivot_table(
-        gp.reset_index(), index="m_x", columns="m_y", values="correlation"
-    )
-    print(table2)
     return gp
 
 
@@ -45,13 +41,4 @@ def extract_win_rate(relations: pd.DataFrame) -> pd.DataFrame:
     table.columns.name = ""
     table["win_rate"] = table["SUPERIOR"] / (table["SUPERIOR"] + table["INFERIOR"])
     table = table[["win_rate"]].fillna(0.5)
-    table2 = pd.pivot_table(
-        table.reset_index(),
-        index="a",
-        columns="b",
-        values="win_rate",
-        margins=True,
-    )
-    print(table2)
-
     return table

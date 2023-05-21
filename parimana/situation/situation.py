@@ -5,6 +5,7 @@ from typing import (
     Generic,
     Mapping,
     Sequence,
+    Tuple,
     TypeVar,
 )
 from dataclasses import dataclass
@@ -40,14 +41,16 @@ class Situation(Generic[T]):
     def scores(self) -> Mapping[T, int]:
         return {c: self._calc_score(c) for c in self.members}
 
+    @cached_property
+    def relations_bidirection(self) -> Collection[Relation[T]]:
+        return [
+            Relation(a, b, superiority)
+            for a, dict_a in self.superiorities.items()
+            for b, superiority in dict_a.items()
+        ]
+
     def _calc_score(self, e: T) -> int:
         return sum((v.score for _, v in self.superiorities[e].items()))
-
-    def get_score(self, e: T) -> int:
-        return self.scores[e]
-
-    def get_score_exclude(self, e: T, exclude: T) -> int:
-        return self.get_score(e) - self.get_superiority(e, exclude).score
 
     def get_superiority(self, a: T, b: T) -> Superiority:
         return self.superiorities[a][b]
@@ -65,3 +68,17 @@ class Situation(Generic[T]):
 @dataclass(frozen=True)
 class Distribution(Generic[T]):
     situations: Sequence[Situation[T]]
+
+    @cached_property
+    def members(self) -> Sequence[T]:
+        return next(iter(self.situations)).members
+
+    @cached_property
+    def scores(self) -> Collection[Tuple[Situation[T], Mapping[T, int]]]:
+        return [(s, s.scores) for s in self.situations]
+
+    @cached_property
+    def relations_bidirection(
+        self,
+    ) -> Collection[Tuple[Situation[T], Collection[Relation[T]]]]:
+        return [(s, s.relations_bidirection) for s in self.situations]

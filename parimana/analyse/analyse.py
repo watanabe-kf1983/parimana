@@ -1,6 +1,6 @@
 from typing import TypeVar
 
-from parimana.analyse.distribution import DistributionForPandas
+from parimana.analyse.conversion import df_from_relations, df_from_scores
 from parimana.analyse.extract import extract_correlation, extract_win_rate
 
 from parimana.situation.situation import Comparable, Distribution
@@ -9,10 +9,17 @@ T = TypeVar("T", bound=Comparable)
 
 
 def analyse(dist: Distribution[T]) -> None:
-    dist_pd = DistributionForPandas(dist)
-    cor = extract_correlation(dist_pd.scores)
-    win_rates = extract_win_rate(dist_pd.relations)
+    scores_df = df_from_scores(dist.scores)
+    rel_df = df_from_relations(dist.relations_bidirection)
+    cor = extract_correlation(scores_df)
+    win_rates = extract_win_rate(rel_df)
+    print("scores_df")
+    print(scores_df)
+    print("rel_df")
+    print(rel_df)
+    print("cor")
     print(cor)
+    print("win_rates")
     print(win_rates)
 
     # 多次元構成法? で描画
