@@ -9,22 +9,24 @@ def extract_correlation(scores: pd.DataFrame) -> pd.DataFrame:
 
     scores["score_f"] = scores["score"] * scores["frequency"]
     gp = scores.groupby(["m"]).sum(numeric_only=True)
-    gp["ave"] = gp["score_f"] / gp["frequency"]
+    gp["mean"] = gp["score_f"] / gp["frequency"]
 
-    scores = scores.join(gp[["ave"]], on=("m"))
-    scores["delta"] = scores["score"] - scores["ave"]
-    scores["delta_sq_f"] = scores["delta"] ** 2 * scores["frequency"]
+    scores = scores.join(gp[["mean"]], on=("m"))
+    scores["deviation"] = scores["score"] - scores["mean"]
+    scores["deviation_sq_f"] = scores["deviation"] ** 2 * scores["frequency"]
 
     scores = pd.merge(scores, scores, on=["situation", "frequency"])
-    scores["multi_f"] = scores["delta_x"] * scores["delta_y"] * scores["frequency"]
+    scores["cov_f"] = (
+        scores["deviation_x"] * scores["deviation_y"] * scores["frequency"]
+    )
 
     gp = scores.groupby(["m_x", "m_y"])[
-        ["frequency", "delta_sq_f_x", "delta_sq_f_y", "multi_f"]
+        ["frequency", "deviation_sq_f_x", "deviation_sq_f_y", "cov_f"]
     ].sum(numeric_only=True)
-    gp["correlation"] = (
-        gp["multi_f"] / gp["delta_sq_f_x"] ** 0.5 / gp["delta_sq_f_y"] ** 0.5
+    gp["cor"] = (
+        gp["cov_f"] / gp["deviation_sq_f_x"] ** 0.5 / gp["deviation_sq_f_y"] ** 0.5
     )
-    gp = gp[["correlation"]]
+    gp = gp[["cor"]]
 
     return gp
 
