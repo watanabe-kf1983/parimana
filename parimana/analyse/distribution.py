@@ -1,6 +1,7 @@
 from functools import cached_property
 from typing import (
     Collection,
+    Dict,
     Generic,
     Mapping,
     Sequence,
@@ -52,7 +53,7 @@ class SituationForPandas(Generic[T]):
                 "m": m_str,
                 "score": self.situation.get_score(m),
             }
-            for (m, m_str) in self.members
+            for m, m_str in self.members
         ]
         return pd.DataFrame.from_records(records)
 
@@ -60,7 +61,12 @@ class SituationForPandas(Generic[T]):
 @dataclass(frozen=True)
 class DistributionForPandas(Generic[T]):
     distribution: Distribution[T]
-    members: Sequence[Tuple[T, str]]
+
+    def __post_init__(self) -> None:
+        members = [(m, str(m)) for m in self.distribution.situations[0].members]
+        member_dict = {k: v for v, k in members}
+        self.members: Sequence[Tuple[T, str]] = members
+        self.member_dict: Dict[str, T] = member_dict
 
     @cached_property
     def _situ_4pds(self) -> Collection[SituationForPandas[T]]:
@@ -75,10 +81,3 @@ class DistributionForPandas(Generic[T]):
     @cached_property
     def scores(self) -> pd.DataFrame:
         return pd.concat((s.scores for s in self._situ_4pds), ignore_index=True)
-
-
-def convert_to_dfs(distribution: Distribution[T]):
-    members = [(m, str(m)) for m in distribution.situations[0].members]
-    member_dict = {k: v for v, k in members}
-    dfp = DistributionForPandas(distribution, members)
-    return (dfp.scores, dfp.relations, member_dict)

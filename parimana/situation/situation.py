@@ -38,13 +38,16 @@ class Situation(Generic[T]):
 
     @cached_property
     def scores(self) -> Mapping[T, int]:
-        return {c: self._get_score(c) for c in self.members}
+        return {c: self._calc_score(c) for c in self.members}
 
-    def _get_score(self, e: T) -> int:
+    def _calc_score(self, e: T) -> int:
         return sum((v.score for _, v in self.superiorities[e].items()))
 
     def get_score(self, e: T) -> int:
         return self.scores[e]
+
+    def get_score_exclude(self, e: T, exclude: T) -> int:
+        return self.get_score(e) - self.get_superiority(e, exclude).score
 
     def get_superiority(self, a: T, b: T) -> Superiority:
         return self.superiorities[a][b]

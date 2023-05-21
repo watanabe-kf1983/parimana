@@ -13,8 +13,16 @@ def odds_from_text(text: str) -> Odds:
 
 
 def prepare_dist():
-    race = Race.no_absences(5, "少頭数")
-    odds_data = ["1=2: 1.5", "1=3: 3.0", "1=4: 4.0", "1-2-3: 2.0", "2-1-3: 2.0"]
+    race = Race.no_absences(8, "少頭数")
+    odds_data = [
+        "1=2: 1.5",
+        "1=3: 3.0",
+        "1=4: 4.0",
+        "1-2-3: 2.0",
+        "2-1-3: 2.0",
+        "5-6-7: 100.0",
+        "4-6-7: 200.0",
+    ]
     odds = [odds_from_text(t) for t in odds_data]
     ratio_data = {BettingType.QUINELLA: 0.3, BettingType.TRIFECTA: 0.7}
     vote_total = 1000
