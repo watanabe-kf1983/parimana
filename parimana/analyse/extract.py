@@ -2,33 +2,31 @@ import numpy as np
 import pandas as pd
 
 
-def extract_correlation(scores: pd.DataFrame) -> pd.DataFrame:
+def extract_correlation(df_scores: pd.DataFrame) -> pd.DataFrame:
     # 相関
     # https://toukeigaku-jouhou.info/2018/09/13/kind-of-correlation/
     # https://cogpsy.jp/win_rate/win_rate-content/uploads/COGPSY-TR-002.pdf
+    df = df_scores
 
-    scores["score_f"] = scores["score"] * scores["frequency"]
-    gp = scores.groupby(["m"]).sum(numeric_only=True)
-    gp["mean"] = gp["score_f"] / gp["frequency"]
+    df["score_f"] = df["score"] * df["frequency"]
+    mean_df = df.groupby(["m"]).sum(numeric_only=True)
+    mean_df["mean"] = mean_df["score_f"] / mean_df["frequency"]
+    mean_df = mean_df[["mean"]]
 
-    scores = scores.join(gp[["mean"]], on=("m"))
-    scores["deviation"] = scores["score"] - scores["mean"]
-    scores["deviation_sq_f"] = scores["deviation"] ** 2 * scores["frequency"]
+    df = df.join(mean_df, on=("m"))
+    df["dev"] = df["score"] - df["mean"]
+    df["dev_sq_f"] = df["dev"] ** 2 * df["frequency"]
 
-    scores = pd.merge(scores, scores, on=["situation", "frequency"])
-    scores["cov_f"] = (
-        scores["deviation_x"] * scores["deviation_y"] * scores["frequency"]
-    )
+    df = pd.merge(df, df, on=["situation", "frequency"])
+    df["cov_f"] = df["dev_x"] * df["dev_y"] * df["frequency"]
 
-    gp = scores.groupby(["m_x", "m_y"])[
-        ["frequency", "deviation_sq_f_x", "deviation_sq_f_y", "cov_f"]
-    ].sum(numeric_only=True)
-    gp["cor"] = (
-        gp["cov_f"] / gp["deviation_sq_f_x"] ** 0.5 / gp["deviation_sq_f_y"] ** 0.5
-    )
-    gp = gp[["cor"]]
+    cor = df.groupby(["m_x", "m_y"])
+    cor = cor[["dev_sq_f_x", "dev_sq_f_y", "cov_f"]].sum()
+    cor["cor"] = cor["cov_f"] / cor["dev_sq_f_x"] ** 0.5 / cor["dev_sq_f_y"] ** 0.5
+    cor = cor[["cor"]]
+    cor.index.names = ["a", "b"]
 
-    return gp
+    return cor
 
 
 def extract_win_rate(relations: pd.DataFrame) -> pd.DataFrame:
