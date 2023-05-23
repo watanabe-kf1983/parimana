@@ -1,8 +1,30 @@
+from typing import Collection, Mapping, Sequence, TypeVar, Tuple
 import numpy as np
 import pandas as pd
+from parimana.analyse.conversion import (
+    correlations_from_df,
+    win_rate_from_df,
+    df_from_relations,
+    df_from_scores,
+)
+
+from parimana.situation.compare import Comparable
+from parimana.situation.situation import Situation
+from parimana.situation.superiority import Relation
 
 
-def extract_correlation(df_scores: pd.DataFrame) -> pd.DataFrame:
+T = TypeVar("T", bound=Comparable)
+
+
+def extract_correlation(
+    scores: Collection[Tuple[Situation[T], Mapping[T, int]]], members: Sequence[T]
+) -> Mapping[Tuple[T, T], float]:
+    df_scores = df_from_scores(scores)
+    cor_df = extract_correlation_df(df_scores)
+    return correlations_from_df(cor_df, members)
+
+
+def extract_correlation_df(df_scores: pd.DataFrame) -> pd.DataFrame:
     # 相関
     # https://toukeigaku-jouhou.info/2018/09/13/kind-of-correlation/
     # https://cogpsy.jp/win_rate/win_rate-content/uploads/COGPSY-TR-002.pdf
@@ -29,9 +51,18 @@ def extract_correlation(df_scores: pd.DataFrame) -> pd.DataFrame:
     return cor
 
 
-def extract_win_rate(relations: pd.DataFrame) -> pd.DataFrame:
+def extract_win_rate(
+    relations: Collection[Tuple[Situation[T], Collection[Relation[T]]]],
+    members: Sequence[T],
+) -> Mapping[Tuple[T, T], float]:
+    df_rel = df_from_relations(relations)
+    wr_df = extract_win_rate_df(df_rel)
+    return win_rate_from_df(wr_df, members)
+
+
+def extract_win_rate_df(df_rel: pd.DataFrame) -> pd.DataFrame:
     table = pd.pivot_table(
-        relations,
+        df_rel,
         index=["a", "b"],
         columns="superiority_a",
         fill_value=0,

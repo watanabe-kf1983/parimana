@@ -24,7 +24,7 @@ class Situation(Generic[T]):
 
     @cached_property
     def members(self) -> Sequence[T]:
-        return sorted(({r.a for r in self.relations} | {r.b for r in self.relations}))
+        return sorted({r.a for r in self.relations})
 
     @cached_property
     def superiorities(
@@ -33,21 +33,11 @@ class Situation(Generic[T]):
         data: dict[T, dict[T, Superiority]] = defaultdict(dict)
         for r in self.relations:
             data[r.a][r.b] = r.sa
-            data[r.b][r.a] = r.sa.opposite
-
         return data
 
     @cached_property
     def scores(self) -> Mapping[T, int]:
         return {c: self._calc_score(c) for c in self.members}
-
-    @cached_property
-    def relations_bidirection(self) -> Collection[Relation[T]]:
-        return [
-            Relation(a, b, superiority)
-            for a, dict_a in self.superiorities.items()
-            for b, superiority in dict_a.items()
-        ]
 
     def _calc_score(self, e: T) -> int:
         return sum((v.score for _, v in self.superiorities[e].items()))
@@ -78,7 +68,7 @@ class Distribution(Generic[T]):
         return [(s, s.scores) for s in self.situations]
 
     @cached_property
-    def relations_bidirection(
+    def relations(
         self,
     ) -> Collection[Tuple[Situation[T], Collection[Relation[T]]]]:
-        return [(s, s.relations_bidirection) for s in self.situations]
+        return [(s, s.relations) for s in self.situations]

@@ -57,3 +57,51 @@ def df_from_scores(
         for m, s in mapping.items()
     ]
     return pd.DataFrame.from_records(records)
+
+
+def correlations_from_df(
+    df: pd.DataFrame, members: Sequence[T]
+) -> Mapping[Tuple[T, T], float]:
+    members_dict = members_mapping(members)
+    return {
+        (members_dict[index[0]], members_dict[index[1]]): cor
+        for index, cor in df.itertuples()
+    }
+
+
+def df_from_correlations(correlations: Mapping[Tuple[T, T], float]) -> pd.DataFrame:
+    return pd.DataFrame.from_records(
+        [
+            {
+                "a": str(k[0]),
+                "b": str(k[1]),
+                "cor": v,
+            }
+            for k, v in correlations.items()
+        ],
+        index=["a", "b"],
+    )
+
+
+def win_rate_from_df(
+    df: pd.DataFrame, members: Sequence[T]
+) -> Mapping[Tuple[T, T], float]:
+    members_dict = members_mapping(members)
+    return {
+        (members_dict[index[0]], members_dict[index[1]]): wr
+        for index, wr in df.itertuples()
+    }
+
+
+def df_from_win_rate(win_rate: Mapping[Tuple[T, T], float]) -> pd.DataFrame:
+    return pd.DataFrame.from_records(
+        [
+            {
+                "a": str(k[0]),
+                "b": str(k[1]),
+                "win_rate": v,
+            }
+            for k, v in win_rate.items()
+        ],
+        index=["a", "b"],
+    )

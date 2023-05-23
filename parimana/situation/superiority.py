@@ -45,10 +45,6 @@ class Relation(Generic[T]):
         if a == b and not superiority_a == Superiority.EQUALS:
             raise ValueError(f"a equals b but not equal:{a} {b} {superiority_a}")
 
-        if a > b:
-            superiority_a = superiority_a.opposite
-            a, b = b, a
-
         object.__setattr__(self, "a", (a))
         object.__setattr__(self, "b", (b))
         object.__setattr__(self, "sa", superiority_a)
@@ -67,8 +63,9 @@ def _iterate_relation_single(col: Collection[T]) -> Iterable[Relation[T]]:
     else:
         sp = Superiority.UNKNOWN
     i1 = (Relation(a, b, sp) for (a, b) in itertools.combinations(col, 2))
-    i2 = (Relation(a, a, Superiority.EQUALS) for a in col)
-    return itertools.chain(i1, i2)
+    i2 = (Relation(b, a, sp.opposite) for (a, b) in itertools.combinations(col, 2))
+    i3 = (Relation(a, a, Superiority.EQUALS) for a in col)
+    return itertools.chain(i1, i2, i3)
 
 
 def iterate_relation(*collections: Collection[T]) -> Iterable[Relation[T]]:
@@ -77,7 +74,12 @@ def iterate_relation(*collections: Collection[T]) -> Iterable[Relation[T]]:
         for (col_a, col_b) in itertools.combinations(collections, 2)
         for a, b in itertools.product(col_a, col_b)
     )
-    i2 = itertools.chain.from_iterable(
+    i2 = (
+        Relation(b, a, Superiority.INFERIOR)
+        for (col_a, col_b) in itertools.combinations(collections, 2)
+        for a, b in itertools.product(col_a, col_b)
+    )
+    i3 = itertools.chain.from_iterable(
         (_iterate_relation_single(col) for col in collections)
     )
-    return itertools.chain(i1, i2)
+    return itertools.chain(i1, i2, i3)
