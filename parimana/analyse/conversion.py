@@ -59,17 +59,17 @@ def df_from_scores(
     return pd.DataFrame.from_records(records)
 
 
-def correlations_from_df(
-    df: pd.DataFrame, members: Sequence[T]
+def correlations_from_sr(
+    sr: pd.Series, members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
     members_dict = members_mapping(members)
     return {
         (members_dict[index[0]], members_dict[index[1]]): cor
-        for index, cor in df.itertuples()
+        for index, cor in sr.items()
     }
 
 
-def df_from_correlations(correlations: Mapping[Tuple[T, T], float]) -> pd.DataFrame:
+def sr_from_correlations(correlations: Mapping[Tuple[T, T], float]) -> pd.Series:
     return pd.DataFrame.from_records(
         [
             {
@@ -80,20 +80,19 @@ def df_from_correlations(correlations: Mapping[Tuple[T, T], float]) -> pd.DataFr
             for k, v in correlations.items()
         ],
         index=["a", "b"],
-    )
+    )["cor"].rename("cor")
 
 
-def win_rate_from_df(
-    df: pd.DataFrame, members: Sequence[T]
+def win_rate_from_sr(
+    sr: pd.Series, members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
     members_dict = members_mapping(members)
     return {
-        (members_dict[index[0]], members_dict[index[1]]): wr
-        for index, wr in df.itertuples()
+        (members_dict[index[0]], members_dict[index[1]]): wr for index, wr in sr.items()
     }
 
 
-def df_from_win_rate(win_rate: Mapping[Tuple[T, T], float]) -> pd.DataFrame:
+def sr_from_win_rate(win_rate: Mapping[Tuple[T, T], float]) -> pd.Series:
     return pd.DataFrame.from_records(
         [
             {
@@ -104,4 +103,4 @@ def df_from_win_rate(win_rate: Mapping[Tuple[T, T], float]) -> pd.DataFrame:
             for k, v in win_rate.items()
         ],
         index=["a", "b"],
-    )
+    )["win_rate"].rename("win_rate")

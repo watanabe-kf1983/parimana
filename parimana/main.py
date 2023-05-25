@@ -22,12 +22,18 @@ def prepare_dist():
         "2-1-3: 2.0",
         "5-6-7: 100.0",
         "4-6-7: 200.0",
+        "1: 1.1",
+        "3: 100.0",
+        "7: 300.0",
+        "8: 200.0",
     ]
     odds = [odds_from_text(t) for t in odds_data]
-    ratio_data = {BettingType.QUINELLA: 0.3, BettingType.TRIFECTA: 0.7}
+    ratio_data = {
+        BettingType.QUINELLA: 0.3,
+        BettingType.TRIFECTA: 0.6,
+        BettingType.WIN: 0.1,
+    }
     vote_total = 1000
-    # vote_expected_data =
-    # ["1=2: 160", "1=3: 80", "1=4: 60", "1-2-3: 350", "2-1-3: 350"]
 
     return race.destribution_from_odds(
         odds=odds, ratio=VoteTallyByType(ratio_data, vote_total)
@@ -36,7 +42,8 @@ def prepare_dist():
 
 def main():
     dist = prepare_dist()
-    analyse(dist)
+    model = analyse(dist)
+    print(model)
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@ from typing import Collection, Mapping, Sequence, TypeVar, Tuple
 import numpy as np
 import pandas as pd
 from parimana.analyse.conversion import (
-    correlations_from_df,
-    win_rate_from_df,
+    correlations_from_sr,
+    win_rate_from_sr,
     df_from_relations,
     df_from_scores,
 )
@@ -20,35 +20,35 @@ def extract_correlation(
     scores: Collection[Tuple[Situation[T], Mapping[T, int]]], members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
     df_scores = df_from_scores(scores)
-    cor_df = extract_correlation_df(df_scores)
-    return correlations_from_df(cor_df, members)
+    cor_df = extract_correlation_sr(df_scores)
+    return correlations_from_sr(cor_df, members)
 
 
-def extract_correlation_df(df_scores: pd.DataFrame) -> pd.DataFrame:
+def extract_correlation_sr(df_scores: pd.DataFrame) -> pd.Series:
     # 相関
     # https://toukeigaku-jouhou.info/2018/09/13/kind-of-correlation/
     # https://cogpsy.jp/win_rate/win_rate-content/uploads/COGPSY-TR-002.pdf
     df = df_scores
 
     df["score_f"] = df["score"] * df["frequency"]
-    mean_df = df.groupby(["m"]).sum(numeric_only=True)
-    mean_df["mean"] = mean_df["score_f"] / mean_df["frequency"]
-    mean_df = mean_df[["mean"]]
+    sum_by_m = df.groupby(["m"]).sum(numeric_only=True)
+    mean_by_m = (sum_by_m["score_f"] / sum_by_m["frequency"]).rename("mean_by_m")
 
-    df = df.join(mean_df, on=("m"))
-    df["dev"] = df["score"] - df["mean"]
+    df = df.join(mean_by_m, on=("m"))
+    df["dev"] = df["score"] - df["mean_by_m"]
     df["dev_sq_f"] = df["dev"] ** 2 * df["frequency"]
 
-    df = pd.merge(df, df, on=["situation", "frequency"])
-    df["cov_f"] = df["dev_x"] * df["dev_y"] * df["frequency"]
+    mx = pd.merge(df, df, on=["situation", "frequency"])
+    mx["cov_f"] = mx["dev_x"] * mx["dev_y"] * mx["frequency"]
 
-    cor = df.groupby(["m_x", "m_y"])
-    cor = cor[["dev_sq_f_x", "dev_sq_f_y", "cov_f"]].sum()
-    cor["cor"] = cor["cov_f"] / cor["dev_sq_f_x"] ** 0.5 / cor["dev_sq_f_y"] ** 0.5
-    cor = cor[["cor"]]
-    cor.index.names = ["a", "b"]
+    sum_by_xy = mx.groupby(["m_x", "m_y"]).sum()
+    cor = (
+        sum_by_xy["cov_f"]
+        / sum_by_xy["dev_sq_f_x"] ** 0.5
+        / sum_by_xy["dev_sq_f_y"] ** 0.5
+    )
 
-    return cor
+    return cor.rename_axis(["a", "b"])
 
 
 def extract_win_rate(
@@ -56,11 +56,11 @@ def extract_win_rate(
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:
     df_rel = df_from_relations(relations)
-    wr_df = extract_win_rate_df(df_rel)
-    return win_rate_from_df(wr_df, members)
+    wr_sr = extract_win_rate_sr(df_rel)
+    return win_rate_from_sr(wr_sr, members)
 
 
-def extract_win_rate_df(df_rel: pd.DataFrame) -> pd.DataFrame:
+def extract_win_rate_sr(df_rel: pd.DataFrame) -> pd.Series:
     table = pd.pivot_table(
         df_rel,
         index=["a", "b"],
@@ -69,7 +69,6 @@ def extract_win_rate_df(df_rel: pd.DataFrame) -> pd.DataFrame:
         values="frequency",
         aggfunc=np.sum,
     )
-    table.columns.name = ""
-    table["win_rate"] = table["SUPERIOR"] / (table["SUPERIOR"] + table["INFERIOR"])
-    table = table[["win_rate"]].fillna(0.5)
-    return table
+    # table.columns.name = ""
+    win_rate = table["SUPERIOR"] / (table["SUPERIOR"] + table["INFERIOR"])
+    return win_rate.fillna(0.5).rename("win_rate")
