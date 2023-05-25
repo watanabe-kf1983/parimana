@@ -3,10 +3,10 @@ from dataclasses import dataclass
 import pandas as pd
 import scipy.stats
 
-import parimana.analyse.normal_dist as nd
+import parimana.normal_dist.normal_dist as nd
 
 
-def estimate_ability_gap_mtx(
+def _estimate_ability_gap_mtx(
     corwr_df: pd.DataFrame, uncertainty: pd.Series
 ) -> pd.Series:
     uncertainty = uncertainty.rename("unc")
@@ -31,8 +31,8 @@ class UMapScore:
     u_map_suggest: pd.Series
 
 
-def evaluate_u_map(corwr_df: pd.DataFrame, u_map: pd.Series) -> UMapScore:
-    gap_mtx = estimate_ability_gap_mtx(corwr_df, u_map)
+def _evaluate_u_map(corwr_df: pd.DataFrame, u_map: pd.Series) -> UMapScore:
+    gap_mtx = _estimate_ability_gap_mtx(corwr_df, u_map)
     gap_mtx_std = gap_mtx.groupby("a").std().rename_axis("m")
     gap_mtx_std_gmean = scipy.stats.mstats.gmean(gap_mtx_std.values)
     u_map_suggest = u_map * gap_mtx_std_gmean / gap_mtx_std
@@ -47,13 +47,13 @@ def find_uncertainty_map(corwr_df: pd.DataFrame) -> pd.Series:
     score = UMapScore(u_map=None, score=float("inf"), u_map_suggest=umap_initial)
 
     while True:
-        score_prev, score = score, evaluate_u_map(corwr_df, score.u_map_suggest)
+        score_prev, score = score, _evaluate_u_map(corwr_df, score.u_map_suggest)
         if score_prev.score <= score.score:
             return score_prev.u_map
 
 
 def estimate_ability_map(corwr_df: pd.DataFrame, u_map: pd.Series) -> pd.Series:
-    mtx = estimate_ability_gap_mtx(corwr_df, u_map)
+    mtx = _estimate_ability_gap_mtx(corwr_df, u_map)
     mean = mtx.groupby("a").mean().rename("mean")
     df = mtx.to_frame().join(mean, on="a")
     std_ability_gap = df["ability_gap"] - df["mean"]

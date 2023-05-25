@@ -1,7 +1,10 @@
 import math
 
 import pytest
-from parimana.analyse.normal_dist import estimate_mean_delta, estimate_mean_delta_slow
+from parimana.normal_dist.normal_dist import (
+    estimate_mean_delta,
+    estimate_mean_delta_slow,
+)
 
 
 @pytest.mark.parametrize(
