@@ -7,7 +7,7 @@ from typing import (
     Sequence,
     TypeVar,
 )
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import itertools
 
 from parimana.situation.compare import Comparable
@@ -37,17 +37,13 @@ class Superiority(Enum):
 
 @dataclass(frozen=True, order=True)
 class Relation(Generic[T]):
-    a: T = field(init=False)
-    b: T = field(init=False)
-    sa: Superiority = field(init=False)
+    a: T
+    b: T
+    sa: Superiority
 
-    def __init__(self, a: T, b: T, superiority_a: Superiority):
-        if a == b and not superiority_a == Superiority.EQUALS:
-            raise ValueError(f"a equals b but not equal:{a} {b} {superiority_a}")
-
-        object.__setattr__(self, "a", (a))
-        object.__setattr__(self, "b", (b))
-        object.__setattr__(self, "sa", superiority_a)
+    def __post_init__(self):
+        if self.a == self.b and not self.sa == Superiority.EQUALS:
+            raise ValueError(f"a equals b but not equal:{self.a} {self.b} {self.sa}")
 
     @cached_property
     def record(self):
