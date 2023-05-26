@@ -59,6 +59,23 @@ def df_from_scores(
     return pd.DataFrame.from_records(records)
 
 
+def df_from_scores_mtx(
+    scores: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]]
+) -> pd.DataFrame:
+    records = [
+        record_from_situation(situation)
+        | {
+            "a": str(m[0]),
+            "b": str(m[1]),
+            "score_a": s[0],
+            "score_b": s[1],
+        }
+        for situation, mapping in scores
+        for m, s in mapping.items()
+    ]
+    return pd.DataFrame.from_records(records)
+
+
 def correlations_from_sr(
     sr: pd.Series, members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:

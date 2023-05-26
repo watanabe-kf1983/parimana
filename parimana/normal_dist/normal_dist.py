@@ -37,3 +37,9 @@ def estimate_mean_delta(pp: float, sd_x: float, sd_y: float, cor: float) -> floa
     # 理屈はわからないけど結果としてこれでestimate_mean_delta_slowと同じ計算ができた
     scale = (sd_x**2 + sd_y**2 - 2 * cor * sd_x * sd_y) ** (0.5)
     return scipy.stats.norm.ppf(pp, loc=0, scale=scale)
+
+
+def simulate(mean: np.ndarray, cov: np.ndarray, n: int, step: int = 1_000_000):
+    for i in range(0, n, step):
+        size = min(step, n - i)
+        yield scipy.stats.multivariate_normal.rvs(mean=mean, cov=cov, size=size)

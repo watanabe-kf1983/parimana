@@ -42,6 +42,20 @@ class Situation(Generic[T]):
     def _calc_score(self, e: T) -> int:
         return sum((v.score for _, v in self.superiorities[e].items()))
 
+    def _get_score(self, e: T) -> int:
+        return self.scores[e]
+
+    def _calc_score_exclude(self, e: T, exclude: T) -> int:
+        return self._get_score(e) - self.get_superiority(e, exclude).score
+
+    @cached_property
+    def scores_matrix(self) -> Mapping[Tuple[T, T], Tuple[int, int]]:
+        return {
+            (a, b): (self._calc_score_exclude(a, b), self._calc_score_exclude(b, a))
+            for a in self.members
+            for b in self.members
+        }
+
     def get_superiority(self, a: T, b: T) -> Superiority:
         return self.superiorities[a][b]
 
@@ -66,6 +80,12 @@ class Distribution(Generic[T]):
     @cached_property
     def scores(self) -> Collection[Tuple[Situation[T], Mapping[T, int]]]:
         return [(s, s.scores) for s in self.situations]
+
+    @cached_property
+    def scores_matrix(
+        self,
+    ) -> Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]]:
+        return [(s, s.scores_matrix) for s in self.situations]
 
     @cached_property
     def relations(

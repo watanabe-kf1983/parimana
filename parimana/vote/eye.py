@@ -54,3 +54,16 @@ class Eye:
 
     def __str__(self):
         return self.text
+
+
+def eyes(arrival: Sequence[str]) -> Collection[Eye]:
+    return [eye(arrival, t) for t in BettingType]
+
+
+def eye(arrival: Sequence[str], t: BettingType) -> Eye:
+    won = arrival[: t.size]
+    if t.sequencial:
+        return Eye("-".join(won))
+    else:
+        won = sorted(won)
+        return Eye("=".join(won))
