@@ -9,9 +9,9 @@ from parimana.analyse.conversion import (
     df_from_scores,
 )
 
-from parimana.situation.compare import Comparable
-from parimana.situation.situation import Situation
-from parimana.situation.superiority import Relation
+from parimana.base.compare import Comparable
+from parimana.base.situation import Situation
+from parimana.base.superiority import Relation
 
 
 T = TypeVar("T", bound=Comparable)

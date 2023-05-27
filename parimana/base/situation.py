@@ -10,8 +10,8 @@ from typing import (
 )
 from dataclasses import dataclass
 
-from parimana.situation.compare import Comparable
-from parimana.situation.superiority import Superiority, Relation, iterate_relation
+from parimana.base.compare import Comparable
+from parimana.base.superiority import Superiority, Relation, iterate_relation
 
 T = TypeVar("T", bound=Comparable)
 

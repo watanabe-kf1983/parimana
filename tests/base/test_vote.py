@@ -1,5 +1,5 @@
-from parimana.vote.eye import BettingType, Eye
-from parimana.vote.vote import (
+from parimana.base.eye import BettingType, Eye
+from parimana.base.vote import (
     calc_vote_tally,
 )
 

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pandas as pd
 import scipy.stats
 
-import parimana.normal_dist.normal_dist as nd
+import parimana.analyse.normal_dist as nd
 
 
 def _estimate_ability_gap_mtx(

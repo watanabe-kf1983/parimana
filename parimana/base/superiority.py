@@ -10,7 +10,7 @@ from typing import (
 from dataclasses import dataclass
 import itertools
 
-from parimana.situation.compare import Comparable
+from parimana.base.compare import Comparable
 
 T = TypeVar("T", bound=Comparable)
 

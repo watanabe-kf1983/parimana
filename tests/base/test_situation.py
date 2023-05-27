@@ -1,5 +1,5 @@
-from parimana.situation.superiority import Superiority
-from parimana.situation.situation import Situation
+from parimana.base.superiority import Superiority
+from parimana.base.situation import Situation
 
 
 def test_situation_score():

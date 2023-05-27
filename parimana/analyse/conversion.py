@@ -9,9 +9,9 @@ from typing import (
 
 import pandas as pd
 
-from parimana.situation.compare import Comparable
-from parimana.situation.situation import Situation
-from parimana.situation.superiority import Relation
+from parimana.base.compare import Comparable
+from parimana.base.situation import Situation
+from parimana.base.superiority import Relation
 
 
 T = TypeVar("T", bound=Comparable)

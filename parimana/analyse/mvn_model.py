@@ -5,9 +5,9 @@ from typing import Generic, Mapping, Sequence, Tuple, TypeVar
 import numpy as np
 import pandas as pd
 
-from parimana.situation.situation import Comparable
-import parimana.normal_dist.normal_dist as nd
-from parimana.vote.eye import Eye, eyes
+from parimana.base.situation import Comparable
+from parimana.base.eye import Eye, eyes
+import parimana.analyse.normal_dist as nd
 
 
 T = TypeVar("T", bound=Comparable)
@@ -54,7 +54,7 @@ class MvnModel(Generic[T]):
             self._covariance_sr.to_frame(), index="a", columns="b"
         ).values
 
-    def simulate(self, n: float) -> Mapping[Eye, float]:
+    def simulate(self, n: int) -> Mapping[Eye, float]:
         mean = self.a_map.values
         cov = self._covariance_mtx
 

@@ -1,4 +1,4 @@
-from parimana.situation.superiority import iterate_relation
+from parimana.base.superiority import iterate_relation
 
 
 def test_iteration_trifecta():

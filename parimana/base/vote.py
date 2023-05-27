@@ -2,7 +2,7 @@ from typing import Mapping
 
 import pandas as pd
 
-from parimana.vote.eye import BettingType, Eye
+from parimana.base.eye import BettingType, Eye
 
 
 def vote_ratio_to_tally(

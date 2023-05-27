@@ -5,9 +5,9 @@ from typing import (
 from dataclasses import dataclass
 
 
-from parimana.vote.eye import BettingType, Eye
-from parimana.vote.vote import calc_vote_tally
-from parimana.situation.situation import Situation, Distribution
+from parimana.base.eye import BettingType, Eye
+from parimana.base.vote import calc_vote_tally
+from parimana.base.situation import Situation, Distribution
 
 T = TypeVar("T")
 

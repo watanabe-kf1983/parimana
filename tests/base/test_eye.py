@@ -1,5 +1,5 @@
 import pytest
-from parimana.vote.eye import Eye, BettingType
+from parimana.base.eye import Eye, BettingType
 
 
 def test_betting_type():

@@ -1,9 +1,9 @@
 from typing import Mapping, Sequence, Tuple, TypeVar
 
 
+from parimana.base.situation import Comparable, Distribution
 from parimana.analyse.conversion import sr_from_correlations, sr_from_win_rate
 from parimana.analyse.extract import (
-    extract_correlation,
     extract_correlation2,
     extract_win_rate,
 )
@@ -11,8 +11,7 @@ from parimana.analyse.ability import (
     estimate_ability_map,
     find_uncertainty_map,
 )
-from parimana.model.mvn_model import MvnModel
-from parimana.situation.situation import Comparable, Distribution
+from parimana.analyse.mvn_model import MvnModel
 
 
 T = TypeVar("T", bound=Comparable)

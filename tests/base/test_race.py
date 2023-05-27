@@ -1,6 +1,6 @@
 import pytest
-from parimana.vote.eye import Eye
-from parimana.race.race import Race
+from parimana.base.eye import Eye
+from parimana.base.race import Race
 
 
 def test_race():
