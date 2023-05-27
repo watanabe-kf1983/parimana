@@ -46,10 +46,12 @@ def find_uncertainty_map(corwr_df: pd.DataFrame) -> pd.Series:
     ).rename_axis("m")
     score = UMapScore(u_map=None, score=float("inf"), u_map_suggest=umap_initial)
 
-    while True:
+    for i in range(50):
         score_prev, score = score, _evaluate_u_map(corwr_df, score.u_map_suggest)
         if score_prev.score <= score.score:
             return score_prev.u_map
+
+    return score.u_map
 
 
 def estimate_ability_map(corwr_df: pd.DataFrame, u_map: pd.Series) -> pd.Series:

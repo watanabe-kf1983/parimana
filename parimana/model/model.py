@@ -9,12 +9,12 @@ T = TypeVar("T", bound=Comparable)
 
 
 @dataclass(frozen=True)
-class Results:
+class ChanceOfHit:
     eye: Eye
-    frequency: float
+    chance: float
 
 
 class Model(ABC, Generic[T]):
     @abstractmethod
-    def simulate(self, n: float) -> Collection[Results]:
+    def simulate(self, n: float) -> Collection[ChanceOfHit]:
         pass

@@ -1,3 +1,4 @@
+from typing import Collection
 import pandas as pd
 from parimana.analyse.analyse import analyse
 from parimana.race.race import Race
@@ -13,9 +14,7 @@ def odds_from_text(text: str) -> Odds:
     return Odds(Eye(splitted[0]), float(splitted[1]))
 
 
-def prepare_dist():
-    race = Race.no_absences(18, "日本ダービー")
-
+def prepare_odds() -> Collection[Odds]:
     # odds_data = [
     #     "1=2: 1.5",
     #     "1=3: 3.0",
@@ -31,32 +30,40 @@ def prepare_dist():
     # ]
     # odds = [odds_from_text(t) for t in odds_data]
     odds_data = {
-        "05": 2.9,
-        "02": 4.6,
-        "14": 7.7,
-        "12": 8.1,
-        "18": 15.7,
-        "11": 19.7,
-        "06": 23.3,
-        "08": 24.6,
-        "10": 29.5,
-        "04": 30.9,
-        "17": 31.1,
-        "07": 32.4,
-        "01": 41.2,
-        "15": 43.9,
-        "13": 44.4,
-        "16": 59.1,
-        "03": 68,
-        "09": 133.4,
+        "05": 1.6,
+        "02": 6.0,
+        "14": 7.0,
+        "12": 9.9,
+        "10": 20.4,
+        "11": 28.1,
+        "17": 28.8,
+        "18": 40.5,
+        "04": 45.4,
+        "01": 54.8,
+        "15": 92.6,
+        "08": 93.8,
+        "06": 94.8,
+        "07": 104.0,
+        "13": 117.8,
+        "16": 150.4,
+        "03": 182.7,
+        "09": 388.2,
     }
-    odds = [Odds(Eye(k), v) for k, v in odds_data.items()]
+    return [Odds(Eye(k), v) for k, v in odds_data.items()]
+
+
+def prepare_dist(odds: Collection[Odds]):
+    race = Race.no_absences(18, "日本ダービー")
+
     ratio_data = {
-        BettingType.QUINELLA: 0.0,
-        BettingType.TRIFECTA: 0.0,
-        BettingType.WIN: 1.0,
+        # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9
+        BettingType.WIN: 6.9,
+        BettingType.QUINELLA: 13.3,
+        BettingType.EXACTA: 5.7,
+        BettingType.TRIO: 21.7,
+        BettingType.TRIFECTA: 29.0,
     }
-    vote_total = 1_000_000
+    vote_total = 100_000_000
 
     return race.destribution_from_odds(
         odds=odds, ratio=VoteTallyByType(ratio_data, vote_total)
@@ -67,12 +74,19 @@ def main():
     with pd.option_context(
         "display.max_rows", None, "display.max_columns", None
     ):  # more options can be specified also
-        dist = prepare_dist()
+        print("preparing...")
+        odds = prepare_odds()
+        dist = prepare_dist(odds)
+        print("analysing...")
         model = analyse(dist)
+        print(model.abilities)
+        print(model.correlations)
+        print(model.covariances)
 
-        result = model.simulate(10_000_000)
-
-        print(result)
+        print("simulating...")
+        chance = model.simulate(10_000_000)
+        print("done.")
+        # print(chance)
 
     # 与えられたオッズとの比を計算
     # 与えられたオッズとの比を計算

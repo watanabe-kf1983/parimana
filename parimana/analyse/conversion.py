@@ -65,13 +65,13 @@ def df_from_scores_mtx(
     records = [
         record_from_situation(situation)
         | {
-            "a": str(m[0]),
-            "b": str(m[1]),
-            "score_a": s[0],
-            "score_b": s[1],
+            "a": str(a),
+            "b": str(b),
+            "score_a": sa,
+            "score_b": sb,
         }
         for situation, mapping in scores
-        for m, s in mapping.items()
+        for (a, b), (sa, sb) in mapping.items()
     ]
     return pd.DataFrame.from_records(records)
 
@@ -80,21 +80,18 @@ def correlations_from_sr(
     sr: pd.Series, members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
     members_dict = members_mapping(members)
-    return {
-        (members_dict[index[0]], members_dict[index[1]]): cor
-        for index, cor in sr.items()
-    }
+    return {(members_dict[a], members_dict[b]): cor for (a, b), cor in sr.items()}
 
 
 def sr_from_correlations(correlations: Mapping[Tuple[T, T], float]) -> pd.Series:
     return pd.DataFrame.from_records(
         [
             {
-                "a": str(k[0]),
-                "b": str(k[1]),
+                "a": str(a),
+                "b": str(b),
                 "cor": v,
             }
-            for k, v in correlations.items()
+            for (a, b), v in correlations.items()
         ],
         index=["a", "b"],
     )["cor"].rename("cor")
@@ -113,11 +110,11 @@ def sr_from_win_rate(win_rate: Mapping[Tuple[T, T], float]) -> pd.Series:
     return pd.DataFrame.from_records(
         [
             {
-                "a": str(k[0]),
-                "b": str(k[1]),
+                "a": str(a),
+                "b": str(b),
                 "win_rate": v,
             }
-            for k, v in win_rate.items()
+            for (a, b), v in win_rate.items()
         ],
         index=["a", "b"],
     )["win_rate"].rename("win_rate")

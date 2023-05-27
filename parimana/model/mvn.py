@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generic, Sequence, TypeVar
+from typing import Any, Generic, Mapping, Sequence, Tuple, TypeVar
 from parimana.model.model import Model
 from parimana.situation.situation import Comparable
 
@@ -9,45 +9,30 @@ T = TypeVar("T", bound=Comparable)
 
 
 @dataclass(frozen=True)
-class Ability(Generic[T]):
-    contestant: T
-    ability: float
+class Ability:
+    expected_value: float
     uncertainty: float
-
-
-@dataclass(frozen=True)
-class Correlation(Generic[T]):
-    a: T
-    b: T
-    correlation: float
-
-
-@dataclass(frozen=True)
-class Covariance(Generic[T]):
-    a: T
-    b: T
-    covariance: float
 
 
 # multivariate_normal
 class MvnModel(Model[T]):
     @property
     @abstractmethod
-    def correlations(self) -> Sequence[Correlation[T]]:
+    def correlations(self) -> Mapping[Tuple[T, T], float]:
         pass
 
     @property
     @abstractmethod
-    def abilities(self) -> Sequence[Ability[T]]:
+    def abilities(self) -> Mapping[T, Ability]:
         pass
 
     @property
     @abstractmethod
-    def vc_matrix(self) -> Sequence[Covariance[T]]:
+    def covariances(self) -> Mapping[Tuple[T, T], float]:
         pass
 
-    @property
-    @abstractmethod
-    def correlations_map(self) -> Any:
-        # 多次元構成法? で描画
-        pass
+    # @property
+    # @abstractmethod
+    # def correlations_map(self) -> Any:
+    #     # 多次元構成法? で描画
+    #     pass

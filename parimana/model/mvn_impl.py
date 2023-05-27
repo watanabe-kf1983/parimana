@@ -1,13 +1,14 @@
 from dataclasses import dataclass
-from typing import Any, Collection, Sequence, TypeVar
-import numpy as np
+from functools import cached_property
+from typing import Mapping, Sequence, Tuple, TypeVar
 
+import numpy as np
 import pandas as pd
-from parimana.model.model import Results
-from parimana.model.mvn import Ability, Correlation, Covariance, MvnModel
+
 from parimana.situation.situation import Comparable
 import parimana.normal_dist.normal_dist as nd
-from parimana.vote.eye import eyes
+from parimana.vote.eye import Eye, eyes
+from parimana.model.mvn import Ability, MvnModel
 
 
 T = TypeVar("T", bound=Comparable)
@@ -20,14 +21,18 @@ class MvnModelImpl(MvnModel[T]):
     a_map: pd.Series
     members: Sequence[T]
 
-    def simulate(self, n: float) -> Collection[Results]:
+    @cached_property
+    def _member_dict(self) -> Mapping[str, T]:
+        return {str(m): m for m in self.members}
+
+    def _member_from_name(self, name: str) -> T:
+        return self._member_dict[name]
+
+    @cached_property
+    def _covariance_sr(self) -> pd.Series:
         cor_sr = self.cor_sr.rename("cor")
         u_map = self.u_map.rename("unc")
-        print(self.a_map)
-        print(u_map)
-        print(cor_sr)
-        mean = self.a_map.values
-        cov_sr = (
+        return (
             cor_sr.to_frame()
             .join(u_map, on="a")
             .join(u_map, on="b", rsuffix="_b")
@@ -37,49 +42,63 @@ class MvnModelImpl(MvnModel[T]):
             )
             .rename("cov")
         )
-        cov = pd.pivot_table(cov_sr.to_frame(), index="a", columns="b").values
 
-        print("simulate start")
-        trifecta_columns = ["1st", "2nd", "3rd"]
-        trifecta_index = pd.MultiIndex.from_tuples([], names=trifecta_columns)
-        trifecta_count = pd.Series([], index=trifecta_index)
-        for results in nd.simulate(mean, cov, n):
-            trifecta_df = pd.DataFrame(
-                np.argsort(results)[:, :3], columns=trifecta_columns
+    @cached_property
+    def _covariance_mtx(self) -> np.ndarray:
+        return pd.pivot_table(
+            self._covariance_sr.to_frame(), index="a", columns="b"
+        ).values
+
+    def simulate(self, n: float) -> Mapping[Eye, float]:
+        mean = self.a_map.values
+        cov = self._covariance_mtx
+
+        columns = ["1st", "2nd", "3rd"]
+        trifecta_count = pd.Series(
+            [], index=pd.MultiIndex.from_tuples([], names=columns)
+        )
+        for results in nd.simulate(mean, cov, n, step=1_000_000):
+            trifecta_df = pd.DataFrame(np.argsort(results)[:, :3], columns=columns)
+            trifecta_count = trifecta_count.add(
+                trifecta_df.groupby(columns).size(), fill_value=0
             )
-            sr = trifecta_df.groupby(trifecta_columns).size()
-            trifecta_count = trifecta_count.add(sr, fill_value=0)
-            print(".")
 
-        # print(trifecta_count)
-        # res_list = [eyes_from_result(r, self.members) for r in results]
+        return self._calc_chance_of_hit(trifecta_count / n)
 
-        # 使って標準偏差行列から各馬の走破時計を取得
-        # 各馬の走破時計から順位を作成
-        # 順位から当たり馬券を判定
-        # 理想オッズを計算
+    def _calc_chance_of_hit(self, trif_prob: pd.Series) -> Mapping[Eye, float]:
+        trif_prob.index = trif_prob.index.map(
+            lambda idxes: tuple(str(self.members[i]) for i in idxes)
+        )
+        prob_by_eye = [
+            (eye.text, p) for trifecta, p in trif_prob.items() for eye in eyes(trifecta)
+        ]
+        chance_df = pd.DataFrame(prob_by_eye, columns=["eye", "prob"])
+        sr = chance_df.groupby(["eye"])["prob"].sum()
+        return {Eye(e): v for e, v in sr.items()}
 
-        trifecta_count.to_csv("trifecta.csv")
-        return trifecta_count
+    @cached_property
+    def correlations(self) -> Mapping[Tuple[T, T], float]:
+        return {
+            (self._member_from_name(a), self._member_from_name(b)): cor
+            for (a, b), cor in self.cor_sr.items()
+        }
 
-    @property
-    def correlations(self) -> Sequence[Correlation[T]]:
-        return []
+    @cached_property
+    def abilities(self) -> Mapping[T, Ability]:
+        df = self.a_map.rename("ev").to_frame().join(self.u_map.rename("unc"))
+        return {
+            (self._member_from_name(m)): Ability(ev, unc)
+            for m, ev, unc in df.itertuples()
+        }
 
-    @property
-    def abilities(self) -> Sequence[Ability[T]]:
-        return []
+    @cached_property
+    def covariances(self) -> Mapping[Tuple[T, T], float]:
+        return {
+            (self._member_from_name(a), self._member_from_name(b)): cov
+            for (a, b), cov in self._covariance_sr.items()
+        }
 
-    @property
-    def vc_matrix(self) -> Sequence[Covariance[T]]:
-        return []
-
-    @property
-    def correlations_map(self) -> Any:
-        # 多次元構成法? で描画
-        return []
-
-
-def eyes_from_result(result: np.ndarray, members: Sequence[T]) -> Sequence[T]:
-    mi_list = sorted(zip(members, result), key=lambda t: t[1])
-    return eyes([str(m) for m, i in mi_list])
+    # @property
+    # def correlations_map(self) -> Any:
+    #     # 多次元構成法? で描画
+    #     return []

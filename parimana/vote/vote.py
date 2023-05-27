@@ -46,8 +46,12 @@ class VoteTallyByType:
 
     @cached_property
     def df(self) -> pd.DataFrame:
+        sum_ = sum(self.vote_ratio.values())
         return pd.DataFrame.from_dict(
-            {k.name: [k.name, v, v * self.total] for k, v in self.vote_ratio.items()},
+            {
+                k.name: [k.name, v, v * self.total / sum_]
+                for k, v in self.vote_ratio.items()
+            },
             orient="index",
             columns=["type", "ratio", "vote_tally"],
         )
