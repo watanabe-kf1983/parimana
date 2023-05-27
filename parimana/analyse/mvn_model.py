@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from parimana.base.situation import Comparable
-from parimana.base.eye import Eye, eyes
+from parimana.base.eye import Eye
 import parimana.analyse.normal_dist as nd
 
 
@@ -75,7 +75,9 @@ class MvnModel(Generic[T]):
             lambda idxes: tuple(str(self.members[i]) for i in idxes)
         )
         prob_by_eye = [
-            (eye.text, p) for trifecta, p in trif_prob.items() for eye in eyes(trifecta)
+            (eye.text, p)
+            for trifecta, p in trif_prob.items()
+            for eye in Eye.eyes_from_names(trifecta)
         ]
         chance_df = pd.DataFrame(prob_by_eye, columns=["eye", "prob"])
         sr = chance_df.groupby(["eye"])["prob"].sum()

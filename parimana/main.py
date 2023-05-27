@@ -6,6 +6,7 @@ from parimana.analyse.analyse import analyse
 from parimana.base.race import Race
 from parimana.base.eye import BettingType, Eye
 from parimana.base.vote import calc_expected_dividend
+from parimana.scrape.netkeiba import scrape
 
 
 def prepare_odds() -> Mapping[Eye, float]:
@@ -65,6 +66,10 @@ def prepare_dist(odds: Mapping[Eye, float]):
 
 
 def main():
+    print(scrape())
+
+
+def analyse_():
     with pd.option_context(
         "display.max_rows", None, "display.max_columns", None
     ):  # more options can be specified also

@@ -47,15 +47,15 @@ class Eye:
     def __str__(self):
         return self.text
 
+    @classmethod
+    def eyes_from_names(cls, names: Sequence[str]) -> Collection["Eye"]:
+        return [cls.from_names(names, t) for t in BettingType]
 
-def eyes(arrival: Sequence[str]) -> Collection[Eye]:
-    return [eye(arrival, t) for t in BettingType]
-
-
-def eye(arrival: Sequence[str], t: BettingType) -> Eye:
-    won = arrival[: t.size]
-    if t.sequencial:
-        return Eye("-".join(won))
-    else:
-        won = sorted(won)
-        return Eye("=".join(won))
+    @classmethod
+    def from_names(cls, names: Sequence[str], t: BettingType) -> "Eye":
+        won = names[: t.size]
+        if t.sequencial:
+            return Eye("-".join(won))
+        else:
+            won = sorted(won)
+            return Eye("=".join(won))
