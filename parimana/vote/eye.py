@@ -44,14 +44,6 @@ class Eye:
         else:
             return {mapper(n) for n in self.names}
 
-    @cached_property
-    def record(self):
-        return {"eye": self.text, "type": self.type.name}
-
-    @classmethod
-    def from_record(cls, rec):
-        return Eye(rec["eye"])
-
     def __str__(self):
         return self.text
 

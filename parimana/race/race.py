@@ -1,13 +1,12 @@
 from typing import (
-    Collection,
     Mapping,
     TypeVar,
 )
 from dataclasses import dataclass
 
 
-from parimana.vote.eye import Eye
-from parimana.vote.vote import Odds, VoteTally, VoteTallyByType, calc_vote_tally
+from parimana.vote.eye import BettingType, Eye
+from parimana.vote.vote import calc_vote_tally
 from parimana.situation.situation import Situation, Distribution
 
 T = TypeVar("T")
@@ -42,14 +41,17 @@ class Race:
         return Situation.from_collections((selected, unselected), eye.text, frequency)
 
     def destribution(
-        self, vote_tallies: Collection[VoteTally]
+        self, vote_tallies: Mapping[Eye, float]
     ) -> Distribution[Contestant]:
-        return Distribution([self.situation(v.eye, v.amount) for v in vote_tallies])
+        return Distribution([self.situation(k, v) for k, v in vote_tallies.items()])
 
     def destribution_from_odds(
-        self, odds: Collection[Odds], ratio: VoteTallyByType
+        self,
+        odds: Mapping[Eye, float],
+        vote_ratio: Mapping[BettingType, float],
+        vote_tally_total: float,
     ) -> Distribution[Contestant]:
-        return self.destribution(calc_vote_tally(odds, ratio))
+        return self.destribution(calc_vote_tally(odds, vote_ratio, vote_tally_total))
 
     @classmethod
     def no_absences(cls, number_of_contestants: int, name="") -> "Race":

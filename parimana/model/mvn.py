@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generic, Mapping, Sequence, Tuple, TypeVar
+from typing import Mapping, Tuple, TypeVar
 from parimana.model.model import Model
 from parimana.situation.situation import Comparable
 

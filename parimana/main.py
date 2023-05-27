@@ -1,20 +1,13 @@
-from typing import Collection
+from typing import Mapping
+
 import pandas as pd
+
 from parimana.analyse.analyse import analyse
 from parimana.race.race import Race
 from parimana.vote.eye import BettingType, Eye
-from parimana.vote.vote import (
-    VoteTallyByType,
-    Odds,
-)
 
 
-def odds_from_text(text: str) -> Odds:
-    splitted = text.split(": ")
-    return Odds(Eye(splitted[0]), float(splitted[1]))
-
-
-def prepare_odds() -> Collection[Odds]:
+def prepare_odds() -> Mapping[Eye, float]:
     # odds_data = [
     #     "1=2: 1.5",
     #     "1=3: 3.0",
@@ -49,10 +42,10 @@ def prepare_odds() -> Collection[Odds]:
         "03": 182.7,
         "09": 388.2,
     }
-    return [Odds(Eye(k), v) for k, v in odds_data.items()]
+    return {Eye(k): v for k, v in odds_data.items()}
 
 
-def prepare_dist(odds: Collection[Odds]):
+def prepare_dist(odds: Mapping[Eye, float]):
     race = Race.no_absences(18, "日本ダービー")
 
     ratio_data = {
@@ -66,7 +59,7 @@ def prepare_dist(odds: Collection[Odds]):
     vote_total = 100_000_000
 
     return race.destribution_from_odds(
-        odds=odds, ratio=VoteTallyByType(ratio_data, vote_total)
+        odds=odds, vote_ratio=ratio_data, vote_tally_total=vote_total
     )
 
 
@@ -85,6 +78,7 @@ def main():
 
         print("simulating...")
         chance = model.simulate(10_000_000)
+
         print("done.")
         # print(chance)
 
