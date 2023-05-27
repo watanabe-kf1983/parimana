@@ -11,8 +11,7 @@ from parimana.analyse.ability import (
     estimate_ability_map,
     find_uncertainty_map,
 )
-from parimana.model.mvn import MvnModel
-from parimana.model.mvn_impl import MvnModelImpl
+from parimana.model.mvn_model import MvnModel
 from parimana.situation.situation import Comparable, Distribution
 
 
@@ -37,4 +36,4 @@ def estimate_model(
     corwr_df = cor_sr.to_frame().join(wr_sr)
     u_map = find_uncertainty_map(corwr_df)
     a_map = estimate_ability_map(corwr_df, u_map)
-    return MvnModelImpl(cor_sr, u_map, a_map, members)
+    return MvnModel(cor_sr, u_map, a_map, members)

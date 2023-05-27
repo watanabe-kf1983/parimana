@@ -5,6 +5,7 @@ import pandas as pd
 from parimana.analyse.analyse import analyse
 from parimana.race.race import Race
 from parimana.vote.eye import BettingType, Eye
+from parimana.vote.vote import calc_expected_dividend
 
 
 def prepare_odds() -> Mapping[Eye, float]:
@@ -79,8 +80,10 @@ def main():
         print("simulating...")
         chance = model.simulate(10_000_000)
 
+        expected = calc_expected_dividend(odds, chance)
+
         print("done.")
-        # print(chance)
+        print(expected)
 
     # 与えられたオッズとの比を計算
     # 与えられたオッズとの比を計算

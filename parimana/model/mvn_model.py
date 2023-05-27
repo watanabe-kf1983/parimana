@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Mapping, Sequence, Tuple, TypeVar
+from typing import Generic, Mapping, Sequence, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -8,14 +8,19 @@ import pandas as pd
 from parimana.situation.situation import Comparable
 import parimana.normal_dist.normal_dist as nd
 from parimana.vote.eye import Eye, eyes
-from parimana.model.mvn import Ability, MvnModel
 
 
 T = TypeVar("T", bound=Comparable)
 
 
+@dataclass(frozen=True)
+class Ability:
+    expected_value: float
+    uncertainty: float
+
+
 @dataclass
-class MvnModelImpl(MvnModel[T]):
+class MvnModel(Generic[T]):
     cor_sr: pd.Series
     u_map: pd.Series
     a_map: pd.Series
