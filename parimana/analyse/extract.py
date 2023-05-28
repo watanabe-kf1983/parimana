@@ -25,6 +25,10 @@ def extract_correlation(
     return correlations_from_sr(cor_df, members)
 
 
+def extract_correlation_none(members: Sequence[T]) -> Mapping[Tuple[T, T], float]:
+    return {(a, b): (1 if a == b else 0) for a in members for b in members}
+
+
 def extract_correlation2(
     scores_mtx: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], int]]],
     members: Sequence[T],

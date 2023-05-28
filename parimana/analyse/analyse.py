@@ -4,7 +4,7 @@ from typing import Mapping, Sequence, Tuple, TypeVar
 from parimana.base.situation import Comparable, Distribution
 from parimana.analyse.conversion import sr_from_correlations, sr_from_win_rate
 from parimana.analyse.extract import (
-    extract_correlation2,
+    extract_correlation_none,
     extract_win_rate,
 )
 from parimana.analyse.ability import (
@@ -20,9 +20,10 @@ T = TypeVar("T", bound=Comparable)
 def analyse(dist: Distribution[T]) -> MvnModel[T]:
     members = dist.members
     # cor = extract_correlation(dist.scores, members)
-    cor2 = extract_correlation2(dist.scores_matrix, members)
+    # cor2 = extract_correlation2(dist.scores_matrix, members)
+    cor_none = extract_correlation_none(members)
     win_rates = extract_win_rate(dist.relations, members)
-    return estimate_model(cor2, win_rates, members)
+    return estimate_model(cor_none, win_rates, members)
 
 
 def estimate_model(
