@@ -25,6 +25,10 @@ def odds_to_df(odds: Mapping[Eye, float]) -> pd.DataFrame:
     )
 
 
+def odds_to_csv(odds: Mapping[Eye, float], path) -> None:
+    odds_to_df(odds).reset_index().sort_values(by=["type", "eye"]).to_csv(path)
+
+
 def calc_vote_tally(
     odds: Mapping[Eye, float], vote_ratio: Mapping[BettingType, float], total: float
 ) -> Mapping[Eye, float]:
@@ -51,3 +55,30 @@ def calc_expected_dividend(
     )["chance"]
     ed = (odds_sr * chance_sr).dropna() * 100
     return {Eye(i): d for i, d in ed.items()}
+
+
+def _calc_expected_dividend_df(
+    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
+) -> pd.DataFrame:
+    odds_df = odds_to_df(odds)
+    chance_sr = pd.DataFrame.from_records(
+        [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
+    )["chance"]
+    ed = (odds_df["odds"] * chance_sr).dropna() * 100
+    return (
+        odds_df.join(chance_sr, how="outer")
+        .join(ed.rename("expected"), how="outer")
+        .sort_values(["type", "eye"])
+    )
+
+
+def calc_expected_dividend_to_csv(
+    odds: Mapping[Eye, float], chance: Mapping[Eye, float], path
+) -> None:
+    _calc_expected_dividend_df(odds, chance).to_csv(path)
+
+
+def calc_expected_dividend_to_xl(
+    odds: Mapping[Eye, float], chance: Mapping[Eye, float], path
+) -> None:
+    _calc_expected_dividend_df(odds, chance).to_excel(path)

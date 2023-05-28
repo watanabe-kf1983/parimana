@@ -1,29 +1,13 @@
 from typing import Mapping
 
-import pandas as pd
-
 from parimana.analyse.analyse import analyse
 from parimana.base.race import Race
 from parimana.base.eye import BettingType, Eye
-from parimana.base.vote import calc_expected_dividend
-from parimana.scrape.netkeiba import scrape
+from parimana.base.vote import calc_expected_dividend_to_xl, odds_to_csv
+from parimana.scrape.main import collect_odds
 
 
 def prepare_odds() -> Mapping[Eye, float]:
-    # odds_data = [
-    #     "1=2: 1.5",
-    #     "1=3: 3.0",
-    #     "1=4: 4.0",
-    #     "1-2-3: 2.0",
-    #     "2-1-3: 2.0",
-    #     "5-6-7: 100.0",
-    #     "4-6-7: 200.0",
-    #     "6: 1.1",
-    #     "3: 100.0",
-    #     "7: 300.0",
-    #     "8: 200.0",
-    # ]
-    # odds = [odds_from_text(t) for t in odds_data]
     odds_data = {
         "05": 1.6,
         "02": 6.0,
@@ -66,32 +50,22 @@ def prepare_dist(odds: Mapping[Eye, float]):
 
 
 def main():
-    print(scrape())
+    print("scraping...")
+    odds = collect_odds()
+    # odds = prepare_odds()
+    odds_to_csv(odds, "odds.csv")
 
+    print("preparing...")
+    dist = prepare_dist(odds)
+    print("analysing...")
+    model = analyse(dist)
+    model.to_csv("model")
 
-def analyse_():
-    with pd.option_context(
-        "display.max_rows", None, "display.max_columns", None
-    ):  # more options can be specified also
-        print("preparing...")
-        odds = prepare_odds()
-        dist = prepare_dist(odds)
-        print("analysing...")
-        model = analyse(dist)
-        print(model.abilities)
-        print(model.correlations)
-        print(model.covariances)
+    print("simulating...")
+    chance = model.simulate(10_000_000)
+    calc_expected_dividend_to_xl(odds, chance, "result.xlsx")
 
-        print("simulating...")
-        chance = model.simulate(10_000_000)
-
-        expected = calc_expected_dividend(odds, chance)
-
-        print("done.")
-        print(expected)
-
-    # 与えられたオッズとの比を計算
-    # 与えられたオッズとの比を計算
+    print("done.")
 
 
 if __name__ == "__main__":

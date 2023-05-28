@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from typing import Generic, Mapping, Sequence, Tuple, TypeVar
 
 import numpy as np
@@ -53,6 +54,13 @@ class MvnModel(Generic[T]):
         return pd.pivot_table(
             self._covariance_sr.to_frame(), index="a", columns="b"
         ).values
+
+    def to_csv(self, path) -> None:
+        path = Path(path)
+        path.mkdir(exist_ok=True)
+        self.cor_sr.to_csv(path / "cor_sr.csv")
+        self.u_map.to_csv(path / "u_map.csv")
+        self.a_map.to_csv(path / "a_map.csv")
 
     def simulate(self, n: int) -> Mapping[Eye, float]:
         mean = self.a_map.values
