@@ -2,11 +2,8 @@ from typing import Mapping, Sequence, Tuple, TypeVar
 
 
 from parimana.base.situation import Comparable, Distribution
-from parimana.analyse.conversion import sr_from_correlations, sr_from_win_rate
-from parimana.analyse.extract import (
-    extract_correlation_none,
-    extract_win_rate,
-)
+from parimana.analyse.correlation import extract_correlation_none, sr_from_correlations
+from parimana.analyse.win_rate import extract_win_rate, sr_from_win_rate
 from parimana.analyse.ability import (
     estimate_ability_map,
     find_uncertainty_map,

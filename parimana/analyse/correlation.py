@@ -1,20 +1,15 @@
 from typing import Collection, Mapping, Sequence, TypeVar, Tuple
-import numpy as np
 import pandas as pd
-from parimana.analyse.conversion import (
-    correlations_from_sr,
-    df_from_scores_mtx,
-    win_rate_from_sr,
-    df_from_relations,
-    df_from_scores,
-)
 
 from parimana.base.compare import Comparable
 from parimana.base.situation import Situation
-from parimana.base.superiority import Relation
 
 
 T = TypeVar("T", bound=Comparable)
+
+# 相関
+# https://toukeigaku-jouhou.info/2018/09/13/kind-of-correlation/
+# https://cogpsy.jp/win_rate/win_rate-content/uploads/COGPSY-TR-002.pdf
 
 
 def extract_correlation(
@@ -30,7 +25,7 @@ def extract_correlation_none(members: Sequence[T]) -> Mapping[Tuple[T, T], float
 
 
 def extract_correlation2(
-    scores_mtx: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], int]]],
+    scores_mtx: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]],
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:
     df_scores_mtx = df_from_scores_mtx(scores_mtx)
@@ -39,9 +34,6 @@ def extract_correlation2(
 
 
 def extract_correlation_sr2(df_scores_mtx: pd.DataFrame) -> pd.Series:
-    # 相関
-    # https://toukeigaku-jouhou.info/2018/09/13/kind-of-correlation/
-    # https://cogpsy.jp/win_rate/win_rate-content/uploads/COGPSY-TR-002.pdf
     df = df_scores_mtx
 
     df["score_a_f"] = df["score_a"] * df["frequency"]
@@ -95,24 +87,56 @@ def extract_correlation_sr(df_scores: pd.DataFrame) -> pd.Series:
     return cor
 
 
-def extract_win_rate(
-    relations: Collection[Tuple[Situation[T], Collection[Relation[T]]]],
-    members: Sequence[T],
+def correlations_from_sr(
+    sr: pd.Series, members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
-    df_rel = df_from_relations(relations)
-    wr_sr = extract_win_rate_sr(df_rel)
-    return win_rate_from_sr(wr_sr, members)
+    members_dict = {str(m): m for m in members}
+    return {(members_dict[a], members_dict[b]): cor for (a, b), cor in sr.items()}
 
 
-def extract_win_rate_sr(df_rel: pd.DataFrame) -> pd.Series:
-    table = pd.pivot_table(
-        df_rel,
+def sr_from_correlations(correlations: Mapping[Tuple[T, T], float]) -> pd.Series:
+    return pd.DataFrame.from_records(
+        [
+            {
+                "a": str(a),
+                "b": str(b),
+                "cor": v,
+            }
+            for (a, b), v in correlations.items()
+        ],
         index=["a", "b"],
-        columns="superiority_a",
-        fill_value=0,
-        values="frequency",
-        aggfunc=np.sum,
-    )
-    # table.columns.name = ""
-    win_rate = table["SUPERIOR"] / (table["SUPERIOR"] + table["INFERIOR"])
-    return win_rate.fillna(0.5).rename("win_rate")
+    )["cor"].rename("cor")
+
+
+def df_from_scores(
+    scores: Collection[Tuple[Situation[T], Mapping[T, int]]]
+) -> pd.DataFrame:
+    records = [
+        {
+            "situation": situation.name,
+            "frequency": situation.frequency,
+            "m": str(m),
+            "score": s,
+        }
+        for situation, mapping in scores
+        for m, s in mapping.items()
+    ]
+    return pd.DataFrame.from_records(records)
+
+
+def df_from_scores_mtx(
+    scores: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]]
+) -> pd.DataFrame:
+    records = [
+        {
+            "situation": situation.name,
+            "frequency": situation.frequency,
+            "a": str(a),
+            "b": str(b),
+            "score_a": sa,
+            "score_b": sb,
+        }
+        for situation, mapping in scores
+        for (a, b), (sa, sb) in mapping.items()
+    ]
+    return pd.DataFrame.from_records(records)
