@@ -26,6 +26,7 @@ class MvnModel(Generic[T]):
     u_map: pd.Series
     a_map: pd.Series
     members: Sequence[T]
+    name: str
 
     @cached_property
     def _member_dict(self) -> Mapping[str, T]:
@@ -57,7 +58,7 @@ class MvnModel(Generic[T]):
 
     def to_csv(self, path) -> None:
         path = Path(path)
-        path.mkdir(exist_ok=True)
+        path.mkdir(parents=True, exist_ok=True)
         self.cor_sr.to_csv(path / "cor_sr.csv")
         self.u_map.to_csv(path / "u_map.csv")
         self.a_map.to_csv(path / "a_map.csv")

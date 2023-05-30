@@ -1,3 +1,4 @@
+from pathlib import Path
 import pickle
 from typing import Mapping
 
@@ -35,24 +36,43 @@ def prepare_dist(odds: Mapping[Eye, float]):
     )
 
 
-def main():
-    # print("scraping...")
-    # odds = collect_odds()
-    # with open("odds.pickle", "wb") as f:
-    #     pickle.dump(odds, f)
-    with open("odds.pickle", "rb") as f:
+root_dir = Path(".output")
+
+
+def get_odds(*, race_id: str, recollect_odds: bool = False) -> Mapping[Eye, float]:
+    base_dir = root_dir / race_id
+    odds_p_path = base_dir / "odds.pickle"
+    if recollect_odds or not odds_p_path.exists():
+        print("scraping...")
+        odds = collect_odds(race_id=race_id)
+        with open(odds_p_path, "wb") as f:
+            pickle.dump(odds, f)
+
+    with open(odds_p_path, "rb") as f:
         odds = pickle.load(f)
     odds_to_csv(odds, "odds.csv")
+    return odds
 
-    print("preparing...")
+
+def main(
+    *,
+    race_id: str = "202305021211",
+    recollect_odds: bool = False,
+    num_of_simulate: int = 10_000_000,
+):
+    base_dir = root_dir / race_id
+    print("preparing odds...")
+    odds = get_odds(race_id=race_id, recollect_odds=recollect_odds)
+    print("preparing distribution...")
     dist = prepare_dist(odds)
     print("analysing...")
-    model = analyse(dist)
-    model.to_csv("model")
+    models = analyse(dist)
 
-    print("simulating...")
-    chance = model.simulate(10_000_000)
-    calc_expected_dividend_to_xl(odds, chance, "result.xlsx")
+    for name, model in models.items():
+        print(f"simulating {name} ...")
+        model.to_csv(base_dir / name)
+        chance = model.simulate(num_of_simulate)
+        calc_expected_dividend_to_xl(odds, chance, base_dir / name / "result.xlsx")
 
     print("done.")
 

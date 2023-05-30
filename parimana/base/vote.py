@@ -64,11 +64,12 @@ def _calc_expected_dividend_df(
     chance_sr = pd.DataFrame.from_records(
         [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
     )["chance"]
-    ed = (odds_df["odds"] * chance_sr).dropna() * 100
+    ed = (odds_df["odds"] * chance_sr).fillna(0) * 100
     return (
         odds_df.join(chance_sr, how="outer")
         .join(ed.rename("expected"), how="outer")
         .sort_values(["type", "eye"])
+        .fillna(0)
     )
 
 
