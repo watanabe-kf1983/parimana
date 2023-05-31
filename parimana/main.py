@@ -3,14 +3,14 @@ import pickle
 from typing import Mapping
 
 from parimana.analyse.analyse import analyse
-from parimana.base.race import Race
+from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
 from parimana.base.vote import calc_expected_dividend_to_xl, odds_to_csv
 from parimana.scrape.main import collect_odds
 
 
 def prepare_dist(odds: Mapping[Eye, float]):
-    race = Race.no_absences(18, "日本ダービー")
+    race = Contestants.no_absences(18, "日本ダービー")
 
     # ratio_data = {
     #     # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9

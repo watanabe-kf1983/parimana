@@ -25,7 +25,7 @@ class Contestant:
 
 
 @dataclass(frozen=True)
-class Race:
+class Contestants:
     contestants: Mapping[str, Contestant]
     name: str = ""
 
@@ -54,8 +54,8 @@ class Race:
         return self.destribution(calc_vote_tally(odds, vote_ratio, vote_tally_total))
 
     @classmethod
-    def no_absences(cls, number_of_contestants: int, name="") -> "Race":
+    def no_absences(cls, number_of_contestants: int, name="") -> "Contestants":
         digits = len(str(number_of_contestants))
         names = (f"{i:0{digits}}" for i in range(1, number_of_contestants + 1))
         constrants = {name: Contestant(name) for name in names}
-        return Race(constrants, name)
+        return Contestants(constrants, name)
