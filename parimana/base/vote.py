@@ -58,28 +58,26 @@ def calc_expected_dividend(
 
 
 def _calc_expected_dividend_df(
-    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
+    odds: Mapping[Eye, float], chances: Mapping[str, Mapping[Eye, float]]
 ) -> pd.DataFrame:
-    odds_df = odds_to_df(odds)
-    chance_sr = pd.DataFrame.from_records(
-        [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
-    )["chance"]
-    ed = (odds_df["odds"] * chance_sr).fillna(0) * 100
-    return (
-        odds_df.join(chance_sr, how="outer")
-        .join(ed.rename("expected"), how="outer")
-        .sort_values(["type", "eye"])
-        .fillna(0)
-    )
+    df = odds_to_df(odds)
+    odds_sr = df["odds"]
+    for name, chance in chances.items():
+        chance_sr = pd.DataFrame.from_records(
+            [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
+        )["chance"].rename(name + "_c")
+        expected = (odds_sr * chance_sr * 100).fillna(0).rename(name)
+        df = df.join(expected, how="left")
 
-
-def calc_expected_dividend_to_csv(
-    odds: Mapping[Eye, float], chance: Mapping[Eye, float], path
-) -> None:
-    _calc_expected_dividend_df(odds, chance).to_csv(path)
+    df["mean"] = df.iloc[:, 2:].mean(axis=1)
+    return df.sort_values(["type", "eye"]).fillna(0)
 
 
 def calc_expected_dividend_to_xl(
-    odds: Mapping[Eye, float], chance: Mapping[Eye, float], path
+    odds: Mapping[Eye, float], chances: Mapping[str, Mapping[Eye, float]], path
 ) -> None:
-    _calc_expected_dividend_df(odds, chance).to_excel(path)
+    df = _calc_expected_dividend_df(odds, chances)
+    desc = df.describe()
+    with pd.ExcelWriter(path) as writer:
+        df.to_excel(writer, sheet_name="expected")
+        desc.to_excel(writer, sheet_name="description")
