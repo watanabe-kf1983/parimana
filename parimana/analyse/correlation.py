@@ -1,4 +1,4 @@
-from typing import Collection, Mapping, Sequence, TypeVar, Tuple
+from typing import Collection, Iterator, Mapping, Sequence, TypeVar, Tuple
 import pandas as pd
 
 from parimana.base.compare import Comparable
@@ -19,23 +19,29 @@ def correlation_none(members: Sequence[T]) -> Mapping[Tuple[T, T], float]:
 def correlation_by_score(
     scores: Collection[Tuple[Situation[T], Mapping[T, int]]], members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
-    scores_df = _scores_to_df(scores)
-    cor_sr = _calc_correlation(scores_df)
-    return cor_sr_to_mapping(cor_sr, members)
+    iter = _iter_scores(scores)
+    return _correlation_from_score_iter(iter, members)
 
 
 def correlation_by_score_mtx(
     scores_mtx: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]],
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:
-    scores_mtx_df = _scores_mtx_to_df(scores_mtx)
-    cor_sr = _calc_correlation(scores_mtx_df)
+    iter = _iter_scores_mtx(scores_mtx)
+    return _correlation_from_score_iter(iter, members)
+
+
+def _correlation_from_score_iter(
+    iter: Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]],
+    members: Sequence[T],
+) -> Mapping[Tuple[T, T], float]:
+    scores_df = _score_iter_to_df(iter)
+    cor_sr = _calc_correlation(scores_df)
     return cor_sr_to_mapping(cor_sr, members)
 
 
-def _calc_correlation(df_scores_mtx: pd.DataFrame) -> pd.Series:
-    df = df_scores_mtx
-
+def _calc_correlation(df_scores: pd.DataFrame) -> pd.Series:
+    df = df_scores.query("accuracy > 1").copy()
     df["score_a_f"] = df["score_a"] * df["frequency"]
     df["score_b_f"] = df["score_b"] * df["frequency"]
     sum_by_ab = df.groupby(["a", "b"]).sum(numeric_only=True)
@@ -78,38 +84,40 @@ def cor_mapping_to_sr(correlations: Mapping[Tuple[T, T], float]) -> pd.Series:
     )["cor"].rename("cor")
 
 
-def _scores_to_df(
-    scores: Collection[Tuple[Situation[T], Mapping[T, int]]]
+def _score_iter_to_df(
+    iterator: Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]]
 ) -> pd.DataFrame:
     records = [
         {
             "situation": situation.name,
             "frequency": situation.frequency,
+            "accuracy": situation.accuracy,
             "a": str(a),
             "b": str(b),
             "score_a": sa,
             "score_b": sb,
         }
+        for situation, (a, sa), (b, sb) in iterator
+    ]
+    return pd.DataFrame.from_records(records)
+
+
+def _iter_scores(
+    scores: Collection[Tuple[Situation[T], Mapping[T, int]]]
+) -> Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]]:
+    return (
+        (situation, (a, sa), (b, sb))
         for situation, mapping in scores
         for a, sa in mapping.items()
         for b, sb in mapping.items()
-    ]
-    return pd.DataFrame.from_records(records)
+    )
 
 
-def _scores_mtx_to_df(
+def _iter_scores_mtx(
     scores: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]]
-) -> pd.DataFrame:
-    records = [
-        {
-            "situation": situation.name,
-            "frequency": situation.frequency,
-            "a": str(a),
-            "b": str(b),
-            "score_a": sa,
-            "score_b": sb,
-        }
+) -> Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]]:
+    return (
+        (situation, (a, sa), (b, sb))
         for situation, mapping in scores
         for (a, b), (sa, sb) in mapping.items()
-    ]
-    return pd.DataFrame.from_records(records)
+    )

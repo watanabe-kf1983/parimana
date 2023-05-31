@@ -21,6 +21,7 @@ class Situation(Generic[T]):
     relations: Collection[Relation[T]]
     name: str = ""
     frequency: float = 1
+    accuracy: int = 1
 
     @cached_property
     def members(self) -> Sequence[T]:
@@ -62,11 +63,13 @@ class Situation(Generic[T]):
     @classmethod
     def from_collections(
         cls,
-        collections: Collection[Collection[T]],
+        collections: Sequence[Collection[T]],
         name: str = "",
         frequency: float = 1,
     ) -> "Situation[T]":
-        return Situation(sorted(iterate_relation(*collections)), name, frequency)
+        return Situation(
+            sorted(iterate_relation(*collections)), name, frequency, len(collections[0])
+        )
 
 
 @dataclass(frozen=True)

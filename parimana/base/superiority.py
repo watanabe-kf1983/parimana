@@ -64,7 +64,7 @@ def _iterate_relation_single(col: Collection[T]) -> Iterable[Relation[T]]:
     return itertools.chain(i1, i2, i3)
 
 
-def iterate_relation(*collections: Collection[T]) -> Iterable[Relation[T]]:
+def iterate_relation(*collections: Sequence[T]) -> Iterable[Relation[T]]:
     i1 = (
         Relation(a, b, Superiority.SUPERIOR)
         for (col_a, col_b) in itertools.combinations(collections, 2)

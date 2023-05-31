@@ -41,6 +41,7 @@ root_dir = Path(".output")
 
 def get_odds(*, race_id: str, recollect_odds: bool = False) -> Mapping[Eye, float]:
     base_dir = root_dir / race_id
+    base_dir.mkdir(exist_ok=True, parents=True)
     odds_p_path = base_dir / "odds.pickle"
     if recollect_odds or not odds_p_path.exists():
         print("scraping...")
