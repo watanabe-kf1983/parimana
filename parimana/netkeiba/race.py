@@ -4,11 +4,11 @@ from typing import Mapping
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from parimana.scrape.netkeiba.browse import browse_odds_pages
-from parimana.scrape.netkeiba.extract import extract_odds
 from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
 from parimana.base.race import Race
+from parimana.netkeiba.browse import browse_odds_pages
+from parimana.netkeiba.extract import extract_odds
 
 # ratio_data = {
 #     # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9

@@ -10,7 +10,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base.eye import BettingType
-from parimana.scrape.netkeiba.base import btype_to_code
+from parimana.netkeiba.base import btype_to_code
 
 
 def browse_odds_pages(

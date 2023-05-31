@@ -3,7 +3,7 @@ from typing import Mapping
 from bs4 import BeautifulSoup
 
 from parimana.base.eye import BettingType, Eye
-from parimana.scrape.netkeiba.base import code_to_btype, btype_to_code
+from parimana.netkeiba.base import code_to_btype, btype_to_code
 
 
 def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, float]:

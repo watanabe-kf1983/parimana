@@ -1,7 +1,7 @@
 from selenium import webdriver
 
 
-def get_webdriver() -> webdriver.Chrome:
+def headless_chrome() -> webdriver.Chrome:
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")

@@ -2,8 +2,8 @@ from pathlib import Path
 
 from parimana.analyse.analyse import analyse
 from parimana.base.vote import calc_expected_dividend_to_xl
-from parimana.scrape.chrome import get_webdriver
-from parimana.scrape.netkeiba.race import NetKeibaRace
+from parimana.driver.chrome import headless_chrome
+from parimana.netkeiba.race import NetKeibaRace
 
 
 root_dir = Path(".output")
@@ -15,7 +15,7 @@ def main(
     recollect_odds: bool = False,
     num_of_simulate: int = 10_000_000,
 ):
-    race = NetKeibaRace(race_id, driver=get_webdriver())
+    race = NetKeibaRace(race_id, driver=headless_chrome())
     dist = race.destribution(recollect_odds)
     print("analysing...")
     models = analyse(dist)
