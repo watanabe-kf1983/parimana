@@ -52,6 +52,7 @@ class Contestants:
         vote_ratio: Mapping[BettingType, float],
         vote_tally_total: float,
     ) -> Distribution[Contestant]:
+        print("caluculating vote tally...")
         return self.destribution(calc_vote_tally(odds, vote_ratio, vote_tally_total))
 
     @classmethod

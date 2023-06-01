@@ -38,7 +38,9 @@ class NetKeibaRace(Race):
 
     @cached_property
     def contestants(self) -> Contestants:
-        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
+        names = [
+            eye.text for eye in self.get_odds().keys() if eye.type == BettingType.WIN
+        ]
         return Contestants.from_names(names)
 
     @property

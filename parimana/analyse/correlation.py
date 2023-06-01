@@ -12,28 +12,28 @@ T = TypeVar("T", bound=Comparable)
 # https://cogpsy.jp/win_rate/win_rate-content/uploads/COGPSY-TR-002.pdf
 
 
-def correlation_none(members: Sequence[T]) -> Mapping[Tuple[T, T], float]:
+def cor_none(members: Sequence[T]) -> Mapping[Tuple[T, T], float]:
     return {(a, b): (1 if a == b else 0) for a in members for b in members}
 
 
-def correlation_by_score(
+def cor_by_score(
     scores: Collection[Tuple[Situation[T], Mapping[T, float]]], members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
     iter = _iter_scores(scores)
-    return _correlation_from_score_iter(iter, members)
+    return _cor_from_score_iter(iter, members)
 
 
-def correlation_by_score_mtx(
+def cor_by_score_mtx(
     scores_mtx: Collection[
         Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[float, float]]]
     ],
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:
     iter = _iter_scores_mtx(scores_mtx)
-    return _correlation_from_score_iter(iter, members)
+    return _cor_from_score_iter(iter, members)
 
 
-def _correlation_from_score_iter(
+def _cor_from_score_iter(
     iter: Iterator[Tuple[Situation, Tuple[T, float], Tuple[T, float]]],
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:

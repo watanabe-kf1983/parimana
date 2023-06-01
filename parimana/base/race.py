@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import cached_property
+from functools import cache, cached_property
 from pathlib import Path
 import pickle
 from typing import Mapping
@@ -41,19 +41,20 @@ class Race(ABC):
         dir.mkdir(exist_ok=True, parents=True)
         return dir
 
-    @cached_property
-    def odds(self) -> Mapping[Eye, float]:
-        return self.get_odds()
-
+    @cache
     def get_odds(self, recollect_odds: bool = False) -> Mapping[Eye, float]:
         odds_p_path = self.base_dir / "odds.pickle"
         if recollect_odds or not odds_p_path.exists():
+            print("collecting odds...")
             odds = self.collect_odds()
+            print(f"writing odds to {odds_p_path}...")
             with open(odds_p_path, "wb") as f:
                 pickle.dump(odds, f)
 
-        with open(odds_p_path, "rb") as f:
-            odds = pickle.load(f)
+        else:
+            print(f"reading odds from {odds_p_path}...")
+            with open(odds_p_path, "rb") as f:
+                odds = pickle.load(f)
 
         return odds
 

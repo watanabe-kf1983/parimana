@@ -46,18 +46,7 @@ def calc_vote_tally(
     return {Eye(i): r for i, r in sr.items()}
 
 
-def calc_expected_dividend(
-    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
-) -> Mapping[Eye, float]:
-    odds_sr = odds_to_df(odds)["odds"]
-    chance_sr = pd.DataFrame.from_records(
-        [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
-    )["chance"]
-    ed = (odds_sr * chance_sr).dropna() * 100
-    return {Eye(i): d for i, d in ed.items()}
-
-
-def _calc_expected_dividend_df(
+def calc_expected_dividend_df(
     odds: Mapping[Eye, float], chances: Mapping[str, Mapping[Eye, float]]
 ) -> pd.DataFrame:
     df = odds_to_df(odds)
@@ -66,18 +55,7 @@ def _calc_expected_dividend_df(
         chance_sr = pd.DataFrame.from_records(
             [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
         )["chance"].rename(name + "_c")
-        expected = (odds_sr * chance_sr * 100).fillna(0).rename(name)
-        df = df.join(expected, how="left")
+        expected = (odds_sr * chance_sr * 100).fillna(0).rename(name + "_e")
+        df = df.join(chance_sr, how="left").join(expected, how="left")
 
-    df["mean"] = df.iloc[:, 2:].mean(axis=1)
     return df.sort_values(["type", "eye"]).fillna(0)
-
-
-def calc_expected_dividend_to_xl(
-    odds: Mapping[Eye, float], chances: Mapping[str, Mapping[Eye, float]], path
-) -> None:
-    df = _calc_expected_dividend_df(odds, chances)
-    desc = df.describe()
-    with pd.ExcelWriter(path) as writer:
-        df.to_excel(writer, sheet_name="expected")
-        desc.to_excel(writer, sheet_name="description")
