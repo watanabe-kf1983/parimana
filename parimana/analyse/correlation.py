@@ -17,14 +17,16 @@ def correlation_none(members: Sequence[T]) -> Mapping[Tuple[T, T], float]:
 
 
 def correlation_by_score(
-    scores: Collection[Tuple[Situation[T], Mapping[T, int]]], members: Sequence[T]
+    scores: Collection[Tuple[Situation[T], Mapping[T, float]]], members: Sequence[T]
 ) -> Mapping[Tuple[T, T], float]:
     iter = _iter_scores(scores)
     return _correlation_from_score_iter(iter, members)
 
 
 def correlation_by_score_mtx(
-    scores_mtx: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]],
+    scores_mtx: Collection[
+        Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[float, float]]]
+    ],
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:
     iter = _iter_scores_mtx(scores_mtx)
@@ -32,7 +34,7 @@ def correlation_by_score_mtx(
 
 
 def _correlation_from_score_iter(
-    iter: Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]],
+    iter: Iterator[Tuple[Situation, Tuple[T, float], Tuple[T, float]]],
     members: Sequence[T],
 ) -> Mapping[Tuple[T, T], float]:
     scores_df = _score_iter_to_df(iter)
@@ -85,7 +87,7 @@ def cor_mapping_to_sr(correlations: Mapping[Tuple[T, T], float]) -> pd.Series:
 
 
 def _score_iter_to_df(
-    iterator: Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]]
+    iterator: Iterator[Tuple[Situation, Tuple[T, float], Tuple[T, float]]]
 ) -> pd.DataFrame:
     records = [
         {
@@ -103,8 +105,8 @@ def _score_iter_to_df(
 
 
 def _iter_scores(
-    scores: Collection[Tuple[Situation[T], Mapping[T, int]]]
-) -> Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]]:
+    scores: Collection[Tuple[Situation[T], Mapping[T, float]]]
+) -> Iterator[Tuple[Situation, Tuple[T, float], Tuple[T, float]]]:
     return (
         (situation, (a, sa), (b, sb))
         for situation, mapping in scores
@@ -114,8 +116,8 @@ def _iter_scores(
 
 
 def _iter_scores_mtx(
-    scores: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]]
-) -> Iterator[Tuple[Situation, Tuple[T, int], Tuple[T, int]]]:
+    scores: Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[float, float]]]]
+) -> Iterator[Tuple[Situation, Tuple[T, float], Tuple[T, float]]]:
     return (
         (situation, (a, sa), (b, sb))
         for situation, mapping in scores
