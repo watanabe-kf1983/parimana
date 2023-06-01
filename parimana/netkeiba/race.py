@@ -38,7 +38,8 @@ class NetKeibaRace(Race):
 
     @cached_property
     def contestants(self) -> Contestants:
-        return Contestants.no_absences(18, "日本ダービー")
+        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
+        return Contestants.from_names(names)
 
     @property
     def vote_ratio(self) -> Mapping[BettingType, float]:

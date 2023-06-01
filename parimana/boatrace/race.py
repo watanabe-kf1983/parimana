@@ -27,7 +27,7 @@ class BoatRace(Race):
 
     @cached_property
     def contestants(self) -> Contestants:
-        return Contestants.no_absences(6, "レース")
+        return Contestants.no_absences(6)
 
     @property
     def vote_ratio(self) -> Mapping[BettingType, float]:
