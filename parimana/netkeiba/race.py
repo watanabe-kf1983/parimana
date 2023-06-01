@@ -47,15 +47,15 @@ class NetKeibaRace(Race):
 
     @property
     def vote_tally_total(self) -> float:
-        return 100_000_000
+        return vote_total
 
     @property
     def race_id(self) -> str:
-        return self.netkeiba_race_id
+        return f"netkeiba-{self.netkeiba_race_id}"
 
     def collect_odds(self) -> Mapping[Eye, float]:
         return {
             eye: odds
-            for content, btype in browse_odds_pages(self.driver, self.race_id)
+            for content, btype in browse_odds_pages(self.driver, self.netkeiba_race_id)
             for eye, odds in extract_odds(content, btype).items()
         }
