@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
-from matplotlib.axes import Axes
+import matplotlib.pyplot as plt
+from sklearn.manifold import MDS
 
 from parimana.base.situation import Comparable
 from parimana.base.eye import Eye
@@ -58,14 +60,43 @@ class MvnModel(Generic[T]):
 
     def to_excel(self, writer: pd.ExcelWriter) -> None:
         au_df = self.a_map.rename("abi").to_frame().join(self.u_map.rename("unc"))
-        au_df.to_excel(writer, sheet_name=f"{self.name}-au")
+        au_df.to_excel(writer, sheet_name="au")
 
         cor_df = pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
-        cor_df.to_excel(writer, sheet_name=f"{self.name}-cor")
+        cor_df.to_excel(writer, sheet_name="cor")
 
-    def plot(self, ax: Axes) -> None:
-        values = self.simulate_values(1_000)
-        ax.boxplot(values, vert=False)
+    def save_figures(self, path: Path) -> None:
+        model_path = path / self.name
+        model_path.mkdir(parents=True, exist_ok=True)
+        self.plot_box(model_path / "boxplot.png")
+        self.plot_mds(model_path / "mds_nm.png")
+        self.plot_mds(model_path / "mds_m.png", metric=True)
+        with pd.ExcelWriter(model_path / f"{self.name}.xlsx") as writer:
+            self.to_excel(writer)
+
+    def plot_box(self, path: Path) -> None:
+        values = self.simulate_values(10_000)
+        fig, ax = plt.subplots()
+        ax.boxplot(values, vert=False, sym="")
+        fig.savefig(path)
+
+    def plot_mds(self, path: Path, metric: bool = False) -> None:
+        dist = self.cor_sr * (-1) + 1
+        distance_df = pd.pivot_table(dist.to_frame(), index="a", columns="b")
+        mds = MDS(
+            n_components=2,
+            metric=metric,
+            dissimilarity="precomputed",
+            random_state=0,
+            normalized_stress="auto",
+        )
+        pos = mds.fit_transform(distance_df.values)
+
+        fig, ax = plt.subplots()
+        ax.scatter(pos[:, 0], pos[:, 1], marker="o")
+        for i, m in enumerate(self.members):
+            ax.text(pos[i, 0], pos[i, 1], str(m))
+        fig.savefig(path)
 
     def simulate_values(self, size: int) -> np.ndarray:
         mean = self.a_map.values
@@ -126,8 +157,3 @@ class MvnModel(Generic[T]):
             (self._member_from_name(a), self._member_from_name(b)): cov
             for (a, b), cov in self._covariance_sr.items()
         }
-
-    # @property
-    # def correlations_map(self) -> Any:
-    #     # 多次元構成法? で描画
-    #     return []

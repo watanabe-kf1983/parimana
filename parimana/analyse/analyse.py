@@ -47,14 +47,10 @@ class Analyser(Generic[T]):
         return MvnModel(cor_sr, u_map, a_map, dist.members, self.name)
 
 
-_analysers: Sequence[Analyser[T]] = [
+analysers: Sequence[Analyser[T]] = [
     # Analyser("score_sgl", lambda d: cor_by_score(d.scores, d.members)),
     # Analyser("score_mtx", lambda d: cor_by_score_mtx(d.scores_matrix, d.members)),
-    # Analyser("ppf", lambda d: cor_by_score(d.ppf, d.members)),
+    Analyser("ppf", lambda d: cor_by_score(d.ppf, d.members)),
     Analyser("ppf_mtx", lambda d: cor_by_score_mtx(d.ppf_matrix, d.members)),
     Analyser("none_cor", lambda d: cor_none(d.members)),
 ]
-
-
-def analyse(dist: Distribution[T]) -> Sequence[MvnModel[T]]:
-    return [a.estimate_model(dist) for a in _analysers]
