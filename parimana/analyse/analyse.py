@@ -9,7 +9,7 @@ from parimana.analyse.correlation import (
     cor_by_score_mtx,
     cor_mapping_to_sr,
 )
-from parimana.analyse.win_rate import extract_win_rate, sr_from_win_rate
+from parimana.analyse.win_rate import extract_win_rate, df_from_win_rate
 from parimana.analyse.ability import (
     estimate_ability_map,
     find_uncertainty_map,
@@ -30,14 +30,14 @@ class Analyser(Generic[T]):
 
         print(" extracting win_rates...")
         win_rates = extract_win_rate(dist.relations, dist.members)
-        wr_sr = sr_from_win_rate(win_rates)
+        wr_df = df_from_win_rate(win_rates)
 
         print(" estimating correlations...")
         cor = self.cor_extractor(dist)
         cor_sr = cor_mapping_to_sr(cor)
 
         print(" estimating uncertainly...")
-        corwr_df = cor_sr.to_frame().join(wr_sr)
+        corwr_df = cor_sr.to_frame().join(wr_df)
         u_map = find_uncertainty_map(corwr_df)
 
         print(" estimating ability...")

@@ -59,4 +59,6 @@ def estimate_ability_map(corwr_df: pd.DataFrame, u_map: pd.Series) -> pd.Series:
     mean = mtx.groupby("a").mean().rename("mean")
     df = mtx.to_frame().join(mean, on="a")
     std_ability_gap = df["ability_gap"] - df["mean"]
-    return std_ability_gap.groupby("b").mean().rename_axis("m")
+    acc = corwr_df["win_rate_acc"].groupby("a").sum()
+    sag_acc = std_ability_gap * acc / acc.sum()
+    return sag_acc.groupby("b").sum().rename_axis("m")
