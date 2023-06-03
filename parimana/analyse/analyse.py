@@ -52,7 +52,7 @@ _analysers: Sequence[Analyser[T]] = [
     # Analyser("score_mtx", lambda d: cor_by_score_mtx(d.scores_matrix, d.members)),
     # Analyser("ppf", lambda d: cor_by_score(d.ppf, d.members)),
     Analyser("ppf_mtx", lambda d: cor_by_score_mtx(d.ppf_matrix, d.members)),
-    # Analyser("none_cor", lambda d: cor_none(d.members)),
+    Analyser("none_cor", lambda d: cor_none(d.members)),
 ]
 
 

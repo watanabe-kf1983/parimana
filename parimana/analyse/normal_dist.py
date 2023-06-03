@@ -39,7 +39,5 @@ def estimate_mean_delta(pp: float, sd_x: float, sd_y: float, cor: float) -> floa
     return scipy.stats.norm.ppf(pp, loc=0, scale=scale)
 
 
-def simulate(mean: np.ndarray, cov: np.ndarray, n: int, step: int = 1_000_000):
-    for i in range(0, n, step):
-        size = min(step, n - i)
-        yield scipy.stats.multivariate_normal.rvs(mean=mean, cov=cov, size=size)
+def rvs(mean: np.ndarray, cov: np.ndarray, size: int):
+    return scipy.stats.multivariate_normal.rvs(mean=mean, cov=cov, size=size)

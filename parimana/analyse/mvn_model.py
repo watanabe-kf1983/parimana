@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Generic, Mapping, Sequence, Tuple, TypeVar
+from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
+from matplotlib.axes import Axes
 
 from parimana.base.situation import Comparable
 from parimana.base.eye import Eye
@@ -62,15 +63,28 @@ class MvnModel(Generic[T]):
         cor_df = pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
         cor_df.to_excel(writer, sheet_name=f"{self.name}-cor")
 
-    def simulate(self, n: int) -> Mapping[Eye, float]:
+    def plot(self, ax: Axes) -> None:
+        values = self.simulate_values(1_000)
+        ax.boxplot(values, vert=False)
+
+    def simulate_values(self, size: int) -> np.ndarray:
         mean = self.a_map.values
         cov = self._covariance_mtx
+        return nd.rvs(mean=mean, cov=cov, size=size)
 
+    def simulate_values_iter(
+        self, n: int, step: int = 1_000_000
+    ) -> Iterator[np.ndarray]:
+        for i in range(0, n, step):
+            size = min(step, n - i)
+            yield self.simulate_values(size=size)
+
+    def simulate(self, n: int) -> Mapping[Eye, float]:
         columns = ["1st", "2nd", "3rd"]
         trifecta_count = pd.Series(
             [], index=pd.MultiIndex.from_tuples([], names=columns)
         )
-        for results in nd.simulate(mean, cov, n, step=1_000_000):
+        for results in self.simulate_values_iter(n, step=1_000_000):
             trifecta_df = pd.DataFrame(np.argsort(results)[:, :3], columns=columns)
             trifecta_count = trifecta_count.add(
                 trifecta_df.groupby(columns).size(), fill_value=0
