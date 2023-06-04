@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from functools import cached_property
 from pathlib import Path
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
@@ -61,7 +60,7 @@ class AnalysisResult(Generic[T]):
     def save(self, dir_: Path):
         dir_.mkdir(exist_ok=True, parents=True)
         self.model.save_figures(dir_)
-        xlname = f"{self.model.name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+        xlname = f"{self.model.name}.xlsx"
         with pd.ExcelWriter(dir_ / xlname) as writer:
             self.recommendation.to_excel(writer, sheet_name="recommend")
             self.simulation.to_excel(writer, sheet_name="simulation")
@@ -103,10 +102,15 @@ class Analyser(Generic[T]):
         return MvnModel(cor_sr, u_map, a_map, dist.members, self.name)
 
 
-analysers: Sequence[Analyser[T]] = [
-    # Analyser("score_sgl", lambda d: cor_by_score(d.scores, d.members)),
-    # Analyser("score_mtx", lambda d: cor_by_score_mtx(d.scores_matrix, d.members)),
-    Analyser("ppf", lambda d: cor_by_score(d.ppf, d.members)),
+_analysers: Sequence[Analyser[T]] = [
+    Analyser("ppf_smpl", lambda d: cor_by_score(d.ppf, d.members)),
     Analyser("ppf_mtx", lambda d: cor_by_score_mtx(d.ppf_matrix, d.members)),
-    Analyser("none_cor", lambda d: cor_none(d.members)),
+    Analyser("no_cor", lambda d: cor_none(d.members)),
 ]
+
+analysers: Mapping[str, Analyser[T]] = {a.name: a for a in _analysers}
+analyser_names: Sequence[str] = [a.name for a in _analysers]
+
+
+def default_analyser_names():
+    return ["ppf_mtx"]

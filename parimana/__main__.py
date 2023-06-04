@@ -1,4 +1,3 @@
-import parimana.analyse.analyse as anl
 from parimana.settings import Settings
 
 
@@ -13,7 +12,7 @@ def main():
     odds = race.odds
     dist = race.extract_destribution()
 
-    for a in anl.analysers:
+    for a in settings.analysers:
         r = a.analyse(odds=odds, dist=dist, simulation_count=settings.simulation_count)
         r.save(race.base_dir / a.name)
         r.print_recommend()

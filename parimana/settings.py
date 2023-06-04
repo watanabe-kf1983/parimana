@@ -1,12 +1,18 @@
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
-
-from parimana.netkeiba.race import NetKeibaRace
+from typing import Sequence
 
 from parimana.base.race import Race
+from parimana.analyse.analyse import (
+    Analyser,
+    analysers,
+    analyser_names,
+    default_analyser_names,
+)
 from parimana.driver.chrome import headless_chrome
 from parimana.boatrace.race import BoatRace
+from parimana.netkeiba.race import NetKeibaRace
 
 
 @dataclass(frozen=True)
@@ -18,6 +24,7 @@ class Settings:
     boat_cource_id: int = 1
     boat_race_no: int = 12
     keiba_race_id: str = "202305021211"
+    analyser_names: Sequence[str] = field(default_factory=default_analyser_names)
 
     @cached_property
     def race(self) -> Race:
@@ -25,6 +32,10 @@ class Settings:
             return BoatRace(self.boat_date, self.boat_cource_id, self.boat_race_no)
         else:
             return NetKeibaRace(self.keiba_race_id, headless_chrome())
+
+    @cached_property
+    def analysers(self) -> Sequence[Analyser]:
+        return [analysers[n] for n in self.analyser_names]
 
     @classmethod
     def from_cli_args(cls) -> "Settings":
@@ -42,6 +53,13 @@ def _arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         default=default_settings.use_cache,
         help="use odds cache once scraped",
+    )
+    parser.add_argument(
+        "--analyser-names",
+        choices=analyser_names,
+        nargs="*",
+        default=default_settings.analyser_names,
+        help="using analyser",
     )
     parser.add_argument(
         "--simulation-count",
