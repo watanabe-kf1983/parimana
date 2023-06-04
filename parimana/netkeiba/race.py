@@ -31,16 +31,14 @@ ratio_data_derby = {
 vote_total = 100_000_000
 
 
-@dataclass(frozen=True)
+@dataclass
 class NetKeibaRace(Race):
     netkeiba_race_id: str
     driver: WebDriver
 
     @cached_property
     def contestants(self) -> Contestants:
-        names = [
-            eye.text for eye in self.get_odds().keys() if eye.type == BettingType.WIN
-        ]
+        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
         return Contestants.from_names(names)
 
     @property

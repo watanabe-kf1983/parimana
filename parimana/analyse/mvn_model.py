@@ -6,6 +6,7 @@ from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.figure as mpfig
 from sklearn.manifold import MDS
 
 from parimana.base.situation import Comparable
@@ -65,22 +66,18 @@ class MvnModel(Generic[T]):
         cor_df = pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
         cor_df.to_excel(writer, sheet_name="cor")
 
-    def save_figures(self, path: Path) -> None:
-        model_path = path / self.name
-        model_path.mkdir(parents=True, exist_ok=True)
-        self.plot_box(model_path / "boxplot.png")
-        self.plot_mds(model_path / "mds_nm.png")
-        self.plot_mds(model_path / "mds_m.png", metric=True)
-        with pd.ExcelWriter(model_path / f"{self.name}.xlsx") as writer:
-            self.to_excel(writer)
+    def save_figures(self, dir: Path) -> None:
+        self.plot_box().savefig(dir / "boxplot.png")
+        self.plot_mds().savefig(dir / "mds.png")
+        self.plot_mds(metric=True).savefig(dir / "mds_metric.png")
 
-    def plot_box(self, path: Path) -> None:
+    def plot_box(self) -> mpfig.Figure:
         values = self.simulate_values(10_000)
         fig, ax = plt.subplots()
         ax.boxplot(values, vert=False, sym="")
-        fig.savefig(path)
+        return fig
 
-    def plot_mds(self, path: Path, metric: bool = False) -> None:
+    def plot_mds(self, metric: bool = False) -> mpfig.Figure:
         dist = self.cor_sr * (-1) + 1
         distance_df = pd.pivot_table(dist.to_frame(), index="a", columns="b")
         mds = MDS(
@@ -96,7 +93,7 @@ class MvnModel(Generic[T]):
         ax.scatter(pos[:, 0], pos[:, 1], marker="o")
         for i, m in enumerate(self.members):
             ax.text(pos[i, 0], pos[i, 1], str(m))
-        fig.savefig(path)
+        return fig
 
     def simulate_values(self, size: int) -> np.ndarray:
         mean = self.a_map.values

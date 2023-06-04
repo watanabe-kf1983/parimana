@@ -1,5 +1,11 @@
 from dataclasses import dataclass
+from datetime import datetime
+from functools import cached_property
+from pathlib import Path
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
+
+import pandas as pd
+from parimana.base.eye import Eye
 
 
 from parimana.base.situation import Comparable, Distribution
@@ -15,9 +21,51 @@ from parimana.analyse.ability import (
     find_uncertainty_map,
 )
 from parimana.analyse.mvn_model import MvnModel
+from parimana.base.vote import (
+    calc_expected_dividend,
+    em_to_sr,
+    odds_to_df,
+)
 
 
 T = TypeVar("T", bound=Comparable)
+
+
+@dataclass(frozen=True)
+class AnalysisResult(Generic[T]):
+    odds: Mapping[Eye, float]
+    model: MvnModel[T]
+    chances: Mapping[Eye, float]
+    expected: Mapping[Eye, float]
+
+    @cached_property
+    def simulation(self) -> pd.DataFrame:
+        return (
+            odds_to_df(self.odds)
+            .join(em_to_sr(self.chances, "chance"), how="left")
+            .join(em_to_sr(self.expected, "expected"), how="left")
+            .fillna(0)
+            .sort_values(["type", "eye"])
+        )
+
+    def print_recommend(self) -> None:
+        print()
+        print(f"-- Recommendation by {self.model.name} --")
+        print(self.recommendation)
+        print()
+
+    @cached_property
+    def recommendation(self) -> pd.DataFrame:
+        return self.simulation.sort_values("expected", ascending=False).head(10)
+
+    def save(self, dir_: Path):
+        dir_.mkdir(exist_ok=True, parents=True)
+        self.model.save_figures(dir_)
+        xlname = f"{self.model.name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+        with pd.ExcelWriter(dir_ / xlname) as writer:
+            self.recommendation.to_excel(writer, sheet_name="recommend")
+            self.simulation.to_excel(writer, sheet_name="simulation")
+            self.model.to_excel(writer)
 
 
 @dataclass(frozen=True)
@@ -25,9 +73,17 @@ class Analyser(Generic[T]):
     name: str
     cor_extractor: Callable[[Distribution[T]], Mapping[Tuple[T, T], float]]
 
-    def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
-        print(f"estimate model by '{self.name}' ...")
+    def analyse(
+        self, odds: Mapping[Eye, float], dist: Distribution[T], simulation_count: int
+    ) -> AnalysisResult[T]:
+        print(f"estimating model by '{self.name}' ...")
+        model = self.estimate_model(dist)
+        print(f"simulating '{model.name}' model ...")
+        chances = model.simulate(simulation_count)
+        expected = calc_expected_dividend(odds, chances)
+        return AnalysisResult(odds, model, chances, expected)
 
+    def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
         print(" extracting win_rates...")
         win_rates = extract_win_rate(dist.relations, dist.members)
         wr_df = df_from_win_rate(win_rates)

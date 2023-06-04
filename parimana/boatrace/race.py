@@ -19,7 +19,7 @@ ratio_data = {
 vote_total = 100_000_000
 
 
-@dataclass(frozen=True)
+@dataclass
 class BoatRace(Race):
     date: str
     cource: int

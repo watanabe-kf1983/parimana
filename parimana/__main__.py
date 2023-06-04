@@ -1,7 +1,4 @@
-import pandas as pd
-
-from parimana.analyse.analyse import analysers
-from parimana.base.vote import calc_expected_dividend_df
+import parimana.analyse.analyse as anl
 from parimana.settings import Settings
 
 
@@ -11,20 +8,15 @@ from parimana.settings import Settings
 def main():
     settings = Settings.from_cli_args()
     race = settings.race
-    dist = race.destribution(not settings.use_cache)
+    if not settings.use_cache:
+        race.remove_odds_cache()
+    odds = race.odds
+    dist = race.extract_destribution()
 
-    chances = {}
-    for a in analysers:
-        model = a.estimate_model(dist)
-        model.save_figures(race.base_dir)
-        print(f"simulating {model.name} ...")
-        chance = model.simulate(settings.simulation_count)
-        chances[model.name] = chance
-
-    expected = calc_expected_dividend_df(race.get_odds(), chances)
-    with pd.ExcelWriter(race.base_dir / (race.race_id + ".xlsx")) as writer:
-        expected.to_excel(writer, sheet_name="expected")
-        expected.describe().to_excel(writer, sheet_name="description")
+    for a in anl.analysers:
+        r = a.analyse(odds=odds, dist=dist, simulation_count=settings.simulation_count)
+        r.save(race.base_dir / a.name)
+        r.print_recommend()
 
     print("done.")
 

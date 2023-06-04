@@ -25,8 +25,15 @@ def odds_to_df(odds: Mapping[Eye, float]) -> pd.DataFrame:
     )
 
 
-def odds_to_csv(odds: Mapping[Eye, float], path) -> None:
-    odds_to_df(odds).reset_index().sort_values(by=["type", "eye"]).to_csv(path)
+def em_to_sr(em: Mapping[Eye, float], name: str) -> pd.Series:
+    return pd.DataFrame.from_records(
+        [{"eye": e.text, name: o} for e, o in em.items()],
+        index="eye",
+    )[name].rename(name)
+
+
+def sr_to_em(sr: pd.Series) -> pd.Series:
+    return {Eye(i): r for i, r in sr.items()}
 
 
 def calc_vote_tally(
@@ -43,19 +50,17 @@ def calc_vote_tally(
 
     sr = df["odds_inv"] * df["correction"]
 
-    return {Eye(i): r for i, r in sr.items()}
+    return sr_to_em(sr)
 
 
-def calc_expected_dividend_df(
-    odds: Mapping[Eye, float], chances: Mapping[str, Mapping[Eye, float]]
-) -> pd.DataFrame:
+def calc_expected_dividend(
+    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
+) -> Mapping[Eye, float]:
     df = odds_to_df(odds)
     odds_sr = df["odds"]
-    for name, chance in chances.items():
-        chance_sr = pd.DataFrame.from_records(
-            [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
-        )["chance"].rename(name + "_c")
-        expected = (odds_sr * chance_sr * 100).fillna(0).rename(name + "_e")
-        df = df.join(chance_sr, how="left").join(expected, how="left")
+    chance_sr = pd.DataFrame.from_records(
+        [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
+    )["chance"].rename("chance")
+    expected_sr = (odds_sr * chance_sr * 100).fillna(0).rename("expected")
 
-    return df.sort_values(["type", "eye"]).fillna(0)
+    return sr_to_em(expected_sr)
