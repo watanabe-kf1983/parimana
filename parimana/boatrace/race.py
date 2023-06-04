@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Mapping
+from typing import ClassVar, Mapping, Optional
+import re
 
 from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
@@ -23,7 +24,7 @@ vote_total = 100_000_000
 class BoatRace(Race):
     date: str
     cource: int
-    number: int
+    race_no: int
 
     @cached_property
     def contestants(self) -> Contestants:
@@ -39,11 +40,29 @@ class BoatRace(Race):
 
     @property
     def race_id(self) -> str:
-        return f"boat{self.date}-{self.cource}-{self.number}"
+        return f"boatrace-{self.date}-{self.cource}-{self.race_no}"
 
     def collect_odds(self) -> Mapping[Eye, float]:
         return {
             eye: odds
-            for content, btype in browse_odds_pages(self.date, self.cource, self.number)
+            for content, btype in browse_odds_pages(
+                self.date, self.cource, self.race_no
+            )
             for eye, odds in extract_odds(content, btype).items()
         }
+
+    PATTERN: ClassVar[str] = re.compile(
+        r"boatrace-(?P<date>[0-9]{8})-(?P<cource>[0-9]{1,2})-(?P<race_no>[0-9]{1,2})"
+    )
+
+    @classmethod
+    def from_race_id(cls, race_id: str) -> Optional["BoatRace"]:
+        if m := re.fullmatch(cls.PATTERN, race_id):
+            dict = m.groupdict()
+            return BoatRace(
+                date=dict["date"],
+                cource=int(dict["cource"]),
+                race_no=int(dict["race_no"]),
+            )
+        else:
+            return None

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from pathlib import Path
 import pickle
-from typing import Mapping
+from typing import Mapping, Optional
 from parimana.base.contestants import Contestant, Contestants
 
 
@@ -33,6 +33,11 @@ class Race(ABC):
 
     @abstractmethod
     def collect_odds(self) -> Mapping[Eye, float]:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_race_id(cls, race_id: str) -> Optional["Race"]:
         pass
 
     @cached_property

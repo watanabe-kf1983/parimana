@@ -1,12 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Mapping
+import re
+from typing import ClassVar, Mapping, Optional
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
 from parimana.base.race import Race
+from parimana.driver.chrome import headless_chrome
 from parimana.netkeiba.browse import browse_odds_pages
 from parimana.netkeiba.extract import extract_odds
 
@@ -34,7 +36,7 @@ vote_total = 100_000_000
 @dataclass
 class NetKeibaRace(Race):
     netkeiba_race_id: str
-    driver: WebDriver
+    driver: WebDriver = field(default_factory=headless_chrome)
 
     @cached_property
     def contestants(self) -> Contestants:
@@ -59,3 +61,12 @@ class NetKeibaRace(Race):
             for content, btype in browse_odds_pages(self.driver, self.netkeiba_race_id)
             for eye, odds in extract_odds(content, btype).items()
         }
+
+    PATTERN: ClassVar[str] = re.compile(r"netkeiba-(?P<netkeiba_race_id>[0-9]{12})")
+
+    @classmethod
+    def from_race_id(cls, race_id: str) -> Optional["NetKeibaRace"]:
+        if m := re.fullmatch(cls.PATTERN, race_id):
+            return NetKeibaRace(**m.groupdict())
+        else:
+            return None
