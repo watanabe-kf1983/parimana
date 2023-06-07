@@ -61,6 +61,7 @@ def _arg_parser() -> argparse.ArgumentParser:
         help="use odds cache once scraped",
     )
     parser.add_argument(
+        "-a",
         "--analyser-names",
         choices=analyser_names,
         nargs="*",

@@ -17,7 +17,5 @@ def main():
         r.save(race.base_dir / a.name)
         r.print_recommend()
 
-    print("done.")
-
 
 main()

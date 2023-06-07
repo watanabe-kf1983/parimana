@@ -77,28 +77,20 @@ class Analyser(Generic[T]):
     ) -> AnalysisResult[T]:
         print(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
-        print(f"simulating '{model.name}' model ...")
+        print(f"simulating '{model.name}' ...")
         chances = model.simulate(simulation_count)
         expected = calc_expected_dividend(odds, chances)
         return AnalysisResult(odds, model, chances, expected)
 
     def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
-        print(" extracting win_rates...")
         win_rates = extract_win_rate(dist.relations, dist.members)
         wr_df = df_from_win_rate(win_rates)
-
-        print(" estimating correlations...")
         cor = self.cor_extractor(dist)
         cor_sr = cor_mapping_to_sr(cor)
-
-        print(" estimating uncertainly...")
         corwr_df = cor_sr.to_frame().join(wr_df)
         u_map = find_uncertainty_map(corwr_df)
-
-        print(" estimating ability...")
         a_map = estimate_ability_map(corwr_df, u_map)
 
-        print(" done.")
         return MvnModel(cor_sr, u_map, a_map, dist.members, self.name)
 
 
