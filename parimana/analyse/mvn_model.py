@@ -74,6 +74,8 @@ class MvnModel(Generic[T]):
     def plot_box(self) -> mpfig.Figure:
         values = self.simulate_values(10_000)
         fig, ax = plt.subplots()
+        ax.minorticks_on()
+        ax.grid(axis="x", linestyle="dotted", which="both")
         ax.boxplot(values, vert=False, sym="")
         return fig
 
