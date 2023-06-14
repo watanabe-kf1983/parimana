@@ -14,8 +14,8 @@ def main():
 
     for a in settings.analysers:
         r = a.analyse(odds=odds, dist=dist, simulation_count=settings.simulation_count)
-        r.save(race.base_dir / a.name)
         r.print_recommend()
+        r.save(race.base_dir / a.name)
 
 
 main()
