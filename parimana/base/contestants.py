@@ -44,6 +44,7 @@ class Contestants:
     def destribution(
         self, vote_tallies: Mapping[Eye, float]
     ) -> Distribution[Contestant]:
+        print("extracting destribution...")
         return Distribution([self.situation(k, v) for k, v in vote_tallies.items()])
 
     def destribution_from_odds(
@@ -52,7 +53,6 @@ class Contestants:
         vote_ratio: Mapping[BettingType, float],
         vote_tally_total: float,
     ) -> Distribution[Contestant]:
-        print("calculating vote tally...")
         return self.destribution(calc_vote_tally(odds, vote_ratio, vote_tally_total))
 
     @classmethod
