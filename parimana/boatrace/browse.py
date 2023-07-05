@@ -3,13 +3,13 @@ from typing import Iterator, Tuple
 import requests
 
 from parimana.base.eye import BettingType
-from parimana.boatrace.base import btype_to_code
+from parimana.boatrace.base import btype_to_code, supported_types
 
 
 def browse_odds_pages(
     date: str, cource: int, race_no: int
 ) -> Iterator[Tuple[str, BettingType]]:
-    for btype in [BettingType.TRIFECTA]:
+    for btype in supported_types:
         for page_content in _browse_odds_by_btype(date, cource, race_no, btype):
             yield (page_content, btype)
 

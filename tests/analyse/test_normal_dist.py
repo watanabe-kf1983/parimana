@@ -19,5 +19,3 @@ def test_estimate_mean_delta(win_rate, sd_x, sd_y, cor):
     expected = estimate_mean_delta_slow(win_rate, sd_x, sd_y, cor)
     actual = estimate_mean_delta(win_rate, sd_x, sd_y, cor)
     assert math.isclose(expected, actual)
-
-

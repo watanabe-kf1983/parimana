@@ -1,4 +1,4 @@
-from typing import Mapping
+from typing import Collection, Mapping
 
 from parimana.base.eye import BettingType
 
@@ -10,6 +10,8 @@ _type_dict: Mapping[BettingType, str] = {
     BettingType.TRIFECTA: "8",
 }
 _type_dict_inv: Mapping[str, BettingType] = {v: k for k, v in _type_dict.items()}
+
+supported_types: Collection[BettingType] = _type_dict.keys()
 
 
 def btype_to_code(btype: BettingType) -> str:

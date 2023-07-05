@@ -10,13 +10,13 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base.eye import BettingType
-from parimana.netkeiba.base import btype_to_code
+from parimana.netkeiba.base import btype_to_code, supported_types
 
 
 def browse_odds_pages(
     driver: WebDriver, nk_race_id: str
 ) -> Iterator[Tuple[str, BettingType]]:
-    for btype in BettingType:
+    for btype in supported_types:
         for page_content in _browse_odds_by_btype(driver, nk_race_id, btype):
             yield (page_content, btype)
 
