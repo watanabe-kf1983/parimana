@@ -7,6 +7,7 @@ from parimana.base.contestants import Contestant, Contestants
 
 
 from parimana.base.eye import BettingType, Eye
+from parimana.base.odds import Odds
 from parimana.base.situation import Distribution
 
 
@@ -32,7 +33,7 @@ class Race(ABC):
         pass
 
     @abstractmethod
-    def collect_odds(self) -> Mapping[Eye, float]:
+    def collect_odds(self) -> Mapping[Eye, Odds]:
         pass
 
     @classmethod
@@ -56,10 +57,10 @@ class Race(ABC):
             delattr(self, "odds")
 
     @cached_property
-    def odds(self) -> Mapping[Eye, float]:
+    def odds(self) -> Mapping[Eye, Odds]:
         return self._get_odds()
 
-    def _get_odds(self) -> Mapping[Eye, float]:
+    def _get_odds(self) -> Mapping[Eye, Odds]:
         odds_p_path = self.odds_cache_path
         if not odds_p_path.exists():
             print("collecting odds...")

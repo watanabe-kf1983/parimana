@@ -5,6 +5,7 @@ from parimana.base.eye import BettingType
 _type_dict: Mapping[BettingType, str] = {
     # BettingType.TRIO: "3f",
     BettingType.TRIFECTA: "3t",
+    BettingType.WIDE: "k",
 }
 _type_dict_inv: Mapping[str, BettingType] = {v: k for k, v in _type_dict.items()}
 

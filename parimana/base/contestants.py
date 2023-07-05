@@ -8,6 +8,7 @@ from dataclasses import dataclass
 
 
 from parimana.base.eye import BettingType, Eye
+from parimana.base.odds import Odds
 from parimana.base.vote import calc_vote_tally
 from parimana.base.situation import Situation, Distribution
 
@@ -49,7 +50,7 @@ class Contestants:
 
     def destribution_from_odds(
         self,
-        odds: Mapping[Eye, float],
+        odds: Mapping[Eye, Odds],
         vote_ratio: Mapping[BettingType, float],
         vote_tally_total: float,
     ) -> Distribution[Contestant]:

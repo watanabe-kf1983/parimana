@@ -3,6 +3,7 @@ from typing import Mapping
 import pandas as pd
 
 from parimana.base.eye import BettingType, Eye
+from parimana.base.odds import Odds
 
 
 def vote_ratio_to_tally(
@@ -18,9 +19,9 @@ def vote_ratio_to_tally(
     )["vote_tally"]
 
 
-def odds_to_df(odds: Mapping[Eye, float]) -> pd.DataFrame:
+def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
     return pd.DataFrame.from_records(
-        [{"eye": e.text, "type": e.type.name, "odds": o} for e, o in odds.items()],
+        [{"eye": e.text, "type": e.type.name, "odds": o.odds} for e, o in odds.items()],
         index="eye",
     )
 
@@ -37,7 +38,7 @@ def sr_to_em(sr: pd.Series) -> pd.Series:
 
 
 def calc_vote_tally(
-    odds: Mapping[Eye, float], vote_ratio: Mapping[BettingType, float], total: float
+    odds: Mapping[Eye, Odds], vote_ratio: Mapping[BettingType, float], total: float
 ) -> Mapping[Eye, float]:
     odds_df = odds_to_df(odds)
     tally_by_type = vote_ratio_to_tally(vote_ratio, total)

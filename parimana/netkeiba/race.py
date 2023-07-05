@@ -7,6 +7,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
+from parimana.base.odds import Odds
 from parimana.base.race import Race
 from parimana.driver.chrome import headless_chrome
 from parimana.netkeiba.browse import browse_odds_pages
@@ -55,7 +56,7 @@ class NetKeibaRace(Race):
     def race_id(self) -> str:
         return f"netkeiba-{self.netkeiba_race_id}"
 
-    def collect_odds(self) -> Mapping[Eye, float]:
+    def collect_odds(self) -> Mapping[Eye, Odds]:
         return {
             eye: odds
             for content, btype in browse_odds_pages(self.driver, self.netkeiba_race_id)
