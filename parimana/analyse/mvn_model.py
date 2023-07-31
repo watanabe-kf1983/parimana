@@ -129,7 +129,7 @@ class MvnModel(Generic[T]):
         prob_by_eye = [
             (eye.text, p)
             for trifecta, p in trif_prob.items()
-            for eye in Eye.eyes_from_names(trifecta)
+            for eye in Eye.eyes_from_places(trifecta)
         ]
         chance_df = pd.DataFrame(prob_by_eye, columns=["eye", "prob"])
         sr = chance_df.groupby(["eye"])["prob"].sum()

@@ -1,5 +1,5 @@
 from enum import Enum
-from itertools import combinations, permutations
+from itertools import combinations, permutations, chain
 from typing import Collection, Sequence, Callable, TypeVar
 from dataclasses import dataclass
 from functools import cached_property
@@ -78,8 +78,10 @@ class Eye:
         return self.text
 
     @classmethod
-    def eyes_from_names(cls, names: Sequence[str]) -> Collection["Eye"]:
-        return [cls.from_names(names, t) for t in BettingType]
+    def eyes_from_places(cls, places: Sequence[str]) -> Collection["Eye"]:
+        return list(
+            chain.from_iterable(cls.from_places(places, t) for t in BettingType)
+        )
 
     @classmethod
     def all_eyes(cls, names: Sequence[str], t: BettingType) -> Sequence["Eye"]:
@@ -96,3 +98,10 @@ class Eye:
         else:
             won = sorted(won)
             return Eye(t.prefix + "=".join(won))
+
+    @classmethod
+    def from_places(cls, places: Sequence[str], t: BettingType) -> Sequence["Eye"]:
+        return [
+            cls.from_names(names, t)
+            for names in combinations(places[: t.place], t.size)
+        ]
