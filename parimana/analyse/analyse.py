@@ -3,10 +3,11 @@ from functools import cached_property
 from pathlib import Path
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
 
+import numpy as np
 import pandas as pd
-from parimana.base.eye import Eye
 
 
+from parimana.base.eye import BettingType, Eye
 from parimana.base.situation import Comparable, Distribution
 from parimana.analyse.correlation import (
     cor_none,
@@ -20,14 +21,28 @@ from parimana.analyse.ability import (
     find_uncertainty_map,
 )
 from parimana.analyse.mvn_model import MvnModel
+from parimana.analyse.chart import DoubleLogChart
 from parimana.base.vote import (
+    RegressionModel,
     calc_expected_dividend,
+    calc_regression_model,
     em_to_sr,
     odds_to_df,
 )
 
 
 T = TypeVar("T", bound=Comparable)
+
+colormap = {
+    "WHOLE": "black",
+    "WIN": "red",
+    "SHOW": "black",
+    "EXACTA": "green",
+    "QUINELLA": "cyan",
+    "WIDE": "gray",
+    "TRIFECTA": "orange",
+    "TRIO": "blue",
+}
 
 
 @dataclass(frozen=True)
@@ -36,6 +51,7 @@ class AnalysisResult(Generic[T]):
     model: MvnModel[T]
     chances: Mapping[Eye, float]
     expected: Mapping[Eye, float]
+    regression: Mapping[BettingType, RegressionModel]
 
     @cached_property
     def simulation(self) -> pd.DataFrame:
@@ -46,6 +62,43 @@ class AnalysisResult(Generic[T]):
             .fillna(0)
             .sort_values(["type", "eye"])
         )
+
+    def plot_odds_chance(self) -> DoubleLogChart:
+        chart = DoubleLogChart()
+        df = self.simulation
+        chart.scatter(df["odds"], df["chance"], color=df["type"].map(colormap))
+
+        xmin = df["odds"].min()
+        xmax = df["odds"].max()
+
+        for lbl in df["type"].unique():
+            rgm = self.regression[BettingType[lbl]]
+            chart.line(
+                rgm,
+                "--",
+                xmax=xmax,
+                xmin=xmin,
+                color=colormap[lbl],
+                label=lbl,
+            )
+
+        chart.line(
+            RegressionModel(-1, np.log(0.75)),
+            "-",
+            xmin=xmin,
+            xmax=xmax,
+            color="gray",
+            label="Theoretical",
+        )
+        chart.line(
+            RegressionModel(-1, 0),
+            "-",
+            xmin=xmin,
+            xmax=xmax,
+            color="black",
+            label="Breakeven",
+        )
+        return chart
 
     def print_recommend(self) -> None:
         print()
@@ -60,6 +113,7 @@ class AnalysisResult(Generic[T]):
     def save(self, dir_: Path):
         dir_.mkdir(exist_ok=True, parents=True)
         self.model.save_figures(dir_)
+        self.plot_odds_chance().save(dir_ / "oc.png")
         xlname = f"{self.model.name}.xlsx"
         with pd.ExcelWriter(dir_ / xlname) as writer:
             self.recommendation.to_excel(writer, sheet_name="recommend")
@@ -80,7 +134,8 @@ class Analyser(Generic[T]):
         print(f"simulating '{model.name}' ...")
         chances = model.simulate(simulation_count)
         expected = calc_expected_dividend(odds, chances)
-        return AnalysisResult(odds, model, chances, expected)
+        regression = calc_regression_model(odds, chances)
+        return AnalysisResult(odds, model, chances, expected, regression)
 
     def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
         win_rates = extract_win_rate(dist.relations, dist.members)

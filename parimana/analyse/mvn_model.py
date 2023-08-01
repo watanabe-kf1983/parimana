@@ -67,9 +67,9 @@ class MvnModel(Generic[T]):
         cor_df.to_excel(writer, sheet_name="cor")
 
     def save_figures(self, dir: Path) -> None:
-        self.plot_box().savefig(dir / "boxplot.png")
-        self.plot_mds().savefig(dir / "mds.png")
-        self.plot_mds(metric=True).savefig(dir / "mds_metric.png")
+        self.plot_box().savefig(dir / "boxplot.png", dpi=300)
+        self.plot_mds().savefig(dir / "mds.png", dpi=300)
+        self.plot_mds(metric=True).savefig(dir / "mds_metric.png", dpi=300)
 
     def plot_box(self) -> mpfig.Figure:
         values = self.simulate_values(10_000)

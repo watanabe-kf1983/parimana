@@ -1,6 +1,9 @@
+from dataclasses import dataclass
 from typing import Mapping
 
 import pandas as pd
+import numpy as np
+from scipy.stats import linregress
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
@@ -65,3 +68,24 @@ def calc_expected_dividend(
     expected_sr = (odds_sr * chance_sr * 100).fillna(0).rename("expected")
 
     return sr_to_em(expected_sr)
+
+
+@dataclass
+class RegressionModel:
+    slope: float
+    intercept: float
+    rvalue: float = 1
+    pvalue: float = 0
+    stderr: float = 0
+
+
+def calc_regression_model(
+    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
+) -> Mapping[BettingType, RegressionModel]:
+    whole = odds_to_df(odds).join(em_to_sr(chance, "chance"), how="left")
+    return {
+        BettingType[lbl]: RegressionModel(
+            *(linregress(np.log(df["odds"]), np.log(df["chance"])))
+        )
+        for lbl, df in whole.query("chance >= 0.000001").groupby("type")
+    }
