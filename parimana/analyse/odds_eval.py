@@ -58,7 +58,7 @@ def calc_vote_tally(
 
 
 def calc_expected_dividend(
-    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
+    odds: Mapping[Eye, Odds], chance: Mapping[Eye, float]
 ) -> Mapping[Eye, float]:
     df = odds_to_df(odds)
     odds_sr = df["odds"]
@@ -80,7 +80,7 @@ class RegressionModel:
 
 
 def calc_regression_model(
-    odds: Mapping[Eye, float], chance: Mapping[Eye, float]
+    odds: Mapping[Eye, Odds], chance: Mapping[Eye, float]
 ) -> Mapping[BettingType, RegressionModel]:
     whole = odds_to_df(odds).join(em_to_sr(chance, "chance"), how="left")
     return {

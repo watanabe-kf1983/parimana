@@ -1,6 +1,6 @@
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import NormalOdds
-from parimana.base.vote import (
+from parimana.analyse.odds_eval import (
     calc_vote_tally,
 )
 

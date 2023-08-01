@@ -9,11 +9,11 @@ def main():
     race = settings.race
     if not settings.use_cache:
         race.remove_odds_cache()
-    odds = race.odds
-    dist = race.extract_destribution()
 
     for a in settings.analysers:
-        r = a.analyse(odds=odds, dist=dist, simulation_count=settings.simulation_count)
+        r = a.analyse(
+            race=race, simulation_count=settings.simulation_count
+        )
         r.print_recommend()
         r.save(race.base_dir / a.name)
 

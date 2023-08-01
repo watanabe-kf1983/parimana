@@ -9,6 +9,7 @@ import pandas as pd
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.situation import Comparable, Distribution
+from parimana.base.race import Race
 from parimana.analyse.correlation import (
     cor_none,
     cor_by_score,
@@ -22,10 +23,11 @@ from parimana.analyse.ability import (
 )
 from parimana.analyse.mvn_model import MvnModel
 from parimana.analyse.chart import DoubleLogChart
-from parimana.base.vote import (
+from parimana.analyse.odds_eval import (
     RegressionModel,
     calc_expected_dividend,
     calc_regression_model,
+    calc_vote_tally,
     em_to_sr,
     odds_to_df,
 )
@@ -126,9 +128,13 @@ class Analyser(Generic[T]):
     name: str
     cor_extractor: Callable[[Distribution[T]], Mapping[Tuple[T, T], float]]
 
-    def analyse(
-        self, odds: Mapping[Eye, float], dist: Distribution[T], simulation_count: int
-    ) -> AnalysisResult[T]:
+    def analyse(self, race: Race, simulation_count: int) -> AnalysisResult[T]:
+        print(f"extract_destribution by '{self.name}' ...")
+        odds = race.odds
+        vote_tallies = calc_vote_tally(
+            race.odds, race.vote_ratio, race.vote_tally_total
+        )
+        dist = race.contestants.destribution(vote_tallies)
         print(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
         print(f"simulating '{model.name}' ...")

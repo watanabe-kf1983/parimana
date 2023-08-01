@@ -7,9 +7,7 @@ from typing import (
 from dataclasses import dataclass
 
 
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds
-from parimana.base.vote import calc_vote_tally
+from parimana.base.eye import Eye
 from parimana.base.situation import Situation, Distribution
 
 T = TypeVar("T")
@@ -45,16 +43,7 @@ class Contestants:
     def destribution(
         self, vote_tallies: Mapping[Eye, float]
     ) -> Distribution[Contestant]:
-        print("extracting destribution...")
         return Distribution([self.situation(k, v) for k, v in vote_tallies.items()])
-
-    def destribution_from_odds(
-        self,
-        odds: Mapping[Eye, Odds],
-        vote_ratio: Mapping[BettingType, float],
-        vote_tally_total: float,
-    ) -> Distribution[Contestant]:
-        return self.destribution(calc_vote_tally(odds, vote_ratio, vote_tally_total))
 
     @classmethod
     def from_names(cls, names: Sequence[str]) -> "Contestants":

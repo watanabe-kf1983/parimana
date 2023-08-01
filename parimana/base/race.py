@@ -3,12 +3,11 @@ from functools import cached_property
 from pathlib import Path
 import pickle
 from typing import Mapping, Optional
-from parimana.base.contestants import Contestant, Contestants
+from parimana.base.contestants import Contestants
 
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
-from parimana.base.situation import Distribution
 
 
 class Race(ABC):
@@ -75,10 +74,3 @@ class Race(ABC):
                 odds = pickle.load(f)
 
         return odds
-
-    def extract_destribution(self) -> Distribution[Contestant]:
-        return self.contestants.destribution_from_odds(
-            odds=self.odds,
-            vote_ratio=self.vote_ratio,
-            vote_tally_total=self.vote_tally_total,
-        )
