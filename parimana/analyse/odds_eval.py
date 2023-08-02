@@ -7,22 +7,16 @@ from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 
 
-def calc_vote_tally2(
+def calc_vote_tally(
     odds: Mapping[Eye, Odds],
     vote_ratio: Mapping[BettingType, float],
-    odds_model: Mapping[BettingType, RegressionModel],
+    odds_model: Mapping[BettingType, RegressionModel] = {},
 ) -> Mapping[Eye, float]:
-    return calc_vote_tally(odds, vote_ratio)
+    odds_df = odds_to_df(odds).join(type_exponent(odds_model), on="type", how="left")
 
+    odds_df["odds_inv"] = odds_df["odds"] ** odds_df["exponent"]
 
-def calc_vote_tally(
-    odds: Mapping[Eye, Odds], vote_ratio: Mapping[BettingType, float]
-) -> Mapping[Eye, float]:
-    odds_df = odds_to_df(odds)
     tally_by_type = vote_ratio_to_tally(vote_ratio)
-
-    odds_df["odds_inv"] = 1 / odds_df["odds"]
-
     inv_sum_by_type = odds_df.groupby("type")["odds_inv"].sum()
     correction = tally_by_type / inv_sum_by_type
     df = odds_df.join(correction.rename("correction"), on="type")
@@ -39,15 +33,22 @@ def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
     )
 
 
-def vote_ratio_to_tally(
-    vote_ratio: Mapping[BettingType, float]
-) -> pd.Series:
-    sum_ = sum(vote_ratio.values())
+def type_exponent(odds_model: Mapping[BettingType, RegressionModel]) -> pd.Series:
     return pd.DataFrame.from_records(
         [
-            {"type": k.name, "vote_tally": v / sum_}
-            for k, v in vote_ratio.items()
+            {
+                "type": bt.name,
+                "exponent": odds_model.get(bt, RegressionModel(-1, 0)).slope,
+            }
+            for bt in BettingType
         ],
         index="type",
-    )["vote_tally"]
+    )["exponent"]
 
+
+def vote_ratio_to_tally(vote_ratio: Mapping[BettingType, float]) -> pd.Series:
+    sum_ = sum(vote_ratio.values())
+    return pd.DataFrame.from_records(
+        [{"type": k.name, "vote_tally": v / sum_} for k, v in vote_ratio.items()],
+        index="type",
+    )["vote_tally"]
