@@ -20,11 +20,16 @@ class OddsChance:
     def odds_df(self) -> pd.DataFrame:
         return pd.DataFrame.from_records(
             [
-                {"eye": e.text, "type": e.type.name, "odds": o.odds}
+                {
+                    "eye": e.text,
+                    "type": e.type.name,
+                    "tid": e.type.id,
+                    "odds": o.odds,
+                }
                 for e, o in self.odds.items()
             ],
             index="eye",
-        )
+        ).sort_values(["tid", "eye"])[["type", "odds"]]
 
     @cached_property
     def odds_sr(self) -> pd.Series:
@@ -47,62 +52,61 @@ class OddsChance:
             self.odds_df.join(self.chance_sr, how="left")
             .join(self.expected_sr, how="left")
             .fillna(0)
-            .sort_values(["type", "eye"])
         )
 
     @cached_property
     def regression_model(self) -> Mapping[BettingType, RegressionModel]:
         return {
             BettingType[lbl]: linereg(np.log(df["odds"]), np.log(df["chance"]))
-            for lbl, df in self.df.query("chance >= 0.000001").groupby("type")
+            for lbl, df in self.df.query("odds > 0 & chance >= 0.000001").groupby(
+                "type"
+            )
         }
 
     @cached_property
     def chart(self) -> DoubleLogChart:
-        chart = DoubleLogChart()
-        df = self.df
-        chart.scatter(df["odds"], df["chance"], color=df["type"].map(colormap))
-
-        xmin = df["odds"].min()
-        xmax = df["odds"].max()
+        df = self.df.query("odds > 0 & chance > 0")
+        dlc = DoubleLogChart()
+        dlc.scatter(
+            df["odds"],
+            df["chance"],
+            c=df["type"].map(lambda t: BettingType[t].color),
+            s=2,
+            zorder=2
+            # marker="o",
+        )
 
         for lbl in df["type"].unique():
+            t_df = df[df["type"] == lbl]
             rgm = self.regression_model[BettingType[lbl]]
-            chart.line(
+            dlc.line(
                 rgm,
-                "--",
-                xmax=xmax,
-                xmin=xmin,
-                color=colormap[lbl],
+                xmin=t_df["odds"].min() / 2,
+                xmax=t_df["odds"].max() * 2,
                 label=lbl,
+                c=BettingType[lbl].color,
+                fmt="--",
+                linewidth=0.5,
+                zorder=1,
             )
 
-        chart.line(
+        dlc.line(
             RegressionModel(-1, np.log(0.75)),
-            "-",
-            xmin=xmin,
-            xmax=xmax,
-            color="gray",
+            xmin=df["odds"].min() / 2,
+            xmax=df["odds"].max() * 2,
             label="Theoretical",
+            c="lightgray",
+            linewidth=3,
+            zorder=0,
         )
-        chart.line(
+        dlc.line(
             RegressionModel(-1, 0),
-            "-",
-            xmin=xmin,
-            xmax=xmax,
-            color="black",
+            xmin=df["odds"].min() / 2,
+            xmax=df["odds"].max() * 2,
             label="Breakeven",
+            c="mistyrose",
+            linewidth=3,
+            zorder=0,
         )
-        return chart
 
-
-colormap = {
-    "WIN": "blue",
-    "PLACE": "orange",
-    "SHOW": "green",
-    "EXACTA": "red",
-    "QUINELLA": "purple",
-    "WIDE": "brown",
-    "TRIFECTA": "pink",
-    "TRIO": "cyan",
-}
+        return dlc

@@ -9,20 +9,40 @@ T = TypeVar("T")
 
 
 class BettingType(Enum):
-    WIN = (True, 1, 1)
-    PLACE = (False, 1, 2, "P")
-    SHOW = (False, 1, 3, "S")
-    EXACTA = (True, 2, 2)
-    QUINELLA = (False, 2, 2)
-    WIDE = (False, 2, 3, "W")
-    TRIFECTA = (True, 3, 3)
-    TRIO = (False, 3, 3)
+    WIN = (1, True, 1, 1, "red")
+    PLACE = (2, False, 1, 2, "brown", "P")
+    SHOW = (3, False, 1, 3, "olive", "S")
+    EXACTA = (4, True, 2, 2, "magenta")
+    QUINELLA = (5, False, 2, 2, "purple")
+    WIDE = (6, False, 2, 3, "green", "W")
+    TRIFECTA = (7, True, 3, 3, "orange")
+    TRIO = (8, False, 3, 3, "blue")
 
-    def __init__(self, sequencial: bool, size: int, place: int, prefix: str = ""):
+    def __init__(
+        self,
+        id: int,
+        sequencial: bool,
+        size: int,
+        place: int,
+        color: str,
+        prefix: str = "",
+    ):
+        self.id: int = id
         self.sequencial: bool = sequencial
         self.size: int = size
         self.place: int = place
+        self.color: str = color
         self.prefix: str = prefix
+
+    @classmethod
+    def from_size_and_type(
+        cls, sequencial: bool, size: int, place: int
+    ) -> "BettingType":
+        for bt in BettingType:
+            if (sequencial == bt.sequencial) and size == bt.size and place == bt.place:
+                return bt
+
+        raise ValueError(f"{sequencial} {size} {place} type not exists.")
 
     @classmethod
     def from_prefix(cls, prefix: str) -> "BettingType":
@@ -66,7 +86,7 @@ class Eye:
 
         sequencial: bool = isinstance(self.names, Sequence)
         size: int = len(self.names)
-        return BettingType((sequencial, size, size))  # type: ignore
+        return BettingType.from_size_and_type(sequencial, size, size)
 
     def map(self, mapper: Callable[[str], T]) -> Collection[T]:
         if self.type.sequencial:

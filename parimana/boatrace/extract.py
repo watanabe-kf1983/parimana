@@ -32,9 +32,13 @@ def select_table(btype: BettingType, soup: BeautifulSoup) -> Tag:
             "div.grid.is-type2.h-clear > div:nth-child(2) table"
         )
     elif btype == BettingType.QUINELLA:
-        return soup.select_one("div.contentsFrame1_inner > div:nth-child(9) > table")
+        return soup.select_one(
+            "div.contentsFrame1_inner > div:nth-child(n+9):nth-child(-n+10) table"
+        )
     else:
-        return soup.select_one("div.contentsFrame1_inner > div:nth-child(7) > table")
+        return soup.select_one(
+            "div.contentsFrame1_inner > div:nth-child(n+7):nth-child(-n+8) table"
+        )
 
 
 def extract_odds_from_table(table: Tag) -> Sequence[Odds]:

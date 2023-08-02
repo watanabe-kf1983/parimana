@@ -19,18 +19,18 @@ class DoubleLogChart(Chart):
         self.ax.set_xscale("log")
         self.ax.set_yscale("log")
 
-    def line(self, reg, format, xmin, xmax, color, label) -> None:
+    def line(self, reg, xmin, xmax, label, fmt="-", **kwargs) -> None:
         x = np.logspace(np.log(xmin), np.log(xmax), base=np.e)
         y = x**reg.slope * np.exp(reg.intercept)
         label = (
             f"{label}: $y={np.exp(reg.intercept):.3f}x^{{{reg.slope:.3f}}}$"
-            # + f"  (rsq={(reg.rvalue)**2:.3f})"
+            f"  (rsq={(reg.rvalue)**2:.3f})"
         )
-        self.ax.plot(x, y, format, c=color, label=label)
-        self.ax.legend()
+        self.ax.plot(x, y, fmt, label=label, **kwargs)
+        self.ax.legend(fontsize="xx-small")
 
-    def scatter(self, x, y, color) -> None:
-        self.ax.scatter(x, y, s=1, c=color, marker="o")
+    def scatter(self, x, y, **kwargs) -> None:
+        self.ax.scatter(x, y, **kwargs)
 
     def save(self, path: Path) -> None:
         self.fig.savefig(path, dpi=300)
