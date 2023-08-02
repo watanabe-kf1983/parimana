@@ -1,50 +1,25 @@
-from dataclasses import dataclass
 from typing import Mapping
 
 import pandas as pd
-import numpy as np
-from scipy.stats import linregress
+from parimana.analyse.regression import RegressionModel
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 
 
-def vote_ratio_to_tally(
-    vote_ratio: Mapping[BettingType, float], total: float
-) -> pd.Series:
-    sum_ = sum(vote_ratio.values())
-    return pd.DataFrame.from_records(
-        [
-            {"type": k.name, "vote_tally": v / sum_ * total}
-            for k, v in vote_ratio.items()
-        ],
-        index="type",
-    )["vote_tally"]
-
-
-def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
-    return pd.DataFrame.from_records(
-        [{"eye": e.text, "type": e.type.name, "odds": o.odds} for e, o in odds.items()],
-        index="eye",
-    )
-
-
-def em_to_sr(em: Mapping[Eye, float], name: str) -> pd.Series:
-    return pd.DataFrame.from_records(
-        [{"eye": e.text, name: o} for e, o in em.items()],
-        index="eye",
-    )[name].rename(name)
-
-
-def sr_to_em(sr: pd.Series) -> pd.Series:
-    return {Eye(i): r for i, r in sr.items()}
+def calc_vote_tally2(
+    odds: Mapping[Eye, Odds],
+    vote_ratio: Mapping[BettingType, float],
+    odds_model: Mapping[BettingType, RegressionModel],
+) -> Mapping[Eye, float]:
+    return calc_vote_tally(odds, vote_ratio)
 
 
 def calc_vote_tally(
-    odds: Mapping[Eye, Odds], vote_ratio: Mapping[BettingType, float], total: float
+    odds: Mapping[Eye, Odds], vote_ratio: Mapping[BettingType, float]
 ) -> Mapping[Eye, float]:
     odds_df = odds_to_df(odds)
-    tally_by_type = vote_ratio_to_tally(vote_ratio, total)
+    tally_by_type = vote_ratio_to_tally(vote_ratio)
 
     odds_df["odds_inv"] = 1 / odds_df["odds"]
 
@@ -54,38 +29,25 @@ def calc_vote_tally(
 
     sr = df["odds_inv"] * df["correction"]
 
-    return sr_to_em(sr)
+    return {Eye(i): v for i, v in sr.items()}
 
 
-def calc_expected_dividend(
-    odds: Mapping[Eye, Odds], chance: Mapping[Eye, float]
-) -> Mapping[Eye, float]:
-    df = odds_to_df(odds)
-    odds_sr = df["odds"]
-    chance_sr = pd.DataFrame.from_records(
-        [{"eye": k.text, "chance": v} for k, v in chance.items()], index="eye"
-    )["chance"].rename("chance")
-    expected_sr = (odds_sr * chance_sr * 100).fillna(0).rename("expected")
-
-    return sr_to_em(expected_sr)
+def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
+    return pd.DataFrame.from_records(
+        [{"eye": e.text, "type": e.type.name, "odds": o.odds} for e, o in odds.items()],
+        index="eye",
+    )
 
 
-@dataclass
-class RegressionModel:
-    slope: float
-    intercept: float
-    rvalue: float = 1
-    pvalue: float = 0
-    stderr: float = 0
+def vote_ratio_to_tally(
+    vote_ratio: Mapping[BettingType, float]
+) -> pd.Series:
+    sum_ = sum(vote_ratio.values())
+    return pd.DataFrame.from_records(
+        [
+            {"type": k.name, "vote_tally": v / sum_}
+            for k, v in vote_ratio.items()
+        ],
+        index="type",
+    )["vote_tally"]
 
-
-def calc_regression_model(
-    odds: Mapping[Eye, Odds], chance: Mapping[Eye, float]
-) -> Mapping[BettingType, RegressionModel]:
-    whole = odds_to_df(odds).join(em_to_sr(chance, "chance"), how="left")
-    return {
-        BettingType[lbl]: RegressionModel(
-            *(linregress(np.log(df["odds"]), np.log(df["chance"])))
-        )
-        for lbl, df in whole.query("chance >= 0.000001").groupby("type")
-    }

@@ -31,7 +31,6 @@ ratio_data_derby = {
     BettingType.TRIFECTA: 37.1,
 }
 
-vote_total = 100_000_000
 
 
 @dataclass
@@ -47,10 +46,6 @@ class NetKeibaRace(Race):
     @property
     def vote_ratio(self) -> Mapping[BettingType, float]:
         return ratio_data_derby
-
-    @property
-    def vote_tally_total(self) -> float:
-        return vote_total
 
     @property
     def race_id(self) -> str:

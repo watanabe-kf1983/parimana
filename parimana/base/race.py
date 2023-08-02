@@ -23,11 +23,6 @@ class Race(ABC):
 
     @property
     @abstractmethod
-    def vote_tally_total(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
     def race_id(self) -> str:
         pass
 

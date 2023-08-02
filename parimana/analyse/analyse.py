@@ -3,11 +3,9 @@ from functools import cached_property
 from pathlib import Path
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
 
-import numpy as np
 import pandas as pd
 
-
-from parimana.base.eye import BettingType, Eye
+from parimana.base.eye import Eye
 from parimana.base.situation import Comparable, Distribution
 from parimana.base.race import Race
 from parimana.analyse.correlation import (
@@ -22,29 +20,13 @@ from parimana.analyse.ability import (
     find_uncertainty_map,
 )
 from parimana.analyse.mvn_model import MvnModel
-from parimana.analyse.chart import DoubleLogChart
+from parimana.analyse.odds_chance import OddsChance
 from parimana.analyse.odds_eval import (
-    RegressionModel,
-    calc_expected_dividend,
-    calc_regression_model,
     calc_vote_tally,
-    em_to_sr,
-    odds_to_df,
 )
 
 
 T = TypeVar("T", bound=Comparable)
-
-colormap = {
-    "WHOLE": "black",
-    "WIN": "red",
-    "SHOW": "black",
-    "EXACTA": "green",
-    "QUINELLA": "cyan",
-    "WIDE": "gray",
-    "TRIFECTA": "orange",
-    "TRIO": "blue",
-}
 
 
 @dataclass(frozen=True)
@@ -52,55 +34,14 @@ class AnalysisResult(Generic[T]):
     odds: Mapping[Eye, float]
     model: MvnModel[T]
     chances: Mapping[Eye, float]
-    expected: Mapping[Eye, float]
-    regression: Mapping[BettingType, RegressionModel]
 
     @cached_property
-    def simulation(self) -> pd.DataFrame:
-        return (
-            odds_to_df(self.odds)
-            .join(em_to_sr(self.chances, "chance"), how="left")
-            .join(em_to_sr(self.expected, "expected"), how="left")
-            .fillna(0)
-            .sort_values(["type", "eye"])
-        )
+    def odds_chance(self) -> OddsChance:
+        return OddsChance(self.odds, self.chances)
 
-    def plot_odds_chance(self) -> DoubleLogChart:
-        chart = DoubleLogChart()
-        df = self.simulation
-        chart.scatter(df["odds"], df["chance"], color=df["type"].map(colormap))
-
-        xmin = df["odds"].min()
-        xmax = df["odds"].max()
-
-        for lbl in df["type"].unique():
-            rgm = self.regression[BettingType[lbl]]
-            chart.line(
-                rgm,
-                "--",
-                xmax=xmax,
-                xmin=xmin,
-                color=colormap[lbl],
-                label=lbl,
-            )
-
-        chart.line(
-            RegressionModel(-1, np.log(0.75)),
-            "-",
-            xmin=xmin,
-            xmax=xmax,
-            color="gray",
-            label="Theoretical",
-        )
-        chart.line(
-            RegressionModel(-1, 0),
-            "-",
-            xmin=xmin,
-            xmax=xmax,
-            color="black",
-            label="Breakeven",
-        )
-        return chart
+    @cached_property
+    def recommendation(self) -> pd.DataFrame:
+        return self.odds_chance.df.sort_values("expected", ascending=False).head(10)
 
     def print_recommend(self) -> None:
         print()
@@ -108,18 +49,14 @@ class AnalysisResult(Generic[T]):
         print(self.recommendation)
         print()
 
-    @cached_property
-    def recommendation(self) -> pd.DataFrame:
-        return self.simulation.sort_values("expected", ascending=False).head(10)
-
     def save(self, dir_: Path):
         dir_.mkdir(exist_ok=True, parents=True)
         self.model.save_figures(dir_)
-        self.plot_odds_chance().save(dir_ / "oc.png")
+        self.odds_chance.chart.save(dir_ / "oc.png")
         xlname = f"{self.model.name}.xlsx"
         with pd.ExcelWriter(dir_ / xlname) as writer:
             self.recommendation.to_excel(writer, sheet_name="recommend")
-            self.simulation.to_excel(writer, sheet_name="simulation")
+            self.odds_chance.df.to_excel(writer, sheet_name="simulation")
             self.model.to_excel(writer)
 
 
@@ -131,17 +68,13 @@ class Analyser(Generic[T]):
     def analyse(self, race: Race, simulation_count: int) -> AnalysisResult[T]:
         print(f"extract_destribution by '{self.name}' ...")
         odds = race.odds
-        vote_tallies = calc_vote_tally(
-            race.odds, race.vote_ratio, race.vote_tally_total
-        )
+        vote_tallies = calc_vote_tally(race.odds, race.vote_ratio)
         dist = race.contestants.destribution(vote_tallies)
         print(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
         print(f"simulating '{model.name}' ...")
         chances = model.simulate(simulation_count)
-        expected = calc_expected_dividend(odds, chances)
-        regression = calc_regression_model(odds, chances)
-        return AnalysisResult(odds, model, chances, expected, regression)
+        return AnalysisResult(odds, model, chances)
 
     def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
         win_rates = extract_win_rate(dist.relations, dist.members)

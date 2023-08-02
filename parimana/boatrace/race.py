@@ -36,10 +36,6 @@ class BoatRace(Race):
         return ratio_data
 
     @property
-    def vote_tally_total(self) -> float:
-        return 100_000_000
-
-    @property
     def race_id(self) -> str:
         return f"boatrace-{self.date}-{self.cource}-{self.race_no}"
 
