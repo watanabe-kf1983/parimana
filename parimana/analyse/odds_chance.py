@@ -97,11 +97,12 @@ class OddsChance:
 
 
 colormap = {
-    "WIN": "red",
-    "SHOW": "black",
-    "EXACTA": "green",
-    "QUINELLA": "cyan",
-    "WIDE": "gray",
-    "TRIFECTA": "orange",
-    "TRIO": "blue",
+    "WIN": "blue",
+    "PLACE": "orange",
+    "SHOW": "green",
+    "EXACTA": "red",
+    "QUINELLA": "purple",
+    "WIDE": "brown",
+    "TRIFECTA": "pink",
+    "TRIO": "cyan",
 }

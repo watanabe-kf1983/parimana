@@ -7,38 +7,56 @@ from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 
 
-names = [str(n) for n in range(1, 7)]
-trifecta_eyes = Eye.all_eyes(names, BettingType.TRIFECTA)
-wide_eyes = Eye.all_eyes(names, BettingType.WIDE)
+# trifecta_eyes = Eye.all_eyes(names, BettingType.TRIFECTA)
+# wide_eyes = Eye.all_eyes(names, BettingType.WIDE)
+# trio_eyes = Eye.all_eyes(names, BettingType.TRIO)
 
 
 def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, Odds]:
     soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
-    if btype == BettingType.TRIFECTA:
-        return extract_odds_trifecta(soup)
-    elif btype == BettingType.WIDE:
-        return extract_odds_wide(soup)
-    else:
-        return {}
-
-
-def extract_odds_trifecta(soup: BeautifulSoup) -> Mapping[Eye, Odds]:
-    table = select_first_table(soup)
+    table = select_table(btype, soup)
     extracted = extract_odds_from_table(table)
-    odds_list = list(np.array(extracted).reshape(20, 6).T.reshape(-1))
-    return {eye: odds for eye, odds in zip(trifecta_eyes, odds_list)}
-
-
-def extract_odds_wide(soup: BeautifulSoup) -> Mapping[Eye, Odds]:
-    table = select_first_table(soup)
-    extracted = extract_odds_from_table(table)
-    eyes = sorted(wide_eyes, key=lambda e: sorted(e.names)[1])
+    eyes = eyes_table_order(btype)
     return {eye: odds for eye, odds in zip(eyes, extracted)}
 
 
-def select_first_table(soup: BeautifulSoup) -> Tag:
-    return soup.select_one("div.contentsFrame1_inner > div:nth-child(7) > table")
+def select_table(btype: BettingType, soup: BeautifulSoup) -> Tag:
+    if btype == BettingType.WIN:
+        return soup.select_one(
+            "div.contentsFrame1_inner > "
+            "div.grid.is-type2.h-clear > div:nth-child(1) table"
+        )
+    elif btype == BettingType.PLACE:
+        return soup.select_one(
+            "div.contentsFrame1_inner > "
+            "div.grid.is-type2.h-clear > div:nth-child(2) table"
+        )
+    elif btype == BettingType.QUINELLA:
+        return soup.select_one("div.contentsFrame1_inner > div:nth-child(9) > table")
+    else:
+        return soup.select_one("div.contentsFrame1_inner > div:nth-child(7) > table")
 
 
 def extract_odds_from_table(table: Tag) -> Sequence[Odds]:
     return [Odds.from_text(e.get_text()) for e in table.select("td.oddsPoint")]
+
+
+def eyes_table_order(btype: BettingType) -> Sequence[Eye]:
+    names = [str(n) for n in range(1, 7)]
+    all_eyes = Eye.all_eyes(names, btype)
+    if btype.size == 1:  # win, place, show
+        return all_eyes
+    elif btype.sequencial:  # exacta, trifecta
+        return np.array(all_eyes).reshape(6, -1).T.reshape(-1).tolist()
+    else:
+        if btype.size == 2:  # wide, quinella
+            return sorted(
+                all_eyes, key=lambda e: sorted(e.names)[1] + sorted(e.names)[0]
+            )
+        else:  # trio
+            return sorted(
+                all_eyes,
+                key=lambda e: sorted(e.names)[1]
+                + sorted(e.names)[2]
+                + sorted(e.names)[0],
+            )
