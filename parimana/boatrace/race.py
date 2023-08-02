@@ -10,15 +10,14 @@ from parimana.base.race import Race
 from parimana.boatrace.browse import browse_odds_pages
 from parimana.boatrace.extract import extract_odds
 
+# https://funaban.com/wp/post-543.html
 ratio_data = {
     BettingType.WIN: 0.0,
-    BettingType.QUINELLA: 0.0,
-    BettingType.EXACTA: 0.0,
-    BettingType.TRIO: 0.0,
-    BettingType.TRIFECTA: 1.0,
+    BettingType.QUINELLA: 0.01,
+    BettingType.EXACTA: 0.04,
+    BettingType.TRIO: 0.03,
+    BettingType.TRIFECTA: 0.92,
 }
-
-vote_total = 100_000_000
 
 
 @dataclass
