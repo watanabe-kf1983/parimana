@@ -40,4 +40,26 @@ def estimate_mean_delta(pp: float, sd_x: float, sd_y: float, cor: float) -> floa
 
 
 def rvs(mean: np.ndarray, cov: np.ndarray, size: int):
-    return scipy.stats.multivariate_normal.rvs(mean=mean, cov=cov, size=size)
+    # if not is_symmetric(cov):
+    #     raise ValueError("not symmetric")
+
+    # if not is_positive_semidefinite(cov):
+    #     eigvals = np.linalg.eigvalsh(cov)
+    #     print(eigvals)
+    #     raise ValueError("not positive_semidefinite")
+    return np.random.multivariate_normal(mean, cov, size)
+    # return scipy.stats.multivariate_normal.rvs(mean=mean, cov=cov, size=size)
+
+
+def is_symmetric(matrix):
+    return np.allclose(matrix, matrix.T)
+
+
+def is_positive_definite(matrix):
+    eigvals = np.linalg.eigvalsh(matrix)
+    return np.all(eigvals > 0)
+
+
+def is_positive_semidefinite(matrix):
+    eigvals = np.linalg.eigvalsh(matrix)
+    return np.all(eigvals >= 0)

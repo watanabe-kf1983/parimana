@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
@@ -5,9 +6,10 @@ from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
 
 import pandas as pd
 
-from parimana.base.eye import Eye
+from parimana.base.eye import BettingType, Eye
 from parimana.base.situation import Comparable, Distribution
 from parimana.base.race import Race
+from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
     cor_none,
     cor_by_score,
@@ -60,15 +62,40 @@ class AnalysisResult(Generic[T]):
             self.model.to_excel(writer)
 
 
+class Analyser(ABC, Generic[T]):
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def analyse(
+        self,
+        race: Race,
+        simulation_count: int,
+        odds_model: Mapping[BettingType, RegressionModel] = {},
+    ) -> AnalysisResult[T]:
+        pass
+
+
 @dataclass(frozen=True)
-class Analyser(Generic[T]):
-    name: str
+class OnePassAnalyser(Analyser[T]):
+    _name: str
     cor_extractor: Callable[[Distribution[T]], Mapping[Tuple[T, T], float]]
 
-    def analyse(self, race: Race, simulation_count: int) -> AnalysisResult[T]:
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def analyse(
+        self,
+        race: Race,
+        simulation_count: int,
+        odds_model: Mapping[BettingType, RegressionModel] = {},
+    ) -> AnalysisResult[T]:
         print(f"extract_destribution by '{self.name}' ...")
         odds = race.odds
-        vote_tallies = calc_vote_tally(race.odds, race.vote_ratio)
+        vote_tallies = calc_vote_tally(race.odds, race.vote_ratio, odds_model)
         dist = race.contestants.destribution(vote_tallies)
         print(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
@@ -84,15 +111,41 @@ class Analyser(Generic[T]):
         corwr_df = cor_sr.to_frame().join(wr_df)
         u_map = find_uncertainty_map(corwr_df)
         a_map = estimate_ability_map(corwr_df, u_map)
-
         return MvnModel(cor_sr, u_map, a_map, dist.members, self.name)
 
 
-_analysers: Sequence[Analyser[T]] = [
-    Analyser("ppf_smpl", lambda d: cor_by_score(d.ppf, d.members)),
-    Analyser("ppf_mtx", lambda d: cor_by_score_mtx(d.ppf_matrix, d.members)),
-    Analyser("no_cor", lambda d: cor_none(d.members)),
-]
+@dataclass(frozen=True)
+class MultiPassAnalyser(Analyser[T]):
+    _name: str
+    analysers: Sequence[Analyser[T]]
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def analyse(
+        self,
+        race: Race,
+        simulation_count: int,
+        odds_model: Mapping[BettingType, RegressionModel] = {},
+    ) -> AnalysisResult[T]:
+        om = odds_model
+        for a in self.analysers:
+            result = a.analyse(race, simulation_count, om)
+            om = result.odds_chance.regression_model
+
+        result.model.name = self.name
+        return result
+
+
+_ppf_smpl = OnePassAnalyser("ppf_smpl", lambda d: cor_by_score(d.ppf, d.members))
+_ppf_mtx = OnePassAnalyser(
+    "ppf_mtx", lambda d: cor_by_score_mtx(d.ppf_matrix, d.members)
+)
+_no_cor = OnePassAnalyser("no_cor", lambda d: cor_none(d.members))
+_multi = MultiPassAnalyser("multi", [_no_cor, _ppf_mtx])
+
+_analysers: Sequence[Analyser[T]] = [_ppf_smpl, _ppf_mtx, _no_cor, _multi]
 
 analysers: Mapping[str, Analyser[T]] = {a.name: a for a in _analysers}
 analyser_names: Sequence[str] = [a.name for a in _analysers]

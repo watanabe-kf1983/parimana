@@ -62,10 +62,12 @@ class Race(ABC):
             print(f"writing odds to {odds_p_path}...")
             with open(odds_p_path, "wb") as f:
                 pickle.dump(odds, f)
+            print("writing odds done.")
 
         else:
             print(f"reading odds from {odds_p_path}...")
             with open(odds_p_path, "rb") as f:
                 odds = pickle.load(f)
+            print("reading odds done.")
 
         return odds
