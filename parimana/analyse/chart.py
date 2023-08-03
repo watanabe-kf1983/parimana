@@ -6,13 +6,6 @@ import matplotlib.figure as mpfig
 import matplotlib.axes as mpaxes
 
 
-class Chart:
-    def __init__(self) -> None:
-        fig, ax = mpplt.subplots()
-        self.fig: mpfig.Figure = fig
-        self.ax: mpaxes.Axes = ax
-
-
 class Cmap:
     def __init__(self, name="tab10") -> None:
         self.cmap = mpplt.get_cmap(name)
@@ -22,24 +15,36 @@ class Cmap:
         return self.cmap(i % self.n)
 
 
-class DoubleLogChart(Chart):
+class Chart:
     def __init__(self) -> None:
-        super().__init__()
+        self.fig: mpfig.Figure = mpplt.figure(figsize=(6.4 * 3, 4.8 * 3))
+        self.cdict: dict = {}
+
+    def add_double_log(self, *args, **kwargs) -> "DoubleLogAxes":
+        return DoubleLogAxes(self.fig.add_subplot(*args, **kwargs), self.cdict)
+
+    def save(self, path: Path) -> None:
+        self.fig.savefig(path, dpi=300)
+
+
+class DoubleLogAxes:
+    def __init__(self, ax: mpaxes.Axes, cdict: dict) -> None:
+        self.ax: mpaxes.Axes = ax
         self.ax.set_xscale("log")
         self.ax.set_yscale("log")
+        self.cdict = cdict
 
     def line(self, reg, xmin, xmax, label, fmt="-", **kwargs) -> None:
         x = np.logspace(np.log(xmin), np.log(xmax), base=np.e)
         y = x**reg.slope * np.exp(reg.intercept)
-        label = (
-            f"{label}: $y={np.exp(reg.intercept):.3f}x^{{{reg.slope:.3f}}}$"
-            f"  (rsq={(reg.rvalue)**2:.3f})"
+        legend_label = (
+            f"{label}: $y={np.exp(reg.intercept):.2f}x^{{{reg.slope:.2f}}}$"
+            f"  ($R^2={(reg.rvalue)**2:.2f}$)"
         )
-        self.ax.plot(x, y, fmt, label=label, **kwargs)
-        self.ax.legend(fontsize="xx-small")
+        self.ax.plot(x, y, fmt, label=legend_label, c=self.cdict[label], **kwargs)
 
-    def scatter(self, x, y, **kwargs) -> None:
-        self.ax.scatter(x, y, **kwargs)
+    def legend(self, *args, **kwargs) -> None:
+        self.ax.legend(*args, **kwargs)
 
-    def save(self, path: Path) -> None:
-        self.fig.savefig(path, dpi=600)
+    def scatter(self, *args, **kwargs) -> None:
+        self.ax.scatter(*args, **kwargs)

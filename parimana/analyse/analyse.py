@@ -144,8 +144,9 @@ _ppf_mtx = OnePassAnalyser(
 )
 _no_cor = OnePassAnalyser("no_cor", lambda d: cor_none(d.members))
 _multi = MultiPassAnalyser("multi", [_no_cor, _ppf_mtx])
+_twice = MultiPassAnalyser("twice", [_no_cor, _no_cor])
 
-_analysers: Sequence[Analyser[T]] = [_ppf_smpl, _ppf_mtx, _no_cor, _multi]
+_analysers: Sequence[Analyser[T]] = [_ppf_smpl, _ppf_mtx, _no_cor, _multi, _twice]
 
 analysers: Mapping[str, Analyser[T]] = {a.name: a for a in _analysers}
 analyser_names: Sequence[str] = [a.name for a in _analysers]
