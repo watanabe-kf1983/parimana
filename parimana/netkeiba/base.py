@@ -4,8 +4,10 @@ from parimana.base.eye import BettingType
 
 _type_dict: Mapping[BettingType, str] = {
     BettingType.WIN: "1",
+    BettingType.SHOW: "2",
     BettingType.EXACTA: "6",
     BettingType.QUINELLA: "4",
+    BettingType.WIDE: "5",
     BettingType.TRIO: "7",
     BettingType.TRIFECTA: "8",
 }

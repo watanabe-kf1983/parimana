@@ -32,7 +32,6 @@ ratio_data_derby = {
 }
 
 
-
 @dataclass
 class NetKeibaRace(Race):
     netkeiba_race_id: str
