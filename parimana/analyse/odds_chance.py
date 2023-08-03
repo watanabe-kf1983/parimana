@@ -7,7 +7,7 @@ import numpy as np
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
-from parimana.analyse.chart import DoubleLogChart
+from parimana.analyse.chart import DoubleLogChart, Cmap
 from parimana.analyse.regression import RegressionModel, linereg
 
 
@@ -65,47 +65,51 @@ class OddsChance:
 
     @cached_property
     def chart(self) -> DoubleLogChart:
-        df = self.df.query("odds > 0 & chance > 0")
+        df = self.df.query("odds > 0 & chance > 0").sort_values("odds", ascending=False)
+        lbls = sorted(df["type"].unique(), key=lambda lbl: BettingType[lbl].id)
         dlc = DoubleLogChart()
+        cmap = Cmap()
         dlc.scatter(
             df["odds"],
             df["chance"],
-            c=df["type"].map(lambda t: BettingType[t].color),
-            s=2,
-            zorder=2
-            # marker="o",
+            c=df["type"].map(lambda t: cmap.get(lbls.index(t))),
+            zorder=1,
+            alpha=0.5,
+            s=0.5
         )
 
-        for lbl in df["type"].unique():
+        for idx, lbl in enumerate(lbls):
             t_df = df[df["type"] == lbl]
             rgm = self.regression_model[BettingType[lbl]]
             dlc.line(
                 rgm,
-                xmin=t_df["odds"].min() / 2,
-                xmax=t_df["odds"].max() * 2,
+                xmin=t_df["odds"].min() / 1.5,
+                xmax=t_df["odds"].max() * 1.5,
                 label=lbl,
-                c=BettingType[lbl].color,
+                c=cmap.get(idx),
                 fmt="--",
                 linewidth=0.5,
-                zorder=1,
+                zorder=2,
             )
 
         dlc.line(
             RegressionModel(-1, np.log(0.75)),
-            xmin=df["odds"].min() / 2,
-            xmax=df["odds"].max() * 2,
+            xmin=df["odds"].min() / 1.5,
+            xmax=df["odds"].max() * 1.5,
             label="Theoretical",
-            c="lightgray",
+            c=cmap.get(len(lbls)),
             linewidth=3,
+            alpha=0.5,
             zorder=0,
         )
         dlc.line(
             RegressionModel(-1, 0),
-            xmin=df["odds"].min() / 2,
-            xmax=df["odds"].max() * 2,
+            xmin=df["odds"].min() / 1.5,
+            xmax=df["odds"].max() * 1.5,
             label="Breakeven",
-            c="mistyrose",
+            c=cmap.get(len(lbls) + 1),
             linewidth=3,
+            alpha=0.5,
             zorder=0,
         )
 

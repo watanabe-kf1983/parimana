@@ -13,6 +13,15 @@ class Chart:
         self.ax: mpaxes.Axes = ax
 
 
+class Cmap:
+    def __init__(self, name="tab10") -> None:
+        self.cmap = mpplt.get_cmap(name)
+        self.n = self.cmap.N
+
+    def get(self, i: int):
+        return self.cmap(i % self.n)
+
+
 class DoubleLogChart(Chart):
     def __init__(self) -> None:
         super().__init__()
@@ -33,4 +42,4 @@ class DoubleLogChart(Chart):
         self.ax.scatter(x, y, **kwargs)
 
     def save(self, path: Path) -> None:
-        self.fig.savefig(path, dpi=300)
+        self.fig.savefig(path, dpi=600)

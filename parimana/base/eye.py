@@ -9,14 +9,14 @@ T = TypeVar("T")
 
 
 class BettingType(Enum):
-    WIN = (1, True, 1, 1, "red")
-    PLACE = (2, False, 1, 2, "brown", "P")
-    SHOW = (3, False, 1, 3, "olive", "S")
-    EXACTA = (4, True, 2, 2, "magenta")
-    QUINELLA = (5, False, 2, 2, "purple")
-    WIDE = (6, False, 2, 3, "green", "W")
-    TRIFECTA = (7, True, 3, 3, "orange")
-    TRIO = (8, False, 3, 3, "blue")
+    WIN = (1, True, 1, 1)
+    PLACE = (2, False, 1, 2, "P")
+    SHOW = (3, False, 1, 3, "S")
+    EXACTA = (4, True, 2, 2)
+    QUINELLA = (5, False, 2, 2)
+    WIDE = (6, False, 2, 3, "W")
+    TRIFECTA = (7, True, 3, 3)
+    TRIO = (8, False, 3, 3)
 
     def __init__(
         self,
@@ -24,14 +24,12 @@ class BettingType(Enum):
         sequencial: bool,
         size: int,
         place: int,
-        color: str,
         prefix: str = "",
     ):
         self.id: int = id
         self.sequencial: bool = sequencial
         self.size: int = size
         self.place: int = place
-        self.color: str = color
         self.prefix: str = prefix
 
     @classmethod
