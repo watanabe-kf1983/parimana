@@ -75,34 +75,31 @@ class OddsChance:
         xmin = df["odds"].min() / 1.5
         xmax = df["odds"].max() * 1.5
 
+        ax = fig.add_double_log(3, 3, 1)
+        self.draw(ax, df, xmin, xmax, hidereg=True)
+
         for idx, lbl in enumerate(lbls):
-            ax = fig.add_double_log(3, 3, idx + 1)
+            ax = fig.add_double_log(3, 3, idx + 2)
             self.draw(ax, df[df["type"] == lbl], xmin, xmax)
             ax.legend(fontsize="small")
 
-        ax = fig.add_double_log(3, 3, 8)
-        self.draw(ax, df, xmin, xmax, True)
-
         ax = fig.add_double_log(3, 3, 9)
-        df2 = df.query("expected > 100")
-        self.draw(
-            ax,
-            df[df["odds"] <= df2["odds"].max()],
-            df["odds"].min() / 1.2,
-            df2["odds"].max() * 1.2,
-            True,
-        )
+        self.draw(ax, df, xmin, xmax, hidescat=True)
+        ax.legend(fontsize="xx-small")
 
         return fig
 
-    def draw(self, dla: DoubleLogAxes, df, xmin, xmax, hidereg=False) -> Chart:
-        dla.scatter(
-            df["odds"],
-            df["chance"],
-            c=df["type"].map(dla.cdict),
-            zorder=1,
-            alpha=0.5,
-        )
+    def draw(
+        self, dla: DoubleLogAxes, df, xmin, xmax, hidereg=False, hidescat=False
+    ) -> Chart:
+        if not hidescat:
+            dla.scatter(
+                df["odds"],
+                df["chance"],
+                c=df["type"].map(dla.cdict),
+                zorder=1,
+                alpha=0.5,
+            )
 
         if not hidereg:
             for lbl in sorted(df["type"].unique(), key=lambda x: BettingType[x].id):
