@@ -20,6 +20,8 @@ class Settings:
     use_cache: bool = False
     simulation_count: int = 10_000_000
     analyser_names: Sequence[str] = field(default_factory=default_analyser_names)
+    recommend_query: str = ""
+    recommend_size: int = 20
 
     @cached_property
     def race(self) -> Race:
@@ -73,5 +75,22 @@ def _arg_parser() -> argparse.ArgumentParser:
         type=int,
         default=default_settings.simulation_count,
         help="simulation sample number",
+    )
+    parser.add_argument(
+        "-q",
+        "--recommend-query",
+        type=str,
+        default=default_settings.recommend_query,
+        help=(
+            "query string to filter recommendation. \n"
+            " (ex: \"type == 'TRIFECTA' and expected >= 120\")"
+        ),
+    )
+    parser.add_argument(
+        "-s",
+        "--recommend-size",
+        type=int,
+        default=default_settings.recommend_size,
+        help=("maximum number of candidates to recommend."),
     )
     return parser

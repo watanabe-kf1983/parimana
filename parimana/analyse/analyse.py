@@ -46,14 +46,7 @@ class AnalysisResult(Generic[T]):
         return (
             self.odds_chance.df.query("expected >= 100")
             .sort_values("expected", ascending=False)
-            .head(30)
         )
-
-    def print_recommend(self) -> None:
-        print()
-        print(f"-- Recommendation by {self.model.name} --")
-        print(self.recommendation)
-        print()
 
     def save(self, dir_: Path):
         dir_.mkdir(exist_ok=True, parents=True)
