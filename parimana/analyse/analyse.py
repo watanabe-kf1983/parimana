@@ -43,7 +43,11 @@ class AnalysisResult(Generic[T]):
 
     @cached_property
     def recommendation(self) -> pd.DataFrame:
-        return self.odds_chance.df.sort_values("expected", ascending=False).head(10)
+        return (
+            self.odds_chance.df.query("expected >= 100")
+            .sort_values("expected", ascending=False)
+            .head(30)
+        )
 
     def print_recommend(self) -> None:
         print()
