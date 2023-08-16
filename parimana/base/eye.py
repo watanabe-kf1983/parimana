@@ -10,11 +10,11 @@ T = TypeVar("T")
 
 class BettingType(Enum):
     WIN = (1, True, 1, 1)
-    PLACE = (2, False, 1, 2, "P")
-    SHOW = (3, False, 1, 3, "S")
+    PLACE = (2, False, 1, 2, "[P]")
+    SHOW = (3, False, 1, 3, "[S]")
     EXACTA = (4, True, 2, 2)
     QUINELLA = (5, False, 2, 2)
-    WIDE = (6, False, 2, 3, "W")
+    WIDE = (6, False, 2, 3, "[W]")
     TRIFECTA = (7, True, 3, 3)
     TRIO = (8, False, 3, 3)
 
@@ -24,13 +24,13 @@ class BettingType(Enum):
         sequencial: bool,
         size: int,
         place: int,
-        prefix: str = "",
+        suffix: str = "",
     ):
         self.id: int = id
         self.sequencial: bool = sequencial
         self.size: int = size
         self.place: int = place
-        self.prefix: str = prefix
+        self.suffix: str = suffix
 
     @classmethod
     def from_size_and_type(
@@ -43,15 +43,15 @@ class BettingType(Enum):
         raise ValueError(f"{sequencial} {size} {place} type not exists.")
 
     @classmethod
-    def from_prefix(cls, prefix: str) -> "BettingType":
+    def from_suffix(cls, suffix: str) -> "BettingType":
         for bt in BettingType:
-            if prefix == bt.prefix:
+            if suffix == bt.suffix:
                 return bt
 
-        raise ValueError(f"prefix {prefix} type not exists.")
+        raise ValueError(f"suffix {suffix} type not exists.")
 
 
-pattern = re.compile(r"(?P<prefix>[PSW]?)(?P<body>.*)")
+pattern = re.compile(r"^(?P<body>[^\[]*)(?P<suffix>(\[[PSW]\])?)$")
 
 
 @dataclass(frozen=True)
@@ -59,9 +59,9 @@ class Eye:
     text: str
 
     @cached_property
-    def prefix(self) -> str:
+    def suffix(self) -> str:
         m = pattern.match(self.text)
-        return m.group("prefix") if m else ""
+        return m.group("suffix") if m else ""
 
     @cached_property
     def body(self) -> str:
@@ -75,12 +75,12 @@ class Eye:
         if not (len(name_list) == len(name_set)):
             raise ValueError(f"names duplicated: {name_list}")
 
-        return name_set if self.prefix or ("=" in self.body) else name_list
+        return name_set if self.suffix or ("=" in self.body) else name_list
 
     @cached_property
     def type(self) -> BettingType:
-        if self.prefix:
-            return BettingType.from_prefix(self.prefix)
+        if self.suffix:
+            return BettingType.from_suffix(self.suffix)
 
         sequencial: bool = isinstance(self.names, Sequence)
         size: int = len(self.names)
@@ -112,10 +112,10 @@ class Eye:
     def from_names(cls, names: Sequence[str], t: BettingType) -> "Eye":
         won = names[: t.size]
         if t.sequencial:
-            return Eye(t.prefix + "-".join(won))
+            return Eye("-".join(won) + t.suffix)
         else:
             won = sorted(won)
-            return Eye(t.prefix + "=".join(won))
+            return Eye("=".join(won) + t.suffix)
 
     @classmethod
     def from_places(cls, places: Sequence[str], t: BettingType) -> Sequence["Eye"]:
