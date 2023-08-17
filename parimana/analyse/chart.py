@@ -43,6 +43,18 @@ class DoubleLogAxes:
         )
         self.ax.plot(x, y, fmt, label=legend_label, c=self.cdict[label], **kwargs)
 
+    def pw_line(self, pwm, xmin, xmax, label, fmt="-", **kwargs) -> None:
+        x = np.logspace(np.log(xmin), np.log(xmax), base=np.e)
+        y = np.exp(pwm.func(np.log(x)))
+        legend_label = (
+            f"{label}: "
+            f"$y={np.exp(pwm.intercept - pwm.slope1 * pwm.boundary):.2f}"
+            f"x^{{{pwm.slope1:.2f}}}$  ($x < 10^{{{pwm.boundary/(np.log(10)):.2f}}}$), "
+            f"$y={np.exp(pwm.intercept - pwm.slope2 * pwm.boundary):.2f}"
+            f"x^{{{pwm.slope2:.2f}}}$"
+        )
+        self.ax.plot(x, y, fmt, label=legend_label, c=self.cdict[label], **kwargs)
+
     def legend(self, *args, **kwargs) -> None:
         self.ax.legend(*args, **kwargs)
 

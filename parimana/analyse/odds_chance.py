@@ -8,7 +8,12 @@ import numpy as np
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 from parimana.analyse.chart import Chart, Cmap, DoubleLogAxes
-from parimana.analyse.regression import RegressionModel, linereg
+from parimana.analyse.regression import (
+    PiecewiseModel,
+    RegressionModel,
+    linereg,
+    piecewise_linereg,
+)
 
 
 @dataclass
@@ -58,6 +63,15 @@ class OddsChance:
     def regression_model(self) -> Mapping[BettingType, RegressionModel]:
         return {
             BettingType[lbl]: linereg(np.log(df["odds"]), np.log(df["chance"]))
+            for lbl, df in self.df.query("odds > 0 & chance > 0").groupby("type")
+        }
+
+    @cached_property
+    def pw_regression_model(self) -> Mapping[BettingType, PiecewiseModel]:
+        return {
+            BettingType[lbl]: piecewise_linereg(
+                np.log(df["odds"].to_numpy()), np.log(df["chance"].to_numpy())
+            )
             for lbl, df in self.df.query("odds > 0 & chance > 0").groupby("type")
         }
 
@@ -113,6 +127,15 @@ class OddsChance:
                     fmt="--",
                     zorder=2,
                 )
+                # pwm = self.pw_regression_model[BettingType[lbl]]
+                # dla.pw_line(
+                #     pwm,
+                #     xmin=t_df["odds"].min() / 1.5,
+                #     xmax=t_df["odds"].max() * 1.5,
+                #     label=lbl,
+                #     fmt="--",
+                #     zorder=2,
+                # )
 
         dla.line(
             RegressionModel(-1, np.log(0.75)),
