@@ -35,7 +35,7 @@ def test_iteration_trifecta():
 def test_iteration_trio():
     iterated = [str(r) for r in sorted(iterate_relation({6, 5, 4}, {3, 2}))]
     assert iterated == [
-       "2=2",
+        "2=2",
         "2?3",
         "2<4",
         "2<5",

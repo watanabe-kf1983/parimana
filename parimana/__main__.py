@@ -1,20 +1,17 @@
 from parimana.analyse.analyse import AnalysisResult
 from parimana.settings import Settings
+import parimana.batch as batch
 
 
 # https://www.jra.go.jp/keiba/overseas/yougo/c10080_list.html
 
 
+
 def main():
     settings = Settings.from_cli_args()
-    race = settings.race
-    if not settings.use_cache:
-        race.remove_odds_cache()
-
-    for a in settings.analysers:
-        r = a.analyse(race=race, simulation_count=settings.simulation_count)
-        r.save(race.base_dir / a.name)
-        print_recommendation(r, settings.recommend_query, settings.recommend_size)
+    results = batch.main(settings)
+    for name, result in results.items():
+        print_recommendation(result, settings.recommend_query, settings.recommend_size)
 
 
 def print_recommendation(r: AnalysisResult, query: str, size: int):

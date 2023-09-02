@@ -15,6 +15,10 @@ beautifulsoup4 = "^4.12.2"
 openpyxl = "^3.1.2"
 requests = "^2.31.0"
 scikit-learn = "^1.2.2"
+fastapi = "^0.103.0"
+uvicorn = {extras = ["standard"], version = "^0.23.2"}
+redis = "^5.0.0"
+celery = "^5.3.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
