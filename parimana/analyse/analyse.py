@@ -8,7 +8,7 @@ import pandas as pd
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.situation import Comparable, Distribution
-from parimana.base.race import Race
+from parimana.base.race import Race, RaceSource
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
     cor_none,
@@ -121,7 +121,7 @@ class MultiPassAnalyser(Analyser[T]):
 
     def analyse(
         self,
-        race: Race,
+        race: RaceSource,
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
     ) -> AnalysisResult[T]:

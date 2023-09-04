@@ -1,14 +1,12 @@
 from dataclasses import dataclass, field
-from functools import cached_property
 import re
-from typing import ClassVar, Mapping, Optional
+from typing import Mapping, Optional
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
-from parimana.base.race import Race
+from parimana.base.race import Race, RaceSource
 from parimana.driver.chrome import headless_chrome
 from parimana.netkeiba.browse import browse_odds_pages
 from parimana.netkeiba.extract import extract_odds
@@ -31,37 +29,35 @@ ratio_data_derby = {
     BettingType.TRIFECTA: 37.1,
 }
 
+RACE_ID_PATTERN: re.Pattern = re.compile(r"netkeiba-(?P<netkeiba_race_id>[0-9]{12})")
+
 
 @dataclass
-class NetKeibaRace(Race):
+class NetKeibaSource(RaceSource):
     netkeiba_race_id: str
     driver: WebDriver = field(default_factory=headless_chrome)
-
-    @cached_property
-    def contestants(self) -> Contestants:
-        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
-        return Contestants.from_names(names)
-
-    @property
-    def vote_ratio(self) -> Mapping[BettingType, float]:
-        return ratio_data_derby
 
     @property
     def race_id(self) -> str:
         return f"netkeiba-{self.netkeiba_race_id}"
 
-    def collect_odds(self) -> Mapping[Eye, Odds]:
+    def scrape_race(self) -> Race:
+        return Race(
+            race_id=self.race_id,
+            vote_ratio=ratio_data_derby,
+            odds=self._collect_odds(),
+        )
+
+    def _collect_odds(self) -> Mapping[Eye, Odds]:
         return {
             eye: odds
             for content, btype in browse_odds_pages(self.driver, self.netkeiba_race_id)
             for eye, odds in extract_odds(content, btype).items()
         }
 
-    PATTERN: ClassVar[str] = re.compile(r"netkeiba-(?P<netkeiba_race_id>[0-9]{12})")
-
     @classmethod
-    def from_race_id(cls, race_id: str) -> Optional["NetKeibaRace"]:
-        if m := re.fullmatch(cls.PATTERN, race_id):
-            return NetKeibaRace(**m.groupdict())
+    def from_race_id(cls, race_id: str) -> Optional["NetKeibaSource"]:
+        if m := re.fullmatch(RACE_ID_PATTERN, race_id):
+            return NetKeibaSource(**m.groupdict())
         else:
             return None

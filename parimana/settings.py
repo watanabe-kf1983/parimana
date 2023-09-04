@@ -1,17 +1,14 @@
 import argparse
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Collection, Sequence, Type
+from typing import Sequence
 
-from parimana.base.race import Race
 from parimana.analyse.analyse import (
     Analyser,
     analysers,
     analyser_names,
     default_analyser_names,
 )
-from parimana.boatrace.race import BoatRace
-from parimana.netkeiba.race import NetKeibaRace
 
 
 @dataclass(frozen=True)
@@ -22,16 +19,6 @@ class Settings:
     analyser_names: Sequence[str] = field(default_factory=default_analyser_names)
     recommend_query: str = ""
     recommend_size: int = 20
-
-    @cached_property
-    def race(self) -> Race:
-        race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
-
-        for race_type in race_types:
-            if found := race_type.from_race_id(self.race_id):
-                return found
-
-        raise ValueError(f"race_id: {self.race_id} is illegal")
 
     @cached_property
     def analysers(self) -> Sequence[Analyser]:

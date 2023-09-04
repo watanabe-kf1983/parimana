@@ -1,12 +1,10 @@
 from dataclasses import dataclass
-from functools import cached_property
-from typing import ClassVar, Mapping, Optional
+from typing import Mapping, Optional
 import re
 
-from parimana.base.contestants import Contestants
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
-from parimana.base.race import Race
+from parimana.base.race import Race, RaceSource
 from parimana.boatrace.browse import browse_odds_pages
 from parimana.boatrace.extract import extract_odds
 
@@ -19,26 +17,29 @@ ratio_data = {
     BettingType.TRIFECTA: 0.92,
 }
 
+RACE_ID_PATTERN: re.Pattern = re.compile(
+    r"boatrace-(?P<date>[0-9]{8})-(?P<cource>[0-9]{1,2})-(?P<race_no>[0-9]{1,2})"
+)
+
 
 @dataclass
-class BoatRace(Race):
+class BoatRaceSource(RaceSource):
     date: str
     cource: int
     race_no: int
-
-    @cached_property
-    def contestants(self) -> Contestants:
-        return Contestants.no_absences(6)
-
-    @property
-    def vote_ratio(self) -> Mapping[BettingType, float]:
-        return ratio_data
 
     @property
     def race_id(self) -> str:
         return f"boatrace-{self.date}-{self.cource}-{self.race_no}"
 
-    def collect_odds(self) -> Mapping[Eye, Odds]:
+    def scrape_race(self) -> Race:
+        return Race(
+            race_id=self.race_id,
+            vote_ratio=ratio_data,
+            odds=self._collect_odds(),
+        )
+
+    def _collect_odds(self) -> Mapping[Eye, Odds]:
         return {
             eye: odds
             for content, btype in browse_odds_pages(
@@ -47,15 +48,11 @@ class BoatRace(Race):
             for eye, odds in extract_odds(content, btype).items()
         }
 
-    PATTERN: ClassVar[str] = re.compile(
-        r"boatrace-(?P<date>[0-9]{8})-(?P<cource>[0-9]{1,2})-(?P<race_no>[0-9]{1,2})"
-    )
-
     @classmethod
-    def from_race_id(cls, race_id: str) -> Optional["BoatRace"]:
-        if m := re.fullmatch(cls.PATTERN, race_id):
+    def from_race_id(cls, race_id: str) -> Optional["BoatRaceSource"]:
+        if m := re.fullmatch(RACE_ID_PATTERN, race_id):
             dict = m.groupdict()
-            return BoatRace(
+            return BoatRaceSource(
                 date=dict["date"],
                 cource=int(dict["cource"]),
                 race_no=int(dict["race_no"]),

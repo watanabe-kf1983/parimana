@@ -6,7 +6,6 @@ import parimana.batch as batch
 # https://www.jra.go.jp/keiba/overseas/yougo/c10080_list.html
 
 
-
 def main():
     settings = Settings.from_cli_args()
     results = batch.main(settings)

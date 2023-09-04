@@ -1,73 +1,36 @@
 from abc import ABC, abstractmethod
-from functools import cached_property
-from pathlib import Path
-import pickle
+from dataclasses import dataclass
 from typing import Mapping, Optional
+
+
 from parimana.base.contestants import Contestants
-
-
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 
 
-class Race(ABC):
+@dataclass
+class Race:
+    race_id: str
+    odds: Mapping[Eye, Odds]
+    vote_ratio: Mapping[BettingType, float]
+
     @property
-    @abstractmethod
     def contestants(self) -> Contestants:
-        pass
+        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
+        return Contestants.from_names(names)
 
-    @property
-    @abstractmethod
-    def vote_ratio(self) -> Mapping[BettingType, float]:
-        pass
 
+class RaceSource(ABC):
     @property
     @abstractmethod
     def race_id(self) -> str:
         pass
 
     @abstractmethod
-    def collect_odds(self) -> Mapping[Eye, Odds]:
+    def scrape_race(self) -> Race:
         pass
 
     @classmethod
     @abstractmethod
-    def from_race_id(cls, race_id: str) -> Optional["Race"]:
+    def from_race_id(cls, race_id: str) -> Optional["RaceSource"]:
         pass
-
-    @cached_property
-    def base_dir(self) -> Path:
-        dir = Path(".output") / self.race_id
-        dir.mkdir(exist_ok=True, parents=True)
-        return dir
-
-    @cached_property
-    def odds_cache_path(self) -> Path:
-        return self.base_dir / "odds.pickle"
-
-    def remove_odds_cache(self) -> None:
-        self.odds_cache_path.unlink(missing_ok=True)
-        if hasattr(self, "odds"):
-            delattr(self, "odds")
-
-    @cached_property
-    def odds(self) -> Mapping[Eye, Odds]:
-        return self._get_odds()
-
-    def _get_odds(self) -> Mapping[Eye, Odds]:
-        odds_p_path = self.odds_cache_path
-        if not odds_p_path.exists():
-            print("collecting odds...")
-            odds = self.collect_odds()
-            print(f"writing odds to {odds_p_path}...")
-            with open(odds_p_path, "wb") as f:
-                pickle.dump(odds, f)
-            print("writing odds done.")
-
-        else:
-            print(f"reading odds from {odds_p_path}...")
-            with open(odds_p_path, "rb") as f:
-                odds = pickle.load(f)
-            print("reading odds done.")
-
-        return odds
