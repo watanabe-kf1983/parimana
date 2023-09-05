@@ -1,5 +1,4 @@
 from typing import Collection, Mapping, Sequence, TypeVar, Tuple
-import numpy as np
 import pandas as pd
 
 from parimana.base.compare import Comparable
@@ -26,7 +25,7 @@ def extract_win_rate_df(df_rel: pd.DataFrame) -> pd.DataFrame:
         columns="superiority_a",
         fill_value=0,
         values="frequency",
-        aggfunc=np.sum,
+        aggfunc="sum",
     )
     win_rate = (
         (table["SUPERIOR"] / (table["SUPERIOR"] + table["INFERIOR"]))
