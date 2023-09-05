@@ -1,9 +1,7 @@
-from celery import chain, group
 from fastapi import FastAPI
 import uvicorn
 
 from parimana.settings import Settings
-from parimana.storage.race_manager import RaceManager
 import parimana.batch as batch
 
 
@@ -12,29 +10,19 @@ app = FastAPI()
 
 @app.post("/start-batch/")
 def start_batch_process():
-    task = batch.batch_process.delay("input_data")
-    return {"task_id": task.id}
+    task_id = batch.start_batch_process()
+    return {"task_id": task_id}
 
 
 @app.get("/get-result/{task_id}")
 def get_batch_result(task_id: str):
-    task = batch.batch_process.AsyncResult(task_id)
-    if task.state == "SUCCESS":
-        return {"status": task.state, "result": task.result}
-    else:
-        return {"status": task.state}
+    return batch.get_batch_result(task_id)
 
 
 @app.post("/prepare")
-def prepare_async(settings: Settings):
-    rm = RaceManager(settings.race_id)
-    chain(
-        batch.get_race.s(rm=rm, force=not settings.use_cache),
-        group(
-            batch.analyse.s(settings.simulation_count, analyser, rm.base_dir)
-            for analyser in settings.analysers
-        ).delay(),
-    )
+def prepare(settings: Settings):
+    task_id = batch.prepare(settings)
+    return {"task_id": task_id}
 
 
 def start():
