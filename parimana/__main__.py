@@ -9,7 +9,7 @@ import parimana.batch as batch
 def main():
     settings = Settings.from_cli_args()
     results = batch.main(settings)
-    for name, result in results.items():
+    for result in results:
         print_recommendation(result, settings.recommend_query, settings.recommend_size)
 
 

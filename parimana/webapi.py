@@ -8,20 +8,20 @@ import parimana.batch as batch
 app = FastAPI()
 
 
-@app.post("/start-batch/")
-def start_batch_process():
-    task_id = batch.start_batch_process()
+@app.post("/start-wait-30/")
+def start_wait_30():
+    task_id = batch.start_wait_30()
     return {"task_id": task_id}
 
 
-@app.get("/get-result/{task_id}")
-def get_batch_result(task_id: str):
-    return batch.get_batch_result(task_id)
+@app.get("/wait-30-result/{task_id}")
+def get_wait_30_result(task_id: str):
+    return batch.get_wait_30_result(task_id)
 
 
-@app.post("/prepare")
-def prepare(settings: Settings):
-    task_id = batch.prepare(settings)
+@app.post("/start-analyse")
+def start_analyse(settings: Settings):
+    task_id = batch.start_analyse(settings)
     return {"task_id": task_id}
 
 
