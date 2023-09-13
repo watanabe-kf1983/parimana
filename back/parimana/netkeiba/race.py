@@ -6,7 +6,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
-from parimana.base.race import Race, RaceSource
+from parimana.base.race import RaceOddsPool, RaceSource
 from parimana.driver.chrome import headless_chrome
 from parimana.netkeiba.browse import browse_odds_pages
 from parimana.netkeiba.extract import extract_odds
@@ -41,8 +41,8 @@ class NetKeibaSource(RaceSource):
     def race_id(self) -> str:
         return f"netkeiba-{self.netkeiba_race_id}"
 
-    def scrape_race(self) -> Race:
-        return Race(
+    def scrape_odds_pool(self) -> RaceOddsPool:
+        return RaceOddsPool(
             race_id=self.race_id,
             vote_ratio=ratio_data_derby,
             odds=self._collect_odds(),

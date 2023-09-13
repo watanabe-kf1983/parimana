@@ -3,7 +3,7 @@ from typing import Sequence
 
 from celery import Celery, chain, group
 
-from parimana.base.race import Race
+from parimana.base.race import RaceOddsPool
 from parimana.settings import Settings
 from parimana.analyse.analyse import AnalysisResult, analysers
 from parimana.storage.race_manager import RaceManager
@@ -19,20 +19,22 @@ app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
 
 @app.task
-def get_race(rm: RaceManager, scrape_force: bool = False) -> Race:
-    return rm.get_race(scrape_force)
+def get_odds_pool(rm: RaceManager, scrape_force: bool = False) -> RaceOddsPool:
+    return rm.get_odds_pool(scrape_force)
 
 
 @app.task
-def analyse(race: Race, analyser_name: str, simulation_count: int) -> AnalysisResult:
-    r = analysers[analyser_name].analyse(race, simulation_count)
-    r.save(RaceManager(race.race_id).base_dir / analyser_name)
+def analyse(
+    odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int
+) -> AnalysisResult:
+    r = analysers[analyser_name].analyse(odds_pool, simulation_count)
+    r.save(RaceManager(odds_pool.race_id).base_dir / analyser_name)
     return r
 
 
 def get_analysis(settings: Settings):
     return chain(
-        get_race.s(RaceManager(settings.race_id), not settings.use_cache),
+        get_odds_pool.s(RaceManager(settings.race_id), not settings.use_cache),
         group(
             analyse.s(analyser_name, settings.simulation_count)
             for analyser_name in settings.analyser_names

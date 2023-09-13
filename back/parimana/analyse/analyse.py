@@ -8,7 +8,7 @@ import pandas as pd
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.situation import Comparable, Distribution
-from parimana.base.race import Race, RaceSource
+from parimana.base.race import RaceOddsPool, RaceSource
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
     cor_none,
@@ -67,7 +67,7 @@ class Analyser(ABC, Generic[T]):
     @abstractmethod
     def analyse(
         self,
-        race: Race,
+        odds_pool: RaceOddsPool,
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
     ) -> AnalysisResult[T]:
@@ -85,14 +85,14 @@ class OnePassAnalyser(Analyser[T]):
 
     def analyse(
         self,
-        race: Race,
+        odds_pool: RaceOddsPool,
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
     ) -> AnalysisResult[T]:
         print(f"extract_destribution by '{self.name}' ...")
-        odds = race.odds
-        vote_tallies = calc_vote_tally(race.odds, race.vote_ratio, odds_model)
-        dist = race.contestants.destribution(vote_tallies)
+        odds = odds_pool.odds
+        vote_tallies = calc_vote_tally(odds_pool.odds, odds_pool.vote_ratio, odds_model)
+        dist = odds_pool.contestants.destribution(vote_tallies)
         print(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
         print(f"simulating '{model.name}' ...")

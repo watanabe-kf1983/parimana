@@ -9,7 +9,7 @@ from parimana.base.odds import Odds
 
 
 @dataclass
-class Race:
+class RaceOddsPool:
     race_id: str
     odds: Mapping[Eye, Odds]
     vote_ratio: Mapping[BettingType, float]
@@ -27,7 +27,7 @@ class RaceSource(ABC):
         pass
 
     @abstractmethod
-    def scrape_race(self) -> Race:
+    def scrape_odds_pool(self) -> RaceOddsPool:
         pass
 
     @classmethod

@@ -5,7 +5,7 @@ from typing import Collection, Type
 
 from pathlib import Path
 
-from parimana.base.race import Race, RaceSource
+from parimana.base.race import RaceOddsPool, RaceSource
 from parimana.boatrace.race import BoatRaceSource
 from parimana.netkeiba.race import NetKeibaSource
 
@@ -32,34 +32,34 @@ class RaceManager:
         return dir
 
     @cached_property
-    def race_path(self) -> Path:
-        return self.base_dir / "race.pickle"
+    def odds_pool_path(self) -> Path:
+        return self.base_dir / "odds_pool.pickle"
 
-    def get_race(self, force_scrape: bool = False) -> Race:
+    def get_odds_pool(self, force_scrape: bool = False) -> RaceOddsPool:
         if force_scrape or not self.prepared:
-            race = self.race_source.scrape_race()
-            self._save_race(race)
+            odds_pool = self.race_source.scrape_odds_pool()
+            self._save_odds_pool(odds_pool)
 
-        return self._load_race()
+        return self._load_odds_pool()
 
     @property
     def prepared(self) -> bool:
-        return self.race_path.exists()
+        return self.odds_pool_path.exists()
 
-    def _load_race(self) -> Race:
+    def _load_odds_pool(self) -> RaceOddsPool:
         # todo: read from redis by race_id
 
-        race_path = self.race_path
-        print(f"reading race from {race_path}...")
-        with open(race_path, "rb") as f:
+        odds_pool_path = self.odds_pool_path
+        print(f"reading odds_pool from {odds_pool_path}...")
+        with open(odds_pool_path, "rb") as f:
             race = pickle.load(f)
-        print("reading race done.")
+        print("reading odds_pool done.")
         return race
 
-    def _save_race(self, race: Race) -> None:
+    def _save_odds_pool(self, odds_pool: RaceOddsPool) -> None:
         # todo: save to redis by race_id
-        race_path = self.race_path
-        print(f"writing race to {race_path}...")
+        race_path = self.odds_pool_path
+        print(f"writing odds_pool to {race_path}...")
         with open(race_path, "wb") as f:
-            pickle.dump(race, f)
-        print("writing race done.")
+            pickle.dump(odds_pool, f)
+        print("writing odds_pool done.")
