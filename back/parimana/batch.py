@@ -48,7 +48,8 @@ def wait_30_seconds(data):
 
 
 def main(settings: Settings) -> Sequence[AnalysisResult]:
-    return get_analysis(settings).apply().get()
+    result = get_analysis(settings).apply().get()
+    return result if isinstance(result, Sequence) else [result]
 
 
 def start_analyse(settings: Settings) -> str:
