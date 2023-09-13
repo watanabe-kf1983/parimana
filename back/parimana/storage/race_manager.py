@@ -5,29 +5,29 @@ from typing import Collection, Type
 
 from pathlib import Path
 
-from parimana.base.race import RaceOddsPool, RaceSource
-from parimana.boatrace.race import BoatRaceSource
-from parimana.netkeiba.race import NetKeibaSource
+from parimana.base.race import RaceOddsPool, Race
+from parimana.boatrace.race import BoatRace
+from parimana.netkeiba.race import NetKeibaRace
 
 
-race_types: Collection[Type[RaceSource]] = [BoatRaceSource, NetKeibaSource]
+race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
 
 
 @dataclass
 class RaceManager:
-    race_id: str
+    race: Race
 
-    @cached_property
-    def race_source(self) -> RaceSource:
+    @classmethod
+    def from_id(cls, race_id: str) -> "RaceManager":
         for race_type in race_types:
-            if found := race_type.from_race_id(self.race_id):
-                return found
+            if found := race_type.from_id(race_id):
+                return RaceManager(found)
 
-        raise ValueError(f"race_id: {self} is illegal")
+        raise ValueError(f"race_id: {race_id} is illegal")
 
     @cached_property
     def base_dir(self) -> Path:
-        dir = Path(".output") / self.race_id
+        dir = Path(".output") / self.race.race_id
         dir.mkdir(exist_ok=True, parents=True)
         return dir
 
@@ -37,7 +37,7 @@ class RaceManager:
 
     def get_odds_pool(self, force_scrape: bool = False) -> RaceOddsPool:
         if force_scrape or not self.prepared:
-            odds_pool = self.race_source.scrape_odds_pool()
+            odds_pool = self.race.source.scrape_odds_pool()
             self._save_odds_pool(odds_pool)
 
         return self._load_odds_pool()

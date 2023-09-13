@@ -3,19 +3,18 @@ from typing import Iterator, Tuple
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.select import Select
-from selenium.webdriver.support.expected_conditions import (
-    all_of,
-)
+from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base.eye import BettingType
+from parimana.driver.chrome import headless_chrome
 from parimana.netkeiba.base import btype_to_code, supported_types
 
 
-def browse_odds_pages(
-    driver: WebDriver, nk_race_id: str
-) -> Iterator[Tuple[str, BettingType]]:
+def browse_odds_pages(nk_race_id: str) -> Iterator[Tuple[str, BettingType]]:
+    driver: WebDriver = headless_chrome()
+
     for btype in supported_types:
         for page_content in _browse_odds_by_btype(driver, nk_race_id, btype):
             yield (page_content, btype)

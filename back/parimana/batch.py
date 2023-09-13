@@ -28,13 +28,13 @@ def analyse(
     odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int
 ) -> AnalysisResult:
     r = analysers[analyser_name].analyse(odds_pool, simulation_count)
-    r.save(RaceManager(odds_pool.race_id).base_dir / analyser_name)
+    r.save(RaceManager(odds_pool.race).base_dir / analyser_name)
     return r
 
 
 def get_analysis(settings: Settings):
     return chain(
-        get_odds_pool.s(RaceManager(settings.race_id), not settings.use_cache),
+        get_odds_pool.s(RaceManager.from_id(settings.race_id), not settings.use_cache),
         group(
             analyse.s(analyser_name, settings.simulation_count)
             for analyser_name in settings.analyser_names
