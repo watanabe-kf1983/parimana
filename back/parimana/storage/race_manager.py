@@ -4,7 +4,9 @@ import pickle
 
 from pathlib import Path
 
-from parimana.base.race import RaceOddsPool, Race
+from parimana.base.race import Race
+from parimana.base.odds_pool import RaceOddsPool
+from parimana.race import get_race_source
 
 
 @dataclass
@@ -23,7 +25,7 @@ class RaceManager:
 
     def get_odds_pool(self, force_scrape: bool = False) -> RaceOddsPool:
         if force_scrape or not self.prepared:
-            odds_pool = self.race.source.scrape_odds_pool()
+            odds_pool = get_race_source(self.race).scrape_odds_pool()
             self._save_odds_pool(odds_pool)
 
         return self._load_odds_pool()

@@ -3,11 +3,11 @@ from typing import Sequence
 
 from celery import Celery, chain, group
 
-from parimana.base.race import RaceOddsPool
+from parimana.base.odds_pool import RaceOddsPool
 from parimana.race import get_race
-from parimana.settings import Settings
 from parimana.analyse.analyse import AnalysisResult, analysers
 from parimana.storage.race_manager import RaceManager
+from parimana.settings import Settings
 
 app = Celery(
     __name__, backend="redis://localhost:6379/0", broker="redis://localhost:6379/0"

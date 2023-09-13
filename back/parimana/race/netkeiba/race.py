@@ -3,7 +3,9 @@ import re
 from typing import Optional
 
 from parimana.base.eye import BettingType
-from parimana.base.race import RaceOddsPool, RaceSource, Race
+from parimana.base.race import Race
+from parimana.base.odds_pool import RaceOddsPool
+from parimana.base.race_source import RaceSource
 from parimana.race.netkeiba.scrape import collect_odds
 
 # ratio_data = {

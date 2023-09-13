@@ -8,7 +8,8 @@ import pandas as pd
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.situation import Comparable, Distribution
-from parimana.base.race import RaceOddsPool, RaceSource
+from parimana.base.odds_pool import RaceOddsPool
+from parimana.base.race_source import RaceSource
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
     cor_none,

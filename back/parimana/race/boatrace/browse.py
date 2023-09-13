@@ -4,20 +4,21 @@ import functools
 import requests
 
 from parimana.base.eye import BettingType
+from parimana.race.boatrace.race import BoatRace
 
 
 def browse_odds_pages(
-    date: str, cource: int, race_no: int, attempt: str
+    race: BoatRace, attempt: str
 ) -> Iterator[Tuple[str, BettingType]]:
     for btype in supported_types:
-        page_content = _browse_odds_by_btype(date, cource, race_no, btype, attempt)
+        page_content = _browse_odds_by_btype(race, btype, attempt)
         yield (page_content, btype)
 
 
 def _browse_odds_by_btype(
-    date: str, cource: int, race_no: int, btype: BettingType, attempt: str
+    race: BoatRace, btype: BettingType, attempt: str
 ) -> Iterator[str]:
-    uri = _odds_page_uri(date, cource, race_no, btype)
+    uri = _odds_page_uri(race, btype)
     return _get(uri, attempt)
 
 
@@ -30,10 +31,11 @@ def _get(uri: str, attempt: str):
     return res.text
 
 
-def _odds_page_uri(date: str, cource: int, race_no: int, btype: BettingType) -> str:
+def _odds_page_uri(race: BoatRace, btype: BettingType) -> str:
     return (
         "https://www.boatrace.jp/owpc/pc/race/"
-        f"odds{btype_to_code(btype)}?rno={race_no}&jcd={cource:02}&hd={date}"
+        f"odds{btype_to_code(btype)}?"
+        f"rno={race.race_no}&jcd={race.cource:02}&hd={race.date}"
     )
 
 

@@ -8,7 +8,7 @@ import numpy as np
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
-from parimana.base.race import OddsTimeStamp
+from parimana.base.odds_pool import OddsTimeStamp
 
 
 # trifecta_eyes = Eye.all_eyes(names, BettingType.TRIFECTA)
