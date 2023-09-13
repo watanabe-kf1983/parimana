@@ -4,7 +4,12 @@ from bs4 import BeautifulSoup
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds, PlaceOdds
+from parimana.base.odds_pool import OddsTimeStamp
 from parimana.race.netkeiba.btype import code_to_btype, btype_to_code
+
+
+def extract_timestamp(html: str) -> OddsTimeStamp:
+    return OddsTimeStamp.confirmed
 
 
 def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, float]:

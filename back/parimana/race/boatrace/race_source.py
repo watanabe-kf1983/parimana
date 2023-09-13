@@ -20,16 +20,16 @@ ratio_data = {
 
 @dataclass
 class BoatRaceSource(RaceSource):
-    boatrace: BoatRace
+    b_race: BoatRace
 
     @property
     def race(self) -> Race:
-        return self.boatrace
+        return self.b_race
 
     def scrape_odds_pool(self) -> RaceOddsPool:
-        odds, timestamp = collect_odds(self.boatrace)
+        odds, timestamp = collect_odds(self.b_race)
         return RaceOddsPool(
-            race=self.boatrace,
+            race=self.race,
             odds=odds,
             timestamp=timestamp,
             vote_ratio=ratio_data,

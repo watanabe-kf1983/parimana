@@ -10,20 +10,21 @@ from selenium.webdriver.support.wait import WebDriverWait
 from parimana.base.eye import BettingType
 from parimana.driver.chrome import headless_chrome
 from parimana.race.netkeiba.btype import btype_to_code, supported_types
+from parimana.race.netkeiba.race import NetKeibaRace
 
 
-def browse_odds_pages(nk_race_id: str) -> Iterator[Tuple[str, BettingType]]:
+def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
     driver: WebDriver = headless_chrome()
 
     for btype in supported_types:
-        for page_content in _browse_odds_by_btype(driver, nk_race_id, btype):
+        for page_content in _browse_odds_by_btype(driver, race, btype):
             yield (page_content, btype)
 
 
 def _browse_odds_by_btype(
-    driver: WebDriver, nk_race_id: str, btype: BettingType
+    driver: WebDriver, race: NetKeibaRace, btype: BettingType
 ) -> Iterator[str]:
-    uri = _odds_page_uri(nk_race_id, btype)
+    uri = _odds_page_uri(race, btype)
     print(f"opening {uri} ...", end=" ", flush=True)
     driver.get(uri)
     print("done.", flush=True)
@@ -72,8 +73,8 @@ def text_to_be_present_matched_on_element(locator, text_):
     return _predicate
 
 
-def _odds_page_uri(nk_race_id: str, btype: BettingType) -> str:
+def _odds_page_uri(race: NetKeibaRace, btype: BettingType) -> str:
     return (
         "https://race.netkeiba.com/odds/index.html"
-        f"?race_id={nk_race_id}&type=b{btype_to_code(btype)}"
+        f"?race_id={race.netkeiba_race_id}&type=b{btype_to_code(btype)}"
     )
