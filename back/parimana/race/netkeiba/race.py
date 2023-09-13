@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 import re
-from typing import Mapping, Optional
+from typing import Optional
 
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds
+from parimana.base.eye import BettingType
 from parimana.base.race import RaceOddsPool, RaceSource, Race
-from parimana.race.netkeiba.browse import browse_odds_pages
-from parimana.race.netkeiba.extract import extract_odds
+from parimana.race.netkeiba.scrape import collect_odds
 
 # ratio_data = {
 #     # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9
@@ -57,12 +55,5 @@ class NetKeibaSource(RaceSource):
         return RaceOddsPool(
             race=self.race,
             vote_ratio=ratio_data_derby,
-            odds=self._collect_odds(),
+            odds=collect_odds(self.race.netkeiba_race_id),
         )
-
-    def _collect_odds(self) -> Mapping[Eye, Odds]:
-        return {
-            eye: odds
-            for content, btype in browse_odds_pages(self.race.netkeiba_race_id)
-            for eye, odds in extract_odds(content, btype).items()
-        }
