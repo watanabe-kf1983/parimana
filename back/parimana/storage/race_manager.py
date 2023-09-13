@@ -1,29 +1,15 @@
 from dataclasses import dataclass
 from functools import cached_property
 import pickle
-from typing import Collection, Type
 
 from pathlib import Path
 
 from parimana.base.race import RaceOddsPool, Race
-from parimana.boatrace.race import BoatRace
-from parimana.netkeiba.race import NetKeibaRace
-
-
-race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
 
 
 @dataclass
 class RaceManager:
     race: Race
-
-    @classmethod
-    def from_id(cls, race_id: str) -> "RaceManager":
-        for race_type in race_types:
-            if found := race_type.from_id(race_id):
-                return RaceManager(found)
-
-        raise ValueError(f"race_id: {race_id} is illegal")
 
     @cached_property
     def base_dir(self) -> Path:

@@ -5,8 +5,8 @@ from typing import Mapping, Optional
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 from parimana.base.race import RaceOddsPool, RaceSource, Race
-from parimana.netkeiba.browse import browse_odds_pages
-from parimana.netkeiba.extract import extract_odds
+from parimana.race.netkeiba.browse import browse_odds_pages
+from parimana.race.netkeiba.extract import extract_odds
 
 # ratio_data = {
 #     # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9

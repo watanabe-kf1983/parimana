@@ -4,6 +4,7 @@ from typing import Sequence
 from celery import Celery, chain, group
 
 from parimana.base.race import RaceOddsPool
+from parimana.race import get_race
 from parimana.settings import Settings
 from parimana.analyse.analyse import AnalysisResult, analysers
 from parimana.storage.race_manager import RaceManager
@@ -33,8 +34,9 @@ def analyse(
 
 
 def get_analysis(settings: Settings):
+    race = get_race(settings.race_id)
     return chain(
-        get_odds_pool.s(RaceManager.from_id(settings.race_id), not settings.use_cache),
+        get_odds_pool.s(RaceManager(race), not settings.use_cache),
         group(
             analyse.s(analyser_name, settings.simulation_count)
             for analyser_name in settings.analyser_names

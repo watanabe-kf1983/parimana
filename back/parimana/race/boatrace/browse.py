@@ -4,7 +4,7 @@ import functools
 import requests
 
 from parimana.base.eye import BettingType
-from parimana.boatrace.base import btype_to_code, supported_types
+from parimana.race.boatrace.base import btype_to_code, supported_types
 
 
 def browse_odds_pages(
