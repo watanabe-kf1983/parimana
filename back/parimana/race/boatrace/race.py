@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 import re
-from parimana.base.eye import BettingType
 
+from parimana.base.eye import BettingType
 from parimana.base.race import RaceOddsPool, RaceSource, Race
 from parimana.race.boatrace.scrape import collect_odds
 
@@ -45,10 +45,12 @@ class BoatRaceSource(RaceSource):
 
     def scrape_odds_pool(self) -> RaceOddsPool:
         race = self.race
+        odds, timestamp = collect_odds(race.date, race.cource, race.race_no)
         return RaceOddsPool(
-            race=self.race,
+            race=race,
+            odds=odds,
+            timestamp=timestamp,
             vote_ratio=ratio_data,
-            odds=collect_odds(race.date, race.cource, race.race_no),
         )
 
 

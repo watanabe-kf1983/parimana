@@ -7,23 +7,23 @@ from parimana.base.eye import BettingType
 
 
 def browse_odds_pages(
-    date: str, cource: int, race_no: int
+    date: str, cource: int, race_no: int, attempt: str
 ) -> Iterator[Tuple[str, BettingType]]:
     for btype in supported_types:
-        page_content = _browse_odds_by_btype(date, cource, race_no, btype)
+        page_content = _browse_odds_by_btype(date, cource, race_no, btype, attempt)
         yield (page_content, btype)
 
 
 def _browse_odds_by_btype(
-    date: str, cource: int, race_no: int, btype: BettingType
+    date: str, cource: int, race_no: int, btype: BettingType, attempt: str
 ) -> Iterator[str]:
     uri = _odds_page_uri(date, cource, race_no, btype)
-    return _get(uri)
+    return _get(uri, attempt)
 
 
 @functools.cache
-def _get(uri: str):
-    print(f"opening {uri} ...", end=" ", flush=True)
+def _get(uri: str, attempt: str):
+    print(f"opening {uri} ({attempt})...", end=" ", flush=True)
     res = requests.get(uri)
     res.raise_for_status()
     print("done.", flush=True)

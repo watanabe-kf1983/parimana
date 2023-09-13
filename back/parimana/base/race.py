@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Mapping, Optional
 
 from parimana.base.contestants import Contestants
@@ -25,9 +26,35 @@ class Race(ABC):
 
 
 @dataclass
+class OddsTimeStamp:
+    update_time: Optional[datetime] = None
+
+    def __str__(self) -> str:
+        return (
+            "Confirmed"
+            if self.is_confirmed
+            else self.update_time.strftime("%Y%m%d%H%M")
+        )
+
+    @property
+    def is_confirmed(self) -> bool:
+        return not bool(self.update_time)
+
+    @classmethod
+    @property
+    def confirmed(cls) -> "OddsTimeStamp":
+        return OddsTimeStamp(None)
+
+
+class OddsUpdatedException(Exception):
+    pass
+
+
+@dataclass
 class RaceOddsPool:
     race: Race
     odds: Mapping[Eye, Odds]
+    timestamp: OddsTimeStamp
     vote_ratio: Mapping[BettingType, float]
 
     @property

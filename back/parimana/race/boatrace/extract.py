@@ -1,15 +1,45 @@
 from typing import Mapping, Sequence
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import re
 
 from bs4 import BeautifulSoup, Tag
 import numpy as np
 
 from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
+from parimana.base.race import OddsTimeStamp
 
 
 # trifecta_eyes = Eye.all_eyes(names, BettingType.TRIFECTA)
 # wide_eyes = Eye.all_eyes(names, BettingType.WIDE)
 # trio_eyes = Eye.all_eyes(names, BettingType.TRIO)
+
+
+UPDATE_PATTERN: re.Pattern = re.compile(r"\s*オッズ更新時間\s*(?P<time>[0-9]{2}:[0-9]{2})\s*")
+
+
+jst = ZoneInfo("Asia/Tokyo")
+
+
+def extract_timestamp(html: str) -> OddsTimeStamp:
+    text = update_time_text(html)
+    if text == "締切時オッズ":
+        return OddsTimeStamp.confirmed
+
+    elif m := re.fullmatch(UPDATE_PATTERN, text):
+        today = datetime.now(jst).date()
+        time = datetime.strptime(m.group("time"), "%H:%M")
+        dt = datetime.combine(today, time.time(), jst)
+        return OddsTimeStamp(dt)
+
+    else:
+        raise ValueError("Failed parse update time string: " + text)
+
+
+def update_time_text(html: str) -> OddsTimeStamp:
+    soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
+    return soup.select_one("p.tab4_refreshText, p.tab4_time").get_text(strip=True)
 
 
 def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, Odds]:
