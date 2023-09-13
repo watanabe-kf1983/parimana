@@ -1,25 +1,10 @@
 from dataclasses import dataclass
-from typing import Mapping, Optional
+from typing import Optional
 import re
+from parimana.base.eye import BettingType
 
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds
 from parimana.base.race import RaceOddsPool, RaceSource, Race
-from parimana.race.boatrace.browse import browse_odds_pages
-from parimana.race.boatrace.extract import extract_odds
-
-# https://funaban.com/wp/post-543.html
-ratio_data = {
-    BettingType.WIN: 0.0,
-    BettingType.QUINELLA: 0.01,
-    BettingType.EXACTA: 0.04,
-    BettingType.TRIO: 0.03,
-    BettingType.TRIFECTA: 0.92,
-}
-
-RACE_ID_PATTERN: re.Pattern = re.compile(
-    r"boatrace-(?P<date>[0-9]{8})-(?P<cource>[0-9]{1,2})-(?P<race_no>[0-9]{1,2})"
-)
+from parimana.race.boatrace.scrape import collect_odds
 
 
 @dataclass
@@ -49,22 +34,29 @@ class BoatRace(Race):
             return None
 
 
+RACE_ID_PATTERN: re.Pattern = re.compile(
+    r"boatrace-(?P<date>[0-9]{8})-(?P<cource>[0-9]{1,2})-(?P<race_no>[0-9]{1,2})"
+)
+
+
 @dataclass
 class BoatRaceSource(RaceSource):
     race: BoatRace
 
     def scrape_odds_pool(self) -> RaceOddsPool:
+        race = self.race
         return RaceOddsPool(
             race=self.race,
             vote_ratio=ratio_data,
-            odds=self._collect_odds(),
+            odds=collect_odds(race.date, race.cource, race.race_no),
         )
 
-    def _collect_odds(self) -> Mapping[Eye, Odds]:
-        return {
-            eye: odds
-            for content, btype in browse_odds_pages(
-                self.race.date, self.race.cource, self.race.race_no
-            )
-            for eye, odds in extract_odds(content, btype).items()
-        }
+
+# https://funaban.com/wp/post-543.html
+ratio_data = {
+    BettingType.WIN: 0.0,
+    BettingType.QUINELLA: 0.01,
+    BettingType.EXACTA: 0.04,
+    BettingType.TRIO: 0.03,
+    BettingType.TRIFECTA: 0.92,
+}

@@ -1,10 +1,9 @@
-from typing import Iterator, Tuple
+from typing import Collection, Iterator, Mapping, Tuple
 import functools
 
 import requests
 
 from parimana.base.eye import BettingType
-from parimana.race.boatrace.base import btype_to_code, supported_types
 
 
 def browse_odds_pages(
@@ -36,3 +35,20 @@ def _odds_page_uri(date: str, cource: int, race_no: int, btype: BettingType) -> 
         "https://www.boatrace.jp/owpc/pc/race/"
         f"odds{btype_to_code(btype)}?rno={race_no}&jcd={cource:02}&hd={date}"
     )
+
+
+def btype_to_code(btype: BettingType) -> str:
+    return _type_dict[btype]
+
+
+_type_dict: Mapping[BettingType, str] = {
+    BettingType.WIN: "tf",
+    BettingType.PLACE: "tf",
+    BettingType.EXACTA: "2tf",
+    BettingType.QUINELLA: "2tf",
+    BettingType.WIDE: "k",
+    BettingType.TRIO: "3f",
+    BettingType.TRIFECTA: "3t",
+}
+
+supported_types: Collection[BettingType] = _type_dict.keys()
