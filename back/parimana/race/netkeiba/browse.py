@@ -16,18 +16,27 @@ from parimana.race.netkeiba.race import NetKeibaRace
 def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
     driver: WebDriver = headless_chrome()
 
+    is_first_browse = True
+
     for btype in supported_types:
-        for page_content in _browse_odds_by_btype(driver, race, btype):
+        pages = _browse_odds_by_btype(driver, race, btype, is_first_browse)
+
+        for page_content in pages:
             yield (page_content, btype)
+
+        is_first_browse = False
 
 
 def _browse_odds_by_btype(
-    driver: WebDriver, race: NetKeibaRace, btype: BettingType
+    driver: WebDriver, race: NetKeibaRace, btype: BettingType, need_update: bool
 ) -> Iterator[str]:
     uri = _odds_page_uri(race, btype)
     print(f"opening {uri} ...", end=" ", flush=True)
     driver.get(uri)
     print("done.", flush=True)
+
+    if need_update:
+        update_odds(driver)
 
     if btype.size < 3:
         yield driver.page_source
@@ -46,6 +55,27 @@ def _browse_odds_by_btype(
             yield driver.page_source
 
 
+def update_odds(driver: WebDriver):
+    driver.delete_all_cookies()
+    driver.refresh()
+    update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
+    if update_button.is_displayed():
+        limit = get_odds_update_limit(driver)
+        update_button.click()
+        WebDriverWait(driver, timeout=10).until(odds_limit_updated(limit))
+
+
+def get_odds_update_limit(driver: WebDriver):
+    return driver.find_element(By.CSS_SELECTOR, "#OddsUpLimitCount").text
+
+
+def odds_limit_updated(update_limit):
+    def _predicate(driver: WebDriver):
+        return update_limit != get_odds_update_limit(driver)
+
+    return _predicate
+
+
 def _axis_is_loaded(axis: str):
     return all_of(
         text_to_be_present_matched_on_element(
@@ -56,14 +86,14 @@ def _axis_is_loaded(axis: str):
 
 
 def no_text_in_page_source(text_):
-    def _predicate(driver):
+    def _predicate(driver: WebDriver):
         return not (text_ in driver.page_source)
 
     return _predicate
 
 
 def text_to_be_present_matched_on_element(locator, text_):
-    def _predicate(driver):
+    def _predicate(driver: WebDriver):
         try:
             element_text = driver.find_element(*locator).text
             return text_ == element_text  # check complete match

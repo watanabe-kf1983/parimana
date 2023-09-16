@@ -10,16 +10,9 @@ from parimana.base.eye import BettingType, Eye
 from parimana.base.odds import Odds
 from parimana.base.odds_pool import OddsTimeStamp
 
-
-# trifecta_eyes = Eye.all_eyes(names, BettingType.TRIFECTA)
-# wide_eyes = Eye.all_eyes(names, BettingType.WIDE)
-# trio_eyes = Eye.all_eyes(names, BettingType.TRIO)
-
-
 UPDATE_PATTERN: re.Pattern = re.compile(
     r"\s*オッズ更新時間\s*(?P<time>[0-9]{1,2}:[0-9]{2})\s*"
 )
-
 
 jst = ZoneInfo("Asia/Tokyo")
 
