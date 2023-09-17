@@ -34,13 +34,13 @@ T = TypeVar("T", bound=Comparable)
 
 @dataclass(frozen=True)
 class AnalysisResult(Generic[T]):
-    odds: Mapping[Eye, float]
+    odds_pool: RaceOddsPool
     model: MvnModel[T]
     chances: Mapping[Eye, float]
 
     @cached_property
     def odds_chance(self) -> OddsChance:
-        return OddsChance(self.odds, self.chances)
+        return OddsChance(self.odds_pool.odds, self.chances)
 
     @cached_property
     def recommendation(self) -> pd.DataFrame:
@@ -91,14 +91,13 @@ class OnePassAnalyser(Analyser[T]):
         odds_model: Mapping[BettingType, RegressionModel] = {},
     ) -> AnalysisResult[T]:
         print(f"extract_destribution by '{self.name}' ...")
-        odds = odds_pool.odds
         vote_tallies = calc_vote_tally(odds_pool.odds, odds_pool.vote_ratio, odds_model)
         dist = odds_pool.contestants.destribution(vote_tallies)
         print(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
         print(f"simulating '{model.name}' ...")
         chances = model.simulate(simulation_count)
-        return AnalysisResult(odds, model, chances)
+        return AnalysisResult(odds_pool, model, chances)
 
     def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
         win_rates = extract_win_rate(dist.relations, dist.members)
