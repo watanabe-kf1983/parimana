@@ -41,6 +41,10 @@ class RaceOddsPool:
         names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
         return Contestants.from_names(names)
 
+    @property
+    def key(self) -> str:
+        return f"{self.race.race_id}/{self.timestamp}"
+
 
 class OddsUpdatedException(Exception):
     pass

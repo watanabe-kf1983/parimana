@@ -1,3 +1,4 @@
+from pathlib import Path
 import time
 from typing import Sequence
 
@@ -6,6 +7,7 @@ from celery import Celery, chain, group
 from parimana.base.odds_pool import RaceOddsPool
 from parimana.race import get_race
 from parimana.analyse.analyse import AnalysisResult, analysers
+from parimana.repository.file_repository import FileRepository
 from parimana.storage.race_manager import RaceManager
 from parimana.settings import Settings
 
@@ -18,6 +20,8 @@ app.conf.task_serializer = "pickle"
 app.conf.result_serializer = "pickle"
 app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
+repo = FileRepository(Path(".output"))
+
 
 @app.task
 def get_odds_pool(rm: RaceManager, scrape_force: bool = False) -> RaceOddsPool:
@@ -29,7 +33,7 @@ def analyse(
     odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int
 ) -> AnalysisResult:
     r = analysers[analyser_name].analyse(odds_pool, simulation_count)
-    r.save(RaceManager(odds_pool.race).base_dir / analyser_name)
+    repo.save_charts(r.get_charts())
     return r
 
 

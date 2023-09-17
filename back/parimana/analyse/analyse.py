@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import cached_property
-from pathlib import Path
+import io
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
+from matplotlib.figure import Figure
 
 import pandas as pd
 
@@ -38,25 +38,47 @@ class AnalysisResult(Generic[T]):
     model: MvnModel[T]
     chances: Mapping[Eye, float]
 
-    @cached_property
+    @property
     def odds_chance(self) -> OddsChance:
         return OddsChance(self.odds_pool.odds, self.chances)
 
-    @cached_property
+    @property
     def recommendation(self) -> pd.DataFrame:
         return self.odds_chance.df.query("expected >= 100").sort_values(
             "expected", ascending=False
         )
 
-    def save(self, dir_: Path):
-        dir_.mkdir(exist_ok=True, parents=True)
-        self.model.save_figures(dir_)
-        self.odds_chance.chart.save(dir_ / "oc.png")
-        xlname = f"{self.model.name}.xlsx"
-        with pd.ExcelWriter(dir_ / xlname) as writer:
+    def get_charts(self) -> "AnalysisCharts":
+        xlbuf = io.BytesIO()
+        with pd.ExcelWriter(xlbuf, engine="openpyxl") as writer:
             self.recommendation.to_excel(writer, sheet_name="recommend")
             self.odds_chance.df.to_excel(writer, sheet_name="simulation")
             self.model.to_excel(writer)
+
+        return AnalysisCharts(
+            result=self,
+            excel=xlbuf.getvalue(),
+            odds_chance=fig_to_bytes(self.odds_chance.chart.fig),
+            model_box=fig_to_bytes(self.model.plot_box()),
+            model_mds=fig_to_bytes(self.model.plot_mds()),
+            model_mds_metric=fig_to_bytes(self.model.plot_mds(metric=True)),
+        )
+
+
+def fig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
+    buf = io.BytesIO()
+    fig.savefig(buf, dpi=dpi, format=format)
+    return buf.getvalue()
+
+
+@dataclass(frozen=True)
+class AnalysisCharts(Generic[T]):
+    result: AnalysisResult[T]
+    excel: bytes
+    odds_chance: bytes
+    model_box: bytes
+    model_mds: bytes
+    model_mds_metric: bytes
 
 
 class Analyser(ABC, Generic[T]):
