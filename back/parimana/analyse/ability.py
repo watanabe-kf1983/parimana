@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 import pandas as pd
-import scipy.stats
 
 import parimana.analyse.normal_dist as nd
 
@@ -34,8 +33,7 @@ class UMapScore:
 def _evaluate_u_map(corwr_df: pd.DataFrame, u_map: pd.Series) -> UMapScore:
     gap_mtx = _estimate_ability_gap_mtx(corwr_df, u_map)
     gap_mtx_std = gap_mtx.groupby("a").std().rename_axis("m")
-    gap_mtx_std_gmean = scipy.stats.mstats.gmean(gap_mtx_std.values)
-    u_map_suggest = u_map * gap_mtx_std_gmean / gap_mtx_std
+    u_map_suggest = u_map / gap_mtx_std
     score = gap_mtx_std.std()
     return UMapScore(u_map, score, u_map_suggest)
 
