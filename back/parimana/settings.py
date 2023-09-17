@@ -1,11 +1,8 @@
 import argparse
 from dataclasses import dataclass, field
-from functools import cached_property
 from typing import Sequence
 
-from parimana.analyse.analyse import (
-    Analyser,
-    analysers,
+from parimana.analyse.analysers import (
     analyser_names,
     default_analyser_names,
 )
@@ -19,10 +16,6 @@ class Settings:
     analyser_names: Sequence[str] = field(default_factory=default_analyser_names)
     recommend_query: str = ""
     recommend_size: int = 20
-
-    @cached_property
-    def analysers(self) -> Sequence[Analyser]:
-        return [analysers[n] for n in self.analyser_names]
 
     @classmethod
     def from_cli_args(cls) -> "Settings":

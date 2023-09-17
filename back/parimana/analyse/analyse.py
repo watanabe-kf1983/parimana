@@ -1,20 +1,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import io
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
-from matplotlib.figure import Figure
 
-import pandas as pd
-
-from parimana.base.eye import BettingType, Eye
+from parimana.base.eye import BettingType
 from parimana.base.situation import Comparable, Distribution
 from parimana.base.odds_pool import RaceOddsPool
 from parimana.base.race_source import RaceSource
+from parimana.analyse.analysis_result import AnalysisResult
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
-    cor_none,
-    cor_by_score,
-    cor_by_score_mtx,
     cor_mapping_to_sr,
 )
 from parimana.analyse.win_rate import extract_win_rate, df_from_win_rate
@@ -23,62 +17,12 @@ from parimana.analyse.ability import (
     find_uncertainty_map,
 )
 from parimana.analyse.mvn_model import MvnModel
-from parimana.analyse.odds_chance import OddsChance
 from parimana.analyse.odds_eval import (
     calc_vote_tally,
 )
 
 
 T = TypeVar("T", bound=Comparable)
-
-
-@dataclass(frozen=True)
-class AnalysisResult(Generic[T]):
-    odds_pool: RaceOddsPool
-    model: MvnModel[T]
-    chances: Mapping[Eye, float]
-
-    @property
-    def odds_chance(self) -> OddsChance:
-        return OddsChance(self.odds_pool.odds, self.chances)
-
-    @property
-    def recommendation(self) -> pd.DataFrame:
-        return self.odds_chance.df.query("expected >= 100").sort_values(
-            "expected", ascending=False
-        )
-
-    def get_charts(self) -> "AnalysisCharts":
-        xlbuf = io.BytesIO()
-        with pd.ExcelWriter(xlbuf, engine="openpyxl") as writer:
-            self.recommendation.to_excel(writer, sheet_name="recommend")
-            self.odds_chance.df.to_excel(writer, sheet_name="simulation")
-            self.model.to_excel(writer)
-
-        return AnalysisCharts(
-            result=self,
-            excel=xlbuf.getvalue(),
-            odds_chance=fig_to_bytes(self.odds_chance.chart.fig),
-            model_box=fig_to_bytes(self.model.plot_box()),
-            model_mds=fig_to_bytes(self.model.plot_mds()),
-            model_mds_metric=fig_to_bytes(self.model.plot_mds(metric=True)),
-        )
-
-
-def fig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
-    buf = io.BytesIO()
-    fig.savefig(buf, dpi=dpi, format=format)
-    return buf.getvalue()
-
-
-@dataclass(frozen=True)
-class AnalysisCharts(Generic[T]):
-    result: AnalysisResult[T]
-    excel: bytes
-    odds_chance: bytes
-    model_box: bytes
-    model_mds: bytes
-    model_mds_metric: bytes
 
 
 class Analyser(ABC, Generic[T]):
@@ -154,21 +98,3 @@ class MultiPassAnalyser(Analyser[T]):
 
         result.model.name = self.name
         return result
-
-
-_ppf_smpl = OnePassAnalyser("ppf_smpl", lambda d: cor_by_score(d.ppf, d.members))
-_ppf_mtx = OnePassAnalyser(
-    "ppf_mtx", lambda d: cor_by_score_mtx(d.ppf_matrix, d.members)
-)
-_no_cor = OnePassAnalyser("no_cor", lambda d: cor_none(d.members))
-_multi = MultiPassAnalyser("multi", [_no_cor, _ppf_mtx])
-_twice = MultiPassAnalyser("twice", [_no_cor, _no_cor])
-
-_analysers: Sequence[Analyser[T]] = [_ppf_smpl, _ppf_mtx, _no_cor, _multi, _twice]
-
-analysers: Mapping[str, Analyser[T]] = {a.name: a for a in _analysers}
-analyser_names: Sequence[str] = [a.name for a in _analysers]
-
-
-def default_analyser_names():
-    return ["ppf_mtx"]

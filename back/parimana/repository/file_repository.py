@@ -4,7 +4,7 @@ import pickle
 from typing import Optional
 
 
-from parimana.analyse.analyse import AnalysisCharts, AnalysisResult
+from parimana.analyse.analysis_result import AnalysisCharts, AnalysisResult
 from parimana.base.odds_pool import OddsTimeStamp, RaceOddsPool
 from parimana.base.race import Race
 
@@ -99,9 +99,7 @@ def read_pickle(file_path: Path):
     if file_path.exists():
         print(f"reading {file_path}...")
         with open(file_path, "rb") as f:
-            p = pickle.load(f)
-            print(f"reading {file_path} done.")
-            return p
+            return pickle.load(f)
     else:
         return None
 
@@ -110,11 +108,9 @@ def write_as_pickle(file_path: Path, obj):
     with open(file_path, "wb") as f:
         print(f"writing {file_path}...")
         pickle.dump(obj, f)
-        print(f"writing {file_path} done.")
 
 
 def write_bytes(file_path: Path, binary: bytes):
     with open(file_path, "wb") as f:
         print(f"writing {file_path}...")
         f.write(binary)
-        print(f"writing {file_path} done.")

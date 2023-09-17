@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from functools import cached_property
-from pathlib import Path
 from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
 
 import numpy as np
@@ -59,17 +58,11 @@ class MvnModel(Generic[T]):
             self._covariance_sr.to_frame(), index="a", columns="b"
         ).values
 
-    def to_excel(self, writer: pd.ExcelWriter) -> None:
-        au_df = self.a_map.rename("abi").to_frame().join(self.u_map.rename("unc"))
-        au_df.to_excel(writer, sheet_name="au")
+    def au_df(self) -> pd.DataFrame:
+        return self.a_map.rename("abi").to_frame().join(self.u_map.rename("unc"))
 
-        cor_df = pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
-        cor_df.to_excel(writer, sheet_name="cor")
-
-    def save_figures(self, dir: Path) -> None:
-        self.plot_box().savefig(dir / "boxplot.png", dpi=300)
-        self.plot_mds().savefig(dir / "mds.png", dpi=300)
-        self.plot_mds(metric=True).savefig(dir / "mds_metric.png", dpi=300)
+    def cor_df(self) -> pd.DataFrame:
+        return pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
 
     def plot_box(self) -> mpfig.Figure:
         values = self.simulate_values(10_000)
