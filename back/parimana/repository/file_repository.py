@@ -1,39 +1,120 @@
 from dataclasses import dataclass
 from pathlib import Path
 import pickle
+from typing import Optional
 
 
-from parimana.analyse.analyse import AnalysisCharts
+from parimana.analyse.analyse import AnalysisCharts, AnalysisResult
+from parimana.base.odds_pool import OddsTimeStamp, RaceOddsPool
+from parimana.base.race import Race
 
 
 @dataclass(frozen=True)
 class FileRepository:
     root_path: Path
 
+    def save_odds_pool(self, odds_pool: RaceOddsPool):
+        write_as_pickle(
+            self._op_dir(odds_pool.race, odds_pool.timestamp) / "odds_pool.pickle",
+            odds_pool,
+        )
+        ts = self.load_latest_odds_time(odds_pool.race)
+        if (ts is None) or (ts < odds_pool.timestamp):
+            self.save_latest_odds_time(odds_pool.race, odds_pool.timestamp)
+
+    def load_odds_pool(self, race: Race, ts: OddsTimeStamp) -> Optional[RaceOddsPool]:
+        return read_pickle(
+            self._op_dir(race, ts) / "odds_pool.pickle",
+        )
+
+    def load_latest_odds_pool(self, race: Race) -> Optional[RaceOddsPool]:
+        ts = self.load_latest_odds_time(race)
+        if ts:
+            return self.load_odds_pool(race, ts)
+        else:
+            return None
+
+    def odds_pool_exists(self, race: Race) -> bool:
+        return (self._race_dir(race) / "odds_ts.pickle").exists()
+
     def save_charts(self, charts: AnalysisCharts):
-        dir_ = self.root_path / charts.result.odds_pool.key / charts.result.model.name
+        dir_ = self._result_dir(charts.result)
+        write_as_pickle(dir_ / "charts.pickle", charts)
+        write_as_pickle(dir_ / "result.pickle", charts.result)
+        write_bytes(dir_ / "result.xlsx", charts.excel)
+        write_bytes(dir_ / "oc.png", charts.odds_chance)
+        write_bytes(dir_ / "box-plot.png", charts.model_box)
+        write_bytes(dir_ / "mds.png", charts.model_mds)
+        write_bytes(dir_ / "mds-metric.png", charts.model_mds_metric)
+
+        odds_pool = charts.result.odds_pool
+        ts = self.load_latest_charts_time(odds_pool.race)
+        if (ts is None) or (ts < odds_pool.timestamp):
+            self.save_latest_charts_time(odds_pool.race, odds_pool.timestamp)
+
+    def load_charts(self, race: Race, ts: OddsTimeStamp, model: str) -> AnalysisCharts:
+        dir_ = self._result_dir_by_key(race, ts, model)
+        return read_pickle(dir_ / "charts.pickle")
+
+    def load_latest_charts(self, race: Race, model: str) -> Optional[AnalysisCharts]:
+        ts = self.load_latest_charts_time(race)
+        if ts:
+            return self.load_charts(race, ts, model)
+        else:
+            return None
+
+    def _race_dir(self, race: Race) -> Path:
+        dir_ = self.root_path / race.race_id
         dir_.mkdir(exist_ok=True, parents=True)
+        return dir_
 
-        with open(dir_ / "charts.pickle", "wb") as f:
-            pickle.dump(charts, f)
+    def _op_dir(self, race: Race, ts: OddsTimeStamp) -> Path:
+        dir_ = self._race_dir(race) / str(ts)
+        dir_.mkdir(exist_ok=True, parents=True)
+        return dir_
 
-        with open(dir_ / "result.pickle", "wb") as f:
-            pickle.dump(charts.result, f)
+    def _result_dir(self, result: AnalysisResult) -> Path:
+        op = result.odds_pool
+        return self._result_dir_by_key(op.race, op.timestamp, result.model.name)
 
-        with open(dir_ / f"{charts.result.model.name}.xlsx", "wb") as f:
-            f.write(charts.excel)
+    def _result_dir_by_key(self, race: Race, ts: OddsTimeStamp, model: str) -> Path:
+        dir_ = self._op_dir(race, ts) / model
+        dir_.mkdir(exist_ok=True, parents=True)
+        return dir_
 
-        with open(dir_ / "oc.png", "wb") as f:
-            f.write(charts.odds_chance)
+    def save_latest_odds_time(self, race: Race, ts: OddsTimeStamp) -> None:
+        write_as_pickle(self._race_dir(race) / "odds_ts.pickle", ts)
 
-        with open(dir_ / "box-plot.png", "wb") as f:
-            f.write(charts.model_box)
+    def load_latest_odds_time(self, race: Race) -> Optional[OddsTimeStamp]:
+        return read_pickle(self._race_dir(race) / "odds_ts.pickle")
 
-        with open(dir_ / "mds.png", "wb") as f:
-            f.write(charts.model_mds)
+    def save_latest_charts_time(self, race: Race, ts: OddsTimeStamp) -> None:
+        write_as_pickle(self._race_dir(race) / "charts_ts.pickle", ts)
 
-        with open(dir_ / "mds-metric.png", "wb") as f:
-            f.write(charts.model_mds_metric)
+    def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
+        return read_pickle(self._race_dir(race) / "charts_ts.pickle")
 
-    def save_odds_pool(self):
-        pass
+
+def read_pickle(file_path: Path):
+    if file_path.exists():
+        print(f"reading {file_path}...")
+        with open(file_path, "rb") as f:
+            p = pickle.load(f)
+            print(f"reading {file_path} done.")
+            return p
+    else:
+        return None
+
+
+def write_as_pickle(file_path: Path, obj):
+    with open(file_path, "wb") as f:
+        print(f"writing {file_path}...")
+        pickle.dump(obj, f)
+        print(f"writing {file_path} done.")
+
+
+def write_bytes(file_path: Path, binary: bytes):
+    with open(file_path, "wb") as f:
+        print(f"writing {file_path}...")
+        f.write(binary)
+        print(f"writing {file_path} done.")

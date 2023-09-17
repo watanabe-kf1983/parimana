@@ -5,10 +5,11 @@ from typing import Sequence
 from celery import Celery, chain, group
 
 from parimana.base.odds_pool import RaceOddsPool
+from parimana.base.race import Race
 from parimana.race import get_race
 from parimana.analyse.analyse import AnalysisResult, analysers
+from parimana.race.select import get_race_source
 from parimana.repository.file_repository import FileRepository
-from parimana.storage.race_manager import RaceManager
 from parimana.settings import Settings
 
 app = Celery(
@@ -24,8 +25,15 @@ repo = FileRepository(Path(".output"))
 
 
 @app.task
-def get_odds_pool(rm: RaceManager, scrape_force: bool = False) -> RaceOddsPool:
-    return rm.get_odds_pool(scrape_force)
+def get_odds_pool(race: Race, scrape_force: bool = False) -> RaceOddsPool:
+    odds_pool = repo.load_latest_odds_pool(race)
+
+    if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
+        return odds_pool
+    else:
+        odds_pool = get_race_source(race).scrape_odds_pool()
+        repo.save_odds_pool(odds_pool)
+        return odds_pool
 
 
 @app.task
@@ -40,7 +48,7 @@ def analyse(
 def get_analysis(settings: Settings):
     race = get_race(settings.race_id)
     return chain(
-        get_odds_pool.s(RaceManager(race), not settings.use_cache),
+        get_odds_pool.s(race, not settings.use_cache),
         group(
             analyse.s(analyser_name, settings.simulation_count)
             for analyser_name in settings.analyser_names
