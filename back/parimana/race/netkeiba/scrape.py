@@ -1,10 +1,21 @@
 from typing import Mapping, Tuple, Optional
 
 from parimana.base import Eye, Odds
-from parimana.race.base import OddsTimeStamp, OddsUpdatedException
+from parimana.race.base import OddsTimeStamp, OddsUpdatedException, RaceOddsPool
+from parimana.race.netkeiba.data import ratio_data_derby
 from parimana.race.netkeiba.browse import browse_odds_pages
 from parimana.race.netkeiba.extract import extract_odds, extract_timestamp
 from parimana.race.netkeiba.race import NetKeibaRace
+
+
+def scrape_odds_pool(race: NetKeibaRace) -> RaceOddsPool:
+    odds, timestamp = collect_odds(race)
+    return RaceOddsPool(
+        race=race,
+        odds=odds,
+        timestamp=timestamp,
+        vote_ratio=ratio_data_derby,
+    )
 
 
 def collect_odds(race: NetKeibaRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:

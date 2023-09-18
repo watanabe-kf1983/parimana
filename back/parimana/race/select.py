@@ -1,25 +1,18 @@
 from typing import Collection, Type
-from parimana.race.base import Race, RaceSource
+from parimana.race.base import Race
 from parimana.race.boatrace.race import BoatRace
-from parimana.race.boatrace.race_source import BoatRaceSource
 from parimana.race.netkeiba.race import NetKeibaRace
-from parimana.race.netkeiba.race_source import NetKeibaSource
 
-race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
-race_source_types: Collection[Type[RaceSource]] = [BoatRaceSource, NetKeibaSource]
+_race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
 
 
-def get_race(race_id: str) -> Race:
-    for race_type in race_types:
-        if found := race_type.from_id(race_id):
-            return found
+class RaceSelector:
+    @staticmethod
+    def select(race_id: str) -> "Race":
+        from parimana.race.select import _race_types
 
-    raise ValueError(f"race_id: {race_id} is illegal")
+        for race_type in _race_types:
+            if found := race_type.from_id(race_id):
+                return found
 
-
-def get_source(race: Race) -> RaceSource:
-    for source_type in race_source_types:
-        if found := source_type.from_race(race):
-            return found
-
-    raise ValueError(f"race_source not found: {race}")
+        raise ValueError(f"race_id: {race_id} is illegal")

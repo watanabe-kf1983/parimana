@@ -13,6 +13,11 @@ class Race(ABC):
     def race_id(self) -> str:
         pass
 
+    @property
+    @abstractmethod
+    def source(self) -> "RaceSource":
+        pass
+
     @classmethod
     @abstractmethod
     def from_id(cls, race_id: str) -> Optional["Race"]:
@@ -20,18 +25,8 @@ class Race(ABC):
 
 
 class RaceSource(ABC):
-    @property
-    @abstractmethod
-    def race(self) -> Race:
-        pass
-
     @abstractmethod
     def scrape_odds_pool(self) -> "RaceOddsPool":
-        pass
-
-    @classmethod
-    @abstractmethod
-    def from_race(cls, race: Race) -> Optional["RaceSource"]:
         pass
 
 
