@@ -4,8 +4,7 @@ import pickle
 from typing import Optional
 
 
-from parimana.race.race import Race
-from parimana.race.odds_pool import OddsTimeStamp, RaceOddsPool
+from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
 from parimana.analyse import AnalysisCharts
 
 

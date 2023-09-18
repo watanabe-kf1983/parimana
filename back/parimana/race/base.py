@@ -1,10 +1,38 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from functools import total_ordering
 from typing import Optional
 
 from parimana.base import OddsPool
-from parimana.race.race import Race
+
+
+class Race(ABC):
+    @property
+    @abstractmethod
+    def race_id(self) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_id(cls, race_id: str) -> Optional["Race"]:
+        pass
+
+
+class RaceSource(ABC):
+    @property
+    @abstractmethod
+    def race(self) -> Race:
+        pass
+
+    @abstractmethod
+    def scrape_odds_pool(self) -> "RaceOddsPool":
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_race(cls, race: Race) -> Optional["RaceSource"]:
+        pass
 
 
 @total_ordering
@@ -18,12 +46,6 @@ class OddsTimeStamp:
             if self.update_time is None
             else self.update_time.strftime("%Y%m%d%H%M")
         )
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        return self.update_time == other.update_time
 
     def __lt__(self, other):
         if not isinstance(other, self.__class__):

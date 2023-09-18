@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, Tag
 import numpy as np
 
 from parimana.base import BettingType, Eye, Odds
-from parimana.race.odds_pool import OddsTimeStamp
+from parimana.race.base import OddsTimeStamp
 
 UPDATE_PATTERN: re.Pattern = re.compile(
     r"\s*オッズ更新時間\s*(?P<time>[0-9]{1,2}:[0-9]{2})\s*"

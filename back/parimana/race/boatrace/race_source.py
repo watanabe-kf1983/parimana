@@ -2,9 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from parimana.base import BettingType
-from parimana.race.race import Race
-from parimana.race.race_source import RaceSource
-from parimana.race.odds_pool import RaceOddsPool
+from parimana.race.base import Race, RaceSource, RaceOddsPool
 from parimana.race.boatrace.race import BoatRace
 from parimana.race.boatrace.scrape import collect_odds
 

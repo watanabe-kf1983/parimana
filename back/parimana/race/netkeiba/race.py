@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import re
 from typing import Optional
 
-from parimana.race.race import Race
+from parimana.race.base import Race
 
 
 RACE_ID_PATTERN: re.Pattern = re.compile(r"netkeiba-(?P<netkeiba_race_id>[0-9]{12})")

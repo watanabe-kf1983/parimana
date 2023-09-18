@@ -1,7 +1,7 @@
 from typing import Mapping, Tuple, Optional
 
 from parimana.base import Eye, Odds
-from parimana.race.odds_pool import OddsTimeStamp, OddsUpdatedException
+from parimana.race.base import OddsTimeStamp, OddsUpdatedException
 from parimana.race.netkeiba.browse import browse_odds_pages
 from parimana.race.netkeiba.extract import extract_odds, extract_timestamp
 from parimana.race.netkeiba.race import NetKeibaRace
