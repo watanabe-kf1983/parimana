@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Optional
 
 from parimana.base import BettingType, RaceOddsPool, Race, RaceSource
-from parimana.races.boatrace.race import BoatRace
-from parimana.races.boatrace.scrape import collect_odds
+from parimana.race.boatrace.race import BoatRace
+from parimana.race.boatrace.scrape import collect_odds
 
 # https://funaban.com/wp/post-543.html
 ratio_data = {

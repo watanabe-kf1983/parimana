@@ -1,9 +1,9 @@
 from typing import Collection, Type
 from parimana.base import Race, RaceSource
-from parimana.races.boatrace.race import BoatRace
-from parimana.races.boatrace.race_source import BoatRaceSource
-from parimana.races.netkeiba.race import NetKeibaRace
-from parimana.races.netkeiba.race_source import NetKeibaSource
+from parimana.race.boatrace.race import BoatRace
+from parimana.race.boatrace.race_source import BoatRaceSource
+from parimana.race.netkeiba.race import NetKeibaRace
+from parimana.race.netkeiba.race_source import NetKeibaSource
 
 race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
 race_source_types: Collection[Type[RaceSource]] = [BoatRaceSource, NetKeibaSource]

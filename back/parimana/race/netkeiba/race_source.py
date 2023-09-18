@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Optional
 
 from parimana.base import BettingType, RaceOddsPool, Race, RaceSource
-from parimana.races.netkeiba.race import NetKeibaRace
-from parimana.races.netkeiba.scrape import collect_odds
+from parimana.race.netkeiba.race import NetKeibaRace
+from parimana.race.netkeiba.scrape import collect_odds
 
 # ratio_data = {
 #     # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9

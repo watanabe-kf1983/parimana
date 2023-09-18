@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 
 from parimana.base import BettingType, Eye, Odds, PlaceOdds, OddsTimeStamp
-from parimana.races.netkeiba.btype import code_to_btype, btype_to_code
+from parimana.race.netkeiba.btype import code_to_btype, btype_to_code
 
 
 # <span id="official_time">13:33(142分前)</span>

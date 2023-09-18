@@ -6,7 +6,7 @@ from celery import Celery, chain, group
 
 from parimana.base import Race, RaceOddsPool
 from parimana.analyse import analysers, AnalysisResult
-from parimana.races import get_race, get_source
+from parimana.race import get_race, get_source
 from parimana.repository import FileRepository
 from parimana.settings import Settings
 
