@@ -9,8 +9,6 @@ _race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
 class RaceSelector:
     @staticmethod
     def select(race_id: str) -> "Race":
-        from parimana.race.select import _race_types
-
         for race_type in _race_types:
             if found := race_type.from_id(race_id):
                 return found

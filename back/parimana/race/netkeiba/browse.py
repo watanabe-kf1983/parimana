@@ -13,30 +13,27 @@ from parimana.race.netkeiba.btype import btype_to_code, supported_types
 from parimana.race.netkeiba.race import NetKeibaRace
 
 
+def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
+    driver: WebDriver = headless_chrome()
+    get_page(driver, race, BettingType.WIN)
+    update_odds(driver)
+    return driver.page_source
+
+
 def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
     driver: WebDriver = headless_chrome()
 
-    is_first_browse = True
-
     for btype in supported_types:
-        pages = _browse_odds_by_btype(driver, race, btype, is_first_browse)
+        pages = _browse_odds_by_btype(driver, race, btype)
 
         for page_content in pages:
             yield (page_content, btype)
 
-        is_first_browse = False
-
 
 def _browse_odds_by_btype(
-    driver: WebDriver, race: NetKeibaRace, btype: BettingType, need_update: bool
+    driver: WebDriver, race: NetKeibaRace, btype: BettingType
 ) -> Iterator[str]:
-    uri = _odds_page_uri(race, btype)
-    print(f"opening {uri} ...", end=" ", flush=True)
-    driver.get(uri)
-    print("done.", flush=True)
-
-    if need_update:
-        update_odds(driver)
+    get_page(driver, race, btype)
 
     if btype.size < 3:
         yield driver.page_source
@@ -102,6 +99,13 @@ def text_to_be_present_matched_on_element(locator, text_):
             return False
 
     return _predicate
+
+
+def get_page(driver: WebDriver, race: NetKeibaRace, btype: BettingType):
+    uri = _odds_page_uri(race, btype)
+    print(f"opening {uri} ...", end=" ", flush=True)
+    driver.get(uri)
+    print("done.", flush=True)
 
 
 def _odds_page_uri(race: NetKeibaRace, btype: BettingType) -> str:

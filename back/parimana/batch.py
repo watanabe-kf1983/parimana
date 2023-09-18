@@ -28,8 +28,10 @@ def get_odds_pool(race: Race, scrape_force: bool = False) -> RaceOddsPool:
     if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
         return odds_pool
     else:
-        odds_pool = race.source.scrape_odds_pool()
-        repo.save_odds_pool(odds_pool)
+        timestamp = race.source.scrape_odds_timestamp()
+        if (not odds_pool) or odds_pool.timestamp < timestamp:
+            odds_pool = race.source.scrape_odds_pool()
+            repo.save_odds_pool(odds_pool)
         return odds_pool
 
 

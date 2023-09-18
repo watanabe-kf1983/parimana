@@ -1,11 +1,28 @@
-from typing import Mapping, Tuple, Optional
+from dataclasses import dataclass
+from typing import Mapping, Tuple
 
 from parimana.base import Eye, Odds
-from parimana.race.base import OddsTimeStamp, OddsUpdatedException, RaceOddsPool
+from parimana.race.base import (
+    OddsTimeStamp,
+    OddsUpdatedException,
+    RaceOddsPool,
+    RaceSource,
+)
 from parimana.race.boatrace.race import BoatRace
 from parimana.race.boatrace.data import ratio_data
-from parimana.race.boatrace.browse import browse_odds_pages
+from parimana.race.boatrace.browse import browse_odds_pages, browse_for_odds_timestamp
 from parimana.race.boatrace.extract import extract_odds, extract_timestamp
+
+
+@dataclass
+class BoatRaceSource(RaceSource):
+    race: BoatRace
+
+    def scrape_odds_pool(self) -> RaceOddsPool:
+        return scrape_odds_pool(self.race)
+
+    def scrape_odds_timestamp(self) -> OddsTimeStamp:
+        return scrape_odds_timestamp(self.race)
 
 
 def scrape_odds_pool(race: BoatRace) -> RaceOddsPool:
@@ -16,6 +33,10 @@ def scrape_odds_pool(race: BoatRace) -> RaceOddsPool:
         timestamp=timestamp,
         vote_ratio=ratio_data,
     )
+
+
+def scrape_odds_timestamp(race: BoatRace) -> OddsTimeStamp:
+    return extract_timestamp(browse_for_odds_timestamp(race))
 
 
 def collect_odds(race: BoatRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
@@ -30,22 +51,14 @@ def collect_odds(race: BoatRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
 def attempt_collect_odds(
     race: BoatRace, attempt: str
 ) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
-    timestamp: Optional[OddsTimeStamp] = None
     odds: dict[Eye, Odds] = {}
+    timestamp = scrape_odds_timestamp(race)
 
     for content, btype in browse_odds_pages(race, attempt):
-        ts = extract_timestamp(content)
-
-        if timestamp is None:
-            timestamp = ts
-
-        if timestamp != ts:
+        if extract_timestamp(content) != timestamp:
             print("Odds update detected")
             raise OddsUpdatedException()
 
         odds |= extract_odds(content, btype)
 
-    if timestamp:
-        return odds, timestamp
-    else:
-        raise ValueError("failed")
+    return odds, timestamp

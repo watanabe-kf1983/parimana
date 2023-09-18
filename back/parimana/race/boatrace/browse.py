@@ -7,15 +7,19 @@ from parimana.base import BettingType
 from parimana.race.boatrace.race import BoatRace
 
 
+def browse_for_odds_timestamp(race: BoatRace) -> str:
+    return browse_odds_page(race, BettingType.WIN)
+
+
 def browse_odds_pages(
     race: BoatRace, attempt: str
 ) -> Iterator[Tuple[str, BettingType]]:
     for btype in supported_types:
-        page_content = _browse_odds_by_btype(race, btype, attempt)
+        page_content = browse_odds_page(race, btype, attempt)
         yield (page_content, btype)
 
 
-def _browse_odds_by_btype(race: BoatRace, btype: BettingType, attempt: str) -> str:
+def browse_odds_page(race: BoatRace, btype: BettingType, attempt: str = "1st") -> str:
     uri = _odds_page_uri(race, btype)
     return _get(uri, attempt)
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 import re
 
-from parimana.race.base import Race, RaceSource, RaceOddsPool
+from parimana.race.base import Race, RaceSource
 
 
 @dataclass
@@ -17,6 +17,8 @@ class BoatRace(Race):
 
     @property
     def source(self) -> RaceSource:
+        from parimana.race.boatrace.scrape import BoatRaceSource
+
         return BoatRaceSource(self)
 
     @classmethod
@@ -35,13 +37,3 @@ class BoatRace(Race):
 RACE_ID_PATTERN: re.Pattern = re.compile(
     r"boatrace-(?P<date>[0-9]{8})-(?P<cource>[0-9]{1,2})-(?P<race_no>[0-9]{1,2})"
 )
-
-
-@dataclass
-class BoatRaceSource(RaceSource):
-    race: BoatRace
-
-    def scrape_odds_pool(self) -> RaceOddsPool:
-        import parimana.race.boatrace.scrape as scraper
-
-        return scraper.scrape_odds_pool(self.race)

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import re
 from typing import Optional
 
-from parimana.race.base import Race, RaceSource, RaceOddsPool
+from parimana.race.base import Race, RaceSource
 
 
 @dataclass
@@ -15,6 +15,8 @@ class NetKeibaRace(Race):
 
     @property
     def source(self) -> RaceSource:
+        from parimana.race.netkeiba.scrape import NetKeibaSource
+
         return NetKeibaSource(self)
 
     @classmethod
@@ -26,13 +28,3 @@ class NetKeibaRace(Race):
 
 
 RACE_ID_PATTERN: re.Pattern = re.compile(r"netkeiba-(?P<netkeiba_race_id>[0-9]{12})")
-
-
-@dataclass
-class NetKeibaSource(RaceSource):
-    race: NetKeibaRace
-
-    def scrape_odds_pool(self) -> RaceOddsPool:
-        import parimana.race.netkeiba.scrape as scraper
-
-        return scraper.scrape_odds_pool(self.race)

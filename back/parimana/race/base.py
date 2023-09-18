@@ -29,6 +29,10 @@ class RaceSource(ABC):
     def scrape_odds_pool(self) -> "RaceOddsPool":
         pass
 
+    @abstractmethod
+    def scrape_odds_timestamp(self) -> "OddsTimeStamp":
+        pass
+
 
 @total_ordering
 @dataclass
