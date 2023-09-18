@@ -4,7 +4,7 @@ import functools
 import requests
 
 from parimana.base.eye import BettingType
-from parimana.race.boatrace.race import BoatRace
+from parimana.races.boatrace.race import BoatRace
 
 
 def browse_odds_pages(

@@ -5,8 +5,8 @@ from parimana.base.eye import BettingType
 from parimana.base.odds_pool import RaceOddsPool
 from parimana.base.race import Race
 from parimana.base.race_source import RaceSource
-from parimana.race.netkeiba.race import NetKeibaRace
-from parimana.race.netkeiba.scrape import collect_odds
+from parimana.races.netkeiba.race import NetKeibaRace
+from parimana.races.netkeiba.scrape import collect_odds
 
 # ratio_data = {
 #     # https://jra.jp/company/about/financial/pdf/houkoku03.pdf p.26 別表9

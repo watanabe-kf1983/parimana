@@ -9,8 +9,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base.eye import BettingType
 from parimana.driver.chrome import headless_chrome
-from parimana.race.netkeiba.btype import btype_to_code, supported_types
-from parimana.race.netkeiba.race import NetKeibaRace
+from parimana.races.netkeiba.btype import btype_to_code, supported_types
+from parimana.races.netkeiba.race import NetKeibaRace
 
 
 def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:

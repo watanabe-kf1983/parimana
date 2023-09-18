@@ -8,8 +8,7 @@ from parimana.base.odds_pool import RaceOddsPool
 from parimana.base.race import Race
 from parimana.analyse.analysers import analysers
 from parimana.analyse.analysis_result import AnalysisResult
-from parimana.race import get_race
-from parimana.race.select import get_race_source
+from parimana.races import get_race, get_source
 from parimana.repository.file_repository import FileRepository
 from parimana.settings import Settings
 
@@ -32,7 +31,7 @@ def get_odds_pool(race: Race, scrape_force: bool = False) -> RaceOddsPool:
     if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
         return odds_pool
     else:
-        odds_pool = get_race_source(race).scrape_odds_pool()
+        odds_pool = get_source(race).scrape_odds_pool()
         repo.save_odds_pool(odds_pool)
         return odds_pool
 

@@ -1,10 +1,10 @@
 from typing import Collection, Type
 from parimana.base.race import Race
 from parimana.base.race_source import RaceSource
-from parimana.race.boatrace.race import BoatRace
-from parimana.race.boatrace.race_source import BoatRaceSource
-from parimana.race.netkeiba.race import NetKeibaRace
-from parimana.race.netkeiba.race_source import NetKeibaSource
+from parimana.races.boatrace.race import BoatRace
+from parimana.races.boatrace.race_source import BoatRaceSource
+from parimana.races.netkeiba.race import NetKeibaRace
+from parimana.races.netkeiba.race_source import NetKeibaSource
 
 race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
 race_source_types: Collection[Type[RaceSource]] = [BoatRaceSource, NetKeibaSource]
@@ -18,7 +18,7 @@ def get_race(race_id: str) -> Race:
     raise ValueError(f"race_id: {race_id} is illegal")
 
 
-def get_race_source(race: Race) -> RaceSource:
+def get_source(race: Race) -> RaceSource:
     for source_type in race_source_types:
         if found := source_type.from_race(race):
             return found

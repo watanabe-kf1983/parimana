@@ -5,8 +5,8 @@ from parimana.base.eye import BettingType
 from parimana.base.odds_pool import RaceOddsPool
 from parimana.base.race import Race
 from parimana.base.race_source import RaceSource
-from parimana.race.boatrace.race import BoatRace
-from parimana.race.boatrace.scrape import collect_odds
+from parimana.races.boatrace.race import BoatRace
+from parimana.races.boatrace.scrape import collect_odds
 
 # https://funaban.com/wp/post-543.html
 ratio_data = {
