@@ -3,7 +3,7 @@ import functools
 
 import requests
 
-from parimana.base.eye import BettingType
+from parimana.base import BettingType
 from parimana.races.boatrace.race import BoatRace
 
 

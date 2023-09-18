@@ -5,9 +5,7 @@ from typing import Generic, Mapping, Optional, TypeVar
 import pandas as pd
 from matplotlib.figure import Figure
 
-from parimana.base.eye import Eye
-from parimana.base.situation import Comparable
-from parimana.base.odds_pool import RaceOddsPool
+from parimana.base import Eye, Comparable, RaceOddsPool
 from parimana.analyse.mvn_model import MvnModel
 from parimana.analyse.odds_chance import OddsChance
 

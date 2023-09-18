@@ -1,6 +1,6 @@
 from typing import Collection, Mapping
 
-from parimana.base.eye import BettingType
+from parimana.base import BettingType
 
 _type_dict: Mapping[BettingType, str] = {
     BettingType.WIN: "1",

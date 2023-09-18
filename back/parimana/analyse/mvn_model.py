@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.figure as mpfig
 from sklearn.manifold import MDS
 
-from parimana.base.situation import Comparable
-from parimana.base.eye import Eye
+from parimana.base import Comparable, Eye
 import parimana.analyse.normal_dist as nd
 
 

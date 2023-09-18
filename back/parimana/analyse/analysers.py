@@ -1,7 +1,7 @@
 from typing import Mapping, Sequence, TypeVar
 from parimana.analyse.analyse import Analyser, MultiPassAnalyser, OnePassAnalyser
 
-from parimana.base.situation import Comparable
+from parimana.base import Comparable
 from parimana.analyse.correlation import (
     cor_none,
     cor_by_score,

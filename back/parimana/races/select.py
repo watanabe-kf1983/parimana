@@ -1,6 +1,5 @@
 from typing import Collection, Type
-from parimana.base.race import Race
-from parimana.base.race_source import RaceSource
+from parimana.base import Race, RaceSource
 from parimana.races.boatrace.race import BoatRace
 from parimana.races.boatrace.race_source import BoatRaceSource
 from parimana.races.netkeiba.race import NetKeibaRace

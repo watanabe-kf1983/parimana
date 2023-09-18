@@ -4,12 +4,10 @@ from typing import Sequence
 
 from celery import Celery, chain, group
 
-from parimana.base.odds_pool import RaceOddsPool
-from parimana.base.race import Race
-from parimana.analyse.analysers import analysers
-from parimana.analyse.analysis_result import AnalysisResult
+from parimana.base import Race, RaceOddsPool
+from parimana.analyse import analysers, AnalysisResult
 from parimana.races import get_race, get_source
-from parimana.repository.file_repository import FileRepository
+from parimana.repository import FileRepository
 from parimana.settings import Settings
 
 app = Celery(

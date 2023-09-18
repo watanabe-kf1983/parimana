@@ -5,8 +5,7 @@ from typing import Mapping
 import pandas as pd
 import numpy as np
 
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds
+from parimana.base import BettingType, Eye, Odds
 from parimana.analyse.chart import Chart, Cmap, DoubleLogAxes
 from parimana.analyse.regression import (
     PiecewiseModel,

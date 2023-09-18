@@ -7,7 +7,7 @@ from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
-from parimana.base.eye import BettingType
+from parimana.base import BettingType
 from parimana.driver.chrome import headless_chrome
 from parimana.races.netkeiba.btype import btype_to_code, supported_types
 from parimana.races.netkeiba.race import NetKeibaRace

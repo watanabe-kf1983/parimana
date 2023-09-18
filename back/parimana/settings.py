@@ -4,7 +4,7 @@ import argparse
 from dataclasses import dataclass, field
 from typing import Sequence
 
-from parimana.analyse.analysers import (
+from parimana.analyse import (
     analyser_names,
     default_analyser_names,
 )

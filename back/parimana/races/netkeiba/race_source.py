@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from parimana.base.eye import BettingType
-from parimana.base.odds_pool import RaceOddsPool
-from parimana.base.race import Race
-from parimana.base.race_source import RaceSource
+from parimana.base import BettingType, RaceOddsPool, Race, RaceSource
 from parimana.races.netkeiba.race import NetKeibaRace
 from parimana.races.netkeiba.scrape import collect_odds
 

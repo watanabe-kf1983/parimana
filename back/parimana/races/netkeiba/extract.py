@@ -5,9 +5,7 @@ import re
 
 from bs4 import BeautifulSoup
 
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds, PlaceOdds
-from parimana.base.odds_pool import OddsTimeStamp
+from parimana.base import BettingType, Eye, Odds, PlaceOdds, OddsTimeStamp
 from parimana.races.netkeiba.btype import code_to_btype, btype_to_code
 
 

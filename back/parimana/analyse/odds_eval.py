@@ -3,8 +3,7 @@ from typing import Mapping
 import pandas as pd
 from parimana.analyse.regression import RegressionModel
 
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds
+from parimana.base import BettingType, Eye, Odds
 
 
 def calc_vote_tally(

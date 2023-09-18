@@ -4,9 +4,8 @@ import pickle
 from typing import Optional
 
 
-from parimana.analyse.analysis_result import AnalysisCharts, AnalysisResult
-from parimana.base.odds_pool import OddsTimeStamp, RaceOddsPool
-from parimana.base.race import Race
+from parimana.base import OddsTimeStamp, RaceOddsPool, Race
+from parimana.analyse import AnalysisCharts, AnalysisResult
 
 
 @dataclass(frozen=True)

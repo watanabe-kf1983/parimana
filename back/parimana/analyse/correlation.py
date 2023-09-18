@@ -1,8 +1,7 @@
 from typing import Collection, Iterator, Mapping, Sequence, TypeVar, Tuple
 import pandas as pd
 
-from parimana.base.compare import Comparable
-from parimana.base.situation import Situation
+from parimana.base import Comparable, Situation
 
 
 T = TypeVar("T", bound=Comparable)

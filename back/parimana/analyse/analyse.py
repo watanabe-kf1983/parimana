@@ -2,10 +2,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
 
-from parimana.base.eye import BettingType
-from parimana.base.situation import Comparable, Distribution
-from parimana.base.odds_pool import RaceOddsPool
-from parimana.base.race_source import RaceSource
+from parimana.base import (
+    BettingType,
+    Comparable,
+    Distribution,
+    RaceOddsPool,
+    RaceSource,
+)
 from parimana.analyse.analysis_result import AnalysisResult
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
