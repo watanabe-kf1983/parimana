@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
 from functools import total_ordering
-from typing import Mapping, Optional
+from typing import Optional
 
-from parimana.base.contestants import Contestants
-from parimana.base.eye import BettingType, Eye
-from parimana.base.odds import Odds
-from parimana.base.race import Race
+from parimana.base import OddsPool
+from parimana.race.race import Race
 
 
 @total_ordering
@@ -17,7 +15,7 @@ class OddsTimeStamp:
     def __str__(self) -> str:
         return (
             "Confirmed"
-            if self.is_confirmed
+            if self.update_time is None
             else self.update_time.strftime("%Y%m%d%H%M")
         )
 
@@ -43,22 +41,14 @@ class OddsTimeStamp:
         return not bool(self.update_time)
 
     @classmethod
-    @property
     def confirmed(cls) -> "OddsTimeStamp":
         return OddsTimeStamp(None)
 
 
 @dataclass
-class RaceOddsPool:
+class RaceOddsPool(OddsPool):
     race: Race
-    odds: Mapping[Eye, Odds]
     timestamp: OddsTimeStamp
-    vote_ratio: Mapping[BettingType, float]
-
-    @property
-    def contestants(self) -> Contestants:
-        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
-        return Contestants.from_names(names)
 
     @property
     def key(self) -> str:

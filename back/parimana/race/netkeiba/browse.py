@@ -47,12 +47,13 @@ def _browse_odds_by_btype(
         axis_numbers = {elem.get_attribute("value") for elem in options}
 
         for axis in axis_numbers:
-            print(f" downloading axis {axis} odds...", end=" ", flush=True)
-            dropdown = driver.find_element(By.CSS_SELECTOR, "#list_select_horse")
-            Select(dropdown).select_by_value(axis)
-            WebDriverWait(driver, timeout=10).until(_axis_is_loaded(axis))
-            print("done.", flush=True)
-            yield driver.page_source
+            if axis:
+                print(f" downloading axis {axis} odds...", end=" ", flush=True)
+                dropdown = driver.find_element(By.CSS_SELECTOR, "#list_select_horse")
+                Select(dropdown).select_by_value(axis)
+                WebDriverWait(driver, timeout=10).until(_axis_is_loaded(axis))
+                print("done.", flush=True)
+                yield driver.page_source
 
 
 def update_odds(driver: WebDriver):

@@ -1,6 +1,7 @@
-from typing import Mapping, Tuple
+from typing import Mapping, Tuple, Optional
 
-from parimana.base import Eye, Odds, OddsTimeStamp, OddsUpdatedException
+from parimana.base import Eye, Odds
+from parimana.race.odds_pool import OddsTimeStamp, OddsUpdatedException
 from parimana.race.netkeiba.browse import browse_odds_pages
 from parimana.race.netkeiba.extract import extract_odds, extract_timestamp
 from parimana.race.netkeiba.race import NetKeibaRace
@@ -13,12 +14,14 @@ def collect_odds(race: NetKeibaRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]
         except OddsUpdatedException:
             pass
 
+    raise ValueError("collect_odds Failed")
+
 
 def attempt_collect_odds(
     race: NetKeibaRace,
 ) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
-    timestamp: OddsTimeStamp = None
-    odds: Mapping[Eye, Odds] = {}
+    timestamp: Optional[OddsTimeStamp] = None
+    odds: dict[Eye, Odds] = {}
 
     for content, btype in browse_odds_pages(race):
         ts = extract_timestamp(content)
@@ -32,4 +35,7 @@ def attempt_collect_odds(
 
         odds |= extract_odds(content, btype)
 
-    return odds, timestamp
+    if timestamp:
+        return odds, timestamp
+    else:
+        raise ValueError("failed")

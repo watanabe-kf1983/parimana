@@ -1,14 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Callable, Generic, Mapping, Sequence, Tuple, TypeVar
+from typing import Callable, Mapping, Sequence, Tuple
 
-from parimana.base import (
-    BettingType,
-    Comparable,
-    Distribution,
-    RaceOddsPool,
-    RaceSource,
-)
+from parimana.base import BettingType, Distribution, OddsPool, Contestant
 from parimana.analyse.analysis_result import AnalysisResult
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
@@ -25,10 +19,7 @@ from parimana.analyse.odds_eval import (
 )
 
 
-T = TypeVar("T", bound=Comparable)
-
-
-class Analyser(ABC, Generic[T]):
+class Analyser(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
@@ -37,17 +28,19 @@ class Analyser(ABC, Generic[T]):
     @abstractmethod
     def analyse(
         self,
-        odds_pool: RaceOddsPool,
+        odds_pool: OddsPool,
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
-    ) -> AnalysisResult[T]:
+    ) -> AnalysisResult:
         pass
 
 
 @dataclass(frozen=True)
-class OnePassAnalyser(Analyser[T]):
+class OnePassAnalyser(Analyser):
     _name: str
-    cor_extractor: Callable[[Distribution[T]], Mapping[Tuple[T, T], float]]
+    cor_extractor: Callable[
+        [Distribution[Contestant]], Mapping[Tuple[Contestant, Contestant], float]
+    ]
 
     @property
     def name(self) -> str:
@@ -55,10 +48,10 @@ class OnePassAnalyser(Analyser[T]):
 
     def analyse(
         self,
-        odds_pool: RaceOddsPool,
+        odds_pool: OddsPool,
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
-    ) -> AnalysisResult[T]:
+    ) -> AnalysisResult:
         print(f"extract_destribution by '{self.name}' ...")
         vote_tallies = calc_vote_tally(odds_pool.odds, odds_pool.vote_ratio, odds_model)
         dist = odds_pool.contestants.destribution(vote_tallies)
@@ -68,7 +61,7 @@ class OnePassAnalyser(Analyser[T]):
         chances = model.simulate(simulation_count)
         return AnalysisResult(odds_pool, model, chances)
 
-    def estimate_model(self, dist: Distribution[T]) -> MvnModel[T]:
+    def estimate_model(self, dist: Distribution[Contestant]) -> MvnModel[Contestant]:
         win_rates = extract_win_rate(dist.relations, dist.members)
         wr_df = df_from_win_rate(win_rates)
         cor = self.cor_extractor(dist)
@@ -80,9 +73,9 @@ class OnePassAnalyser(Analyser[T]):
 
 
 @dataclass(frozen=True)
-class MultiPassAnalyser(Analyser[T]):
+class MultiPassAnalyser(Analyser):
     _name: str
-    analysers: Sequence[Analyser[T]]
+    analysers: Sequence[Analyser]
 
     @property
     def name(self) -> str:
@@ -90,13 +83,13 @@ class MultiPassAnalyser(Analyser[T]):
 
     def analyse(
         self,
-        race: RaceSource,
+        odds_pool: OddsPool,
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
-    ) -> AnalysisResult[T]:
+    ) -> AnalysisResult:
         om = odds_model
         for a in self.analysers:
-            result = a.analyse(race, simulation_count, om)
+            result = a.analyse(odds_pool, simulation_count, om)
             om = result.odds_chance.regression_model
 
         result.model.name = self.name

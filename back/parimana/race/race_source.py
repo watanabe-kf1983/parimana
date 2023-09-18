@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from parimana.base.odds_pool import RaceOddsPool
-from parimana.base.race import Race
+from parimana.race.odds_pool import RaceOddsPool
+from parimana.race.race import Race
 
 
 class RaceSource(ABC):

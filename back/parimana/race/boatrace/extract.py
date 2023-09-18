@@ -6,7 +6,8 @@ import re
 from bs4 import BeautifulSoup, Tag
 import numpy as np
 
-from parimana.base import BettingType, Eye, Odds, OddsTimeStamp
+from parimana.base import BettingType, Eye, Odds
+from parimana.race.odds_pool import OddsTimeStamp
 
 UPDATE_PATTERN: re.Pattern = re.compile(
     r"\s*オッズ更新時間\s*(?P<time>[0-9]{1,2}:[0-9]{2})\s*"
@@ -18,7 +19,7 @@ jst = ZoneInfo("Asia/Tokyo")
 def extract_timestamp(html: str) -> OddsTimeStamp:
     text = update_time_text(html)
     if text == "締切時オッズ":
-        return OddsTimeStamp.confirmed
+        return OddsTimeStamp.confirmed()
 
     elif m := re.fullmatch(UPDATE_PATTERN, text):
         today = datetime.now(jst).date()
@@ -30,7 +31,7 @@ def extract_timestamp(html: str) -> OddsTimeStamp:
         raise ValueError("Failed parse update time string: " + text)
 
 
-def update_time_text(html: str) -> OddsTimeStamp:
+def update_time_text(html: str) -> str:
     soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
     return soup.select_one("p.tab4_refreshText, p.tab4_time").get_text(strip=True)
 

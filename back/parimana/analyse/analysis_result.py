@@ -1,22 +1,19 @@
 from dataclasses import dataclass
 import io
-from typing import Generic, Mapping, Optional, TypeVar
+from typing import Mapping, Optional
 
 import pandas as pd
 from matplotlib.figure import Figure
 
-from parimana.base import Eye, Comparable, RaceOddsPool
+from parimana.base import Eye, OddsPool, Contestant
 from parimana.analyse.mvn_model import MvnModel
 from parimana.analyse.odds_chance import OddsChance
 
 
-T = TypeVar("T", bound=Comparable)
-
-
 @dataclass(frozen=True)
-class AnalysisResult(Generic[T]):
-    odds_pool: RaceOddsPool
-    model: MvnModel[T]
+class AnalysisResult:
+    odds_pool: OddsPool
+    model: MvnModel[Contestant]
     chances: Mapping[Eye, float]
 
     @property
@@ -71,8 +68,8 @@ def fig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
 
 
 @dataclass(frozen=True)
-class AnalysisCharts(Generic[T]):
-    result: AnalysisResult[T]
+class AnalysisCharts:
+    result: AnalysisResult
     excel: bytes
     odds_chance: bytes
     model_box: bytes

@@ -59,7 +59,7 @@ class Situation(Generic[T]):
         return {c: self._calc_ppf(c) for c in self.members}
 
     @cached_property
-    def ppfs_matrix(self) -> Mapping[Tuple[T, T], Tuple[int, int]]:
+    def ppfs_matrix(self) -> Mapping[Tuple[T, T], Tuple[float, float]]:
         return {
             (a, b): (self._calc_ppf_exclude(a, b), self._calc_ppf_exclude(b, a))
             for a in self.members
@@ -119,13 +119,13 @@ class Distribution(Generic[T]):
         return next(iter(self.situations)).members
 
     @cached_property
-    def scores(self) -> Collection[Tuple[Situation[T], Mapping[T, int]]]:
+    def scores(self) -> Collection[Tuple[Situation[T], Mapping[T, float]]]:
         return [(s, s.scores) for s in self.situations]
 
     @cached_property
     def scores_matrix(
         self,
-    ) -> Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[int, int]]]]:
+    ) -> Collection[Tuple[Situation[T], Mapping[Tuple[T, T], Tuple[float, float]]]]:
         return [(s, s.scores_matrix) for s in self.situations]
 
     @cached_property

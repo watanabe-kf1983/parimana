@@ -6,7 +6,6 @@ from typing import (
 )
 from dataclasses import dataclass
 
-
 from parimana.base.eye import Eye
 from parimana.base.situation import Situation, Distribution
 
@@ -53,5 +52,5 @@ class Contestants:
     @classmethod
     def no_absences(cls, number_of_contestants: int) -> "Contestants":
         digits = len(str(number_of_contestants))
-        names = (f"{i:0{digits}}" for i in range(1, number_of_contestants + 1))
+        names = [f"{i:0{digits}}" for i in range(1, number_of_contestants + 1)]
         return Contestants.from_names(names)

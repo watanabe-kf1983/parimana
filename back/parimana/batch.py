@@ -4,9 +4,8 @@ from typing import Sequence
 
 from celery import Celery, chain, group
 
-from parimana.base import Race, RaceOddsPool
 from parimana.analyse import analysers, AnalysisResult
-from parimana.race import get_race, get_source
+from parimana.race import Race, RaceOddsPool, get_race, get_source
 from parimana.repository import FileRepository
 from parimana.settings import Settings
 
@@ -44,7 +43,7 @@ def analyse(
         return charts.result
     else:
         r = analysers[analyser_name].analyse(odds_pool, simulation_count)
-        repo.save_charts(r.get_charts())
+        repo.save_charts(odds_pool.race, odds_pool.timestamp, r.get_charts())
         return r
 
 

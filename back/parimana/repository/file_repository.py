@@ -4,8 +4,9 @@ import pickle
 from typing import Optional
 
 
-from parimana.base import OddsTimeStamp, RaceOddsPool, Race
-from parimana.analyse import AnalysisCharts, AnalysisResult
+from parimana.race.race import Race
+from parimana.race.odds_pool import OddsTimeStamp, RaceOddsPool
+from parimana.analyse import AnalysisCharts
 
 
 @dataclass(frozen=True)
@@ -36,8 +37,8 @@ class FileRepository:
     def odds_pool_exists(self, race: Race) -> bool:
         return (self._race_dir(race) / "odds_ts.pickle").exists()
 
-    def save_charts(self, charts: AnalysisCharts):
-        dir_ = self._result_dir(charts.result)
+    def save_charts(self, race: Race, timestamp: OddsTimeStamp, charts: AnalysisCharts):
+        dir_ = self._result_dir(race, timestamp, charts.result.model.name)
         write_as_pickle(dir_ / "charts.pickle", charts)
         write_as_pickle(dir_ / "result.pickle", charts.result)
         write_bytes(dir_ / "result.xlsx", charts.excel)
@@ -46,13 +47,12 @@ class FileRepository:
         write_bytes(dir_ / "mds.png", charts.model_mds)
         write_bytes(dir_ / "mds-metric.png", charts.model_mds_metric)
 
-        odds_pool = charts.result.odds_pool
-        ts = self.load_latest_charts_time(odds_pool.race)
-        if (ts is None) or (ts < odds_pool.timestamp):
-            self.save_latest_charts_time(odds_pool.race, odds_pool.timestamp)
+        ts = self.load_latest_charts_time(race)
+        if (ts is None) or (ts < timestamp):
+            self.save_latest_charts_time(race, timestamp)
 
     def load_charts(self, race: Race, ts: OddsTimeStamp, model: str) -> AnalysisCharts:
-        dir_ = self._result_dir_by_key(race, ts, model)
+        dir_ = self._result_dir(race, ts, model)
         return read_pickle(dir_ / "charts.pickle")
 
     def load_latest_charts(self, race: Race, model: str) -> Optional[AnalysisCharts]:
@@ -72,11 +72,7 @@ class FileRepository:
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_
 
-    def _result_dir(self, result: AnalysisResult) -> Path:
-        op = result.odds_pool
-        return self._result_dir_by_key(op.race, op.timestamp, result.model.name)
-
-    def _result_dir_by_key(self, race: Race, ts: OddsTimeStamp, model: str) -> Path:
+    def _result_dir(self, race: Race, ts: OddsTimeStamp, model: str) -> Path:
         dir_ = self._op_dir(race, ts) / model
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_

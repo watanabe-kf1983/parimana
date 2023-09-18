@@ -104,7 +104,7 @@ class OddsChance:
 
     def draw(
         self, dla: DoubleLogAxes, df, xmin, xmax, hidereg=False, hidescat=False
-    ) -> Chart:
+    ) -> None:
         if not hidescat:
             dla.scatter(
                 df["odds"],

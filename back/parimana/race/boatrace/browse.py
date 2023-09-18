@@ -15,9 +15,7 @@ def browse_odds_pages(
         yield (page_content, btype)
 
 
-def _browse_odds_by_btype(
-    race: BoatRace, btype: BettingType, attempt: str
-) -> Iterator[str]:
+def _browse_odds_by_btype(race: BoatRace, btype: BettingType, attempt: str) -> str:
     uri = _odds_page_uri(race, btype)
     return _get(uri, attempt)
 

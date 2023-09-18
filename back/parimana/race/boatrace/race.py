@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 import re
 
-from parimana.base import Race
+from parimana.race.race import Race
 
 
 @dataclass

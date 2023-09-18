@@ -5,7 +5,8 @@ import re
 
 from bs4 import BeautifulSoup
 
-from parimana.base import BettingType, Eye, Odds, PlaceOdds, OddsTimeStamp
+from parimana.base import BettingType, Eye, Odds, PlaceOdds
+from parimana.race.odds_pool import OddsTimeStamp
 from parimana.race.netkeiba.btype import code_to_btype, btype_to_code
 
 
@@ -21,7 +22,7 @@ def extract_timestamp(html: str) -> OddsTimeStamp:
     text = soup.select_one("#official_time").get_text()
 
     if upd_btn.has_attr("style") and "display:none" in upd_btn["style"]:
-        return OddsTimeStamp.confirmed
+        return OddsTimeStamp.confirmed()
 
     elif m := re.fullmatch(UPDATE_PATTERN, text):
         today = datetime.now(jst).date()
@@ -33,7 +34,7 @@ def extract_timestamp(html: str) -> OddsTimeStamp:
         raise ValueError("Failed parse update time string: " + text)
 
 
-def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, float]:
+def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, Odds]:
     soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
     elements = soup.select(f"table td.Odds span[id^='odds-{btype_to_code(btype)}']")
     odds = _elements_to_odds(elements)

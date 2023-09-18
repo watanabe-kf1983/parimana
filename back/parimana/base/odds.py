@@ -1,5 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Mapping
+
+from parimana.base.eye import BettingType, Eye
+from parimana.base.contestants import Contestants
 
 
 class Odds(ABC):
@@ -34,3 +38,14 @@ class PlaceOdds(Odds):
     @property
     def odds(self) -> float:
         return (self.max + self.min) / 2
+
+
+@dataclass
+class OddsPool:
+    odds: Mapping[Eye, Odds]
+    vote_ratio: Mapping[BettingType, float]
+
+    @property
+    def contestants(self) -> Contestants:
+        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
+        return Contestants.from_names(names)
