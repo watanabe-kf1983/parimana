@@ -5,6 +5,10 @@ description = ""
 authors = ["Baya Minami <baya.f.minami@gmail.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+parimana = "parimana.batch:main"
+parimana-web = "parimana.webapi:start"
+
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
 pandas = "^2.0.1"

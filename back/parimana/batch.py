@@ -41,9 +41,14 @@ def get_odds_pool(race: Race, scrape_force: bool = False) -> RaceOddsPool:
 def analyse(
     odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int
 ) -> AnalysisResult:
-    r = analysers[analyser_name].analyse(odds_pool, simulation_count)
-    repo.save_charts(r.get_charts())
-    return r
+    charts = repo.load_charts(odds_pool.race, odds_pool.timestamp, analyser_name)
+
+    if charts:
+        return charts.result
+    else:
+        r = analysers[analyser_name].analyse(odds_pool, simulation_count)
+        repo.save_charts(r.get_charts())
+        return r
 
 
 def get_analysis(settings: Settings):
@@ -64,11 +69,6 @@ def wait_30_seconds(data):
     return result
 
 
-def main(settings: Settings) -> Sequence[AnalysisResult]:
-    result = get_analysis(settings).apply().get()
-    return result if isinstance(result, Sequence) else [result]
-
-
 def start_analyse(settings: Settings) -> str:
     return get_analysis(settings).delay().id
 
@@ -83,3 +83,11 @@ def get_wait_30_result(task_id: str):
         return {"status": task.state, "result": task.result}
     else:
         return {"status": task.state}
+
+
+def main():
+    settings = Settings.from_cli_args()
+    results = get_analysis(settings).apply().get()
+    results = results if isinstance(results, Sequence) else [results]
+    for result in results:
+        result.print_recommendation(settings.recommend_query, settings.recommend_size)

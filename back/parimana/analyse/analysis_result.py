@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import io
-from typing import Generic, Mapping, TypeVar
+from typing import Generic, Mapping, Optional, TypeVar
 
 import pandas as pd
 from matplotlib.figure import Figure
@@ -25,16 +25,31 @@ class AnalysisResult(Generic[T]):
     def odds_chance(self) -> OddsChance:
         return OddsChance(self.odds_pool.odds, self.chances)
 
-    @property
-    def recommendation(self) -> pd.DataFrame:
-        return self.odds_chance.df.query("expected >= 100").sort_values(
+    def recommend(
+        self, query: Optional[str] = None, size: Optional[int] = None
+    ) -> pd.DataFrame:
+        df = self.odds_chance.df.query("expected >= 100").sort_values(
             "expected", ascending=False
         )
+        if query:
+            df = df.query(query)
+        if size:
+            df = df.head(size)
+
+        return df
+
+    def print_recommendation(
+        self, query: Optional[str] = None, size: Optional[int] = None
+    ) -> pd.DataFrame:
+        print()
+        print(f"-- Recommendation by {self.model.name} [{query}] --")
+        print(self.recommend(query, size))
+        print()
 
     def to_excel(self) -> bytes:
         xlbuf = io.BytesIO()
         with pd.ExcelWriter(xlbuf, engine="openpyxl") as writer:
-            self.recommendation.to_excel(writer, sheet_name="recommend")
+            self.recommend().to_excel(writer, sheet_name="recommend")
             self.odds_chance.df.to_excel(writer, sheet_name="simulation")
             self.model.au_df().to_excel(writer, sheet_name="au")
             self.model.cor_df().to_excel(writer, sheet_name="cor")
