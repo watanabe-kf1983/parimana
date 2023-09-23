@@ -103,9 +103,10 @@ def text_to_be_present_matched_on_element(locator, text_):
 
 def get_page(driver: WebDriver, race: NetKeibaRace, btype: BettingType):
     uri = _odds_page_uri(race, btype)
-    print(f"opening {uri} ...", end=" ", flush=True)
-    driver.get(uri)
-    print("done.", flush=True)
+    if uri != driver.current_url:
+        print(f"opening {uri} ...", end=" ", flush=True)
+        driver.get(uri)
+        print("done.", flush=True)
 
 
 def _odds_page_uri(race: NetKeibaRace, btype: BettingType) -> str:
