@@ -1,5 +1,6 @@
 from pathlib import Path
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from parimana.settings import Settings
@@ -8,6 +9,15 @@ import parimana.batch as batch
 from parimana.repository.file_repository import FileRepository
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:8080",
+    ],
+)
+
 repo = FileRepository(Path(".output"))
 
 
@@ -39,7 +49,7 @@ def start_analyse(race_id: str):
 def get_analysis(race_id: str, analyser_name: str):
     charts = repo.load_latest_charts(RaceSelector.select(race_id), analyser_name)
     if charts:
-        return charts.result.recommend().to_json(orient="records")
+        return Response(content=charts.result.recommend().to_json(orient="index"))
     else:
         return {"Status": "Not Analysed yet."}
 
