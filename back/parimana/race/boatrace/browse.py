@@ -1,10 +1,15 @@
 from typing import Collection, Iterator, Mapping, Tuple
 import functools
+from datetime import timedelta
 
 import requests
 
 from parimana.base import BettingType
 from parimana.race.boatrace.race import BoatRace
+from parimana.driver.modest import ModestFunction
+
+
+modestly = ModestFunction(interval=timedelta(seconds=1.5))
 
 
 def browse_for_odds_timestamp(race: BoatRace) -> str:
@@ -25,6 +30,7 @@ def browse_odds_page(race: BoatRace, btype: BettingType, attempt: str = "1st") -
 
 
 @functools.cache
+@modestly
 def _get(uri: str, attempt: str):
     print(f"opening {uri} ({attempt})...", end=" ", flush=True)
     res = requests.get(uri)
