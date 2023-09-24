@@ -1,12 +1,18 @@
 import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import axios from 'axios'
-import { Button, Input, FormControl, Table, TableBody, TableHead, TableRow, TableCell, Typography } from '@mui/material';
+import { Button, Input, Table, TableBody, TableHead, TableRow, TableCell, Typography } from '@mui/material';
 
 function Parimana() {
   const [raceId, setRaceId] = useState("")
 
   return (
     <>
+      <Typography variant="h1">
+        parimana
+      </Typography>
+      <Typography variant="body1">
+        PARI-Mutuel odds ANAlyser
+      </Typography>
       <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
       <RaceAnalysises raceId={raceId} />
     </>
@@ -20,13 +26,13 @@ function RaceSelector(props: RaceSelectorProps) {
 
   return (
     <>
-      <Typography component="h1" variant="h1">
+      <Typography variant="h2">
         Race Selector
       </Typography>
-      <FormControl>
-        <Input value={raceId} onChange={e => setRaceId(e.target.value)} />
-        <Button onClick={() => props.onSetRaceId(raceId)}> Analyse </Button>
-      </FormControl>
+      {/* <FormControl> */}
+      <Input value={raceId} onChange={e => setRaceId(e.target.value)} />
+      <Button onClick={() => props.onSetRaceId(raceId)}> Analyse </Button>
+      {/* </FormControl> */}
     </>
   )
 }
@@ -36,10 +42,12 @@ type RaceAnalysisesProps = { raceId: string }
 function RaceAnalysises(props: RaceAnalysisesProps) {
   return (
     <>
-      <Typography component="h1" variant="h1">
+      <Typography variant="h2">
         RaceAnalysis
       </Typography>
-      for {props.raceId}
+      <Typography variant="body1">
+        for {props.raceId}
+      </Typography>
       <Analysis raceId={props.raceId} modelName="no_cor" />
       <Analysis raceId={props.raceId} modelName="ppf_mtx" />
     </>
@@ -67,16 +75,18 @@ function Analysis(props: AnalysisProps) {
   if (recommendation == null) {
     return (
       <>
-        <Typography component="h2" variant="h2">
+        <Typography component="h3" variant="h3">
           Model: {props.modelName}
         </Typography>
-        Loading...
+        <Typography variant="body1">
+          Loading...
+        </Typography>
       </>
     );
   } else {
     return (
       <>
-        <Typography component="h2" variant="h2">
+        <Typography component="h3" variant="h3">
           Model: {props.modelName}
         </Typography>
         <p>
