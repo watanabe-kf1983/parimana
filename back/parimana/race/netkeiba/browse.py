@@ -6,7 +6,6 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base import BettingType
@@ -24,7 +23,7 @@ def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
     _get_page(driver, race, BettingType.WIN)
     update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
     if update_button.is_displayed():
-        _update_odds(driver, update_button)
+        _update_odds(driver)
     return driver.page_source
 
 
@@ -39,10 +38,11 @@ def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
 
 
 @modestly
-def _update_odds(driver: WebDriver, update_button: WebElement):
+def _update_odds(driver: WebDriver):
     print("updating odds ...", end=" ", flush=True)
     driver.delete_all_cookies()
     driver.refresh()
+    update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
     limit = _get_update_limit(driver)
     update_button.click()
     WebDriverWait(driver, timeout=10).until(lambda d: limit != _get_update_limit(d))
