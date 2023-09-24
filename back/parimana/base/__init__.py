@@ -18,4 +18,5 @@ __all__ = [
     "PlaceOdds",
     "NormalOdds",
     "OddsPool",
+    "EyeExpectedValue",
 ]

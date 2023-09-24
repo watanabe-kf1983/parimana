@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Mapping
+from typing import Mapping, Optional, Sequence
 
 import pandas as pd
 import numpy as np
@@ -15,10 +15,32 @@ from parimana.analyse.regression import (
 )
 
 
+@dataclass(frozen=True)
+class EyeExpectedValue:
+    eye: Eye
+    odds: float
+    chance: float
+    expected: float
+
+
 @dataclass
 class OddsChance:
     odds: Mapping[Eye, Odds]
     chances: Mapping[Eye, float]
+
+    def expected_values(
+        self, query: Optional[str] = None, size: Optional[int] = None
+    ) -> Sequence[EyeExpectedValue]:
+        df = self.df
+        if query:
+            df = self.df.query(query)
+        if size:
+            df = self.df.head(size)
+
+        return [
+            EyeExpectedValue(Eye(rec.Index), rec.odds, rec.chance, rec.expected)
+            for rec in df.itertuples()
+        ]
 
     @cached_property
     def odds_df(self) -> pd.DataFrame:

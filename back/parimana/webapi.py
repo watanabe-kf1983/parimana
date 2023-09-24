@@ -1,8 +1,12 @@
 from pathlib import Path
+from typing import Optional, Sequence
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import uvicorn
 
+import parimana.base
+import parimana.analyse
 from parimana.settings import Settings
 from parimana.race import RaceSelector
 import parimana.batch as batch
@@ -19,6 +23,31 @@ app.add_middleware(
 )
 
 repo = FileRepository(Path(".output"))
+
+
+class Eye(BaseModel):
+    text: str
+    type: str
+
+    @classmethod
+    def from_base(cls, eye: parimana.base.Eye):
+        return cls(text=eye.text, type=eye.type.name)
+
+
+class EyeExpectedValue(BaseModel):
+    eye: Eye
+    odds: float
+    chance: float
+    expected: float
+
+    @classmethod
+    def from_base(cls, eev: parimana.analyse.EyeExpectedValue):
+        return cls(
+            eye=Eye.from_base(eev.eye),
+            odds=eev.odds,
+            chance=eev.chance,
+            expected=eev.expected,
+        )
 
 
 @app.post("/start-wait-30/")
@@ -46,12 +75,14 @@ def start_analyse(race_id: str):
 
 
 @app.get("/analysis/{race_id}/{analyser_name}")
-def get_analysis(race_id: str, analyser_name: str):
+def get_analysis(
+    race_id: str, analyser_name: str
+) -> Optional[Sequence[EyeExpectedValue]]:
     charts = repo.load_latest_charts(RaceSelector.select(race_id), analyser_name)
     if charts:
-        return Response(content=charts.result.recommend().to_json(orient="index"))
+        return [EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()]
     else:
-        return {"Status": "Not Analysed yet."}
+        return None
 
 
 @app.get("/analysis/{race_id}/{analyser_name}/{image_name}.png")

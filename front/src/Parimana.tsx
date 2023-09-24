@@ -37,7 +37,7 @@ function RaceAnalysises(props: RaceAnalysisesProps) {
   return (
     <>
       <Typography component="h1" variant="h1">
-        RaceAnalysis 
+        RaceAnalysis
       </Typography>
       for {props.raceId}
       <Analysis raceId={props.raceId} modelName="no_cor" />
@@ -49,11 +49,12 @@ function RaceAnalysises(props: RaceAnalysisesProps) {
 type AnalysisProps = { raceId: string, modelName: string }
 
 
-type Recommend = { [key: string]: { type: string, odds: string, chance: string, expected: string } }
+type Eye = { text: string, type: string }
+type Recommend = { eye: Eye, odds: number, chance: number, expected: number }
 
 function Analysis(props: AnalysisProps) {
 
-  const [recommendation, setRecommendation] = useState<Recommend | null>(null)
+  const [recommendation, setRecommendation] = useState<Array<Recommend> | null>(null)
 
   useEffect(() => {
     const getReco = async () => {
@@ -90,30 +91,30 @@ function Analysis(props: AnalysisProps) {
   }
 }
 
-type RecommendProps = { data: Recommend }
+type RecommendProps = { data: Array<Recommend> }
 
 function Recommendation(props: RecommendProps) {
   const data = props.data
 
   return (
-    <Table>
+    <Table stickyHeader>
       <TableHead>
         <TableRow>
           <TableCell>eye</TableCell>
           <TableCell>type</TableCell>
-          <TableCell>odds</TableCell>
-          <TableCell>chance</TableCell>
-          <TableCell>expected</TableCell>
+          <TableCell align="right">odds</TableCell>
+          <TableCell align="right">chance</TableCell>
+          <TableCell align="right">expected</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {Object.keys(data).map(key => (
+        {data.map(rec => (
           <TableRow>
-            <TableCell>{key}</TableCell>
-            <TableCell>{data[key].type}</TableCell>
-            <TableCell>{Number.parseFloat(data[key].odds).toFixed(4)}</TableCell>
-            <TableCell>{Number.parseFloat(data[key].chance).toFixed(4)}</TableCell>
-            <TableCell>{Number.parseFloat(data[key].expected).toFixed(4)}</TableCell>
+            <TableCell>{rec.eye.text}</TableCell>
+            <TableCell>{rec.eye.type}</TableCell>
+            <TableCell align="right">{rec.odds.toFixed(1)}</TableCell>
+            <TableCell align="right">{rec.chance.toFixed(4)}</TableCell>
+            <TableCell align="right">{rec.expected.toFixed(4)}</TableCell>
           </TableRow>
         ))}
       </TableBody>

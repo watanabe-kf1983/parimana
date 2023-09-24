@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 import io
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Sequence
 
 import pandas as pd
 from matplotlib.figure import Figure
 
 from parimana.base import Eye, OddsPool, Contestant
 from parimana.analyse.mvn_model import MvnModel
-from parimana.analyse.odds_chance import OddsChance
+from parimana.analyse.odds_chance import EyeExpectedValue, OddsChance
 
 
 @dataclass(frozen=True)
@@ -19,6 +19,11 @@ class AnalysisResult:
     @property
     def odds_chance(self) -> OddsChance:
         return OddsChance(self.odds_pool.odds, self.chances)
+
+    def recommend2(
+        self, query: Optional[str] = None, size: Optional[int] = None
+    ) -> Sequence[EyeExpectedValue]:
+        return self.odds_chance.expected_values(query, size)
 
     def recommend(
         self, query: Optional[str] = None, size: Optional[int] = None
