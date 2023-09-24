@@ -31,7 +31,7 @@ class OddsChance:
     def expected_values(
         self, query: Optional[str] = None, size: Optional[int] = None
     ) -> Sequence[EyeExpectedValue]:
-        df = self.df
+        df = self.df.query("expected >= 100").sort_values("expected", ascending=False)
         if query:
             df = self.df.query(query)
         if size:

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import axios from 'axios'
-import { Button, Input, Table, TableBody, TableHead, TableRow, TableCell, Typography } from '@mui/material';
+import { Button, TextField, Table, TableBody, TableHead, TableRow, TableCell, Typography } from '@mui/material';
 
 function Parimana() {
   const [raceId, setRaceId] = useState("")
@@ -30,7 +30,7 @@ function RaceSelector(props: RaceSelectorProps) {
         Race Selector
       </Typography>
       {/* <FormControl> */}
-      <Input value={raceId} onChange={e => setRaceId(e.target.value)} />
+      <TextField value={raceId} onChange={e => setRaceId(e.target.value)} />
       <Button onClick={() => props.onSetRaceId(raceId)}> Analyse </Button>
       {/* </FormControl> */}
     </>
@@ -90,7 +90,7 @@ function Analysis(props: AnalysisProps) {
           Model: {props.modelName}
         </Typography>
         <p>
-          <img src={`http://127.0.0.1:5000/analysis/${props.raceId}/${props.modelName}/box.png`} style={{ width: "50%", height: "auto" }} />
+          <img src={`http://127.0.0.1:5000/analysis/${props.raceId}/${props.modelName}/box.png`} style={{ width: "100%", height: "auto" }} />
         </p>
         <Recommendation data={recommendation} />
         <p>
@@ -107,11 +107,10 @@ function Recommendation(props: RecommendProps) {
   const data = props.data
 
   return (
-    <Table stickyHeader>
+    <Table stickyHeader style={{ width: "400px" }}>
       <TableHead>
         <TableRow>
           <TableCell>eye</TableCell>
-          <TableCell>type</TableCell>
           <TableCell align="right">odds</TableCell>
           <TableCell align="right">chance</TableCell>
           <TableCell align="right">expected</TableCell>
@@ -121,14 +120,13 @@ function Recommendation(props: RecommendProps) {
         {data.map(rec => (
           <TableRow>
             <TableCell>{rec.eye.text}</TableCell>
-            <TableCell>{rec.eye.type}</TableCell>
             <TableCell align="right">{rec.odds.toFixed(1)}</TableCell>
             <TableCell align="right">{rec.chance.toFixed(4)}</TableCell>
             <TableCell align="right">{rec.expected.toFixed(4)}</TableCell>
           </TableRow>
         ))}
       </TableBody>
-    </Table>
+    </Table >
   )
 }
 
