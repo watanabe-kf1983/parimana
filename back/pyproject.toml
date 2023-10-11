@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.scripts]
 parimana = "parimana.batch:main"
-parimana-web = "parimana.webapi:start"
+parimana-web = "parimana.webapi.main:start"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
