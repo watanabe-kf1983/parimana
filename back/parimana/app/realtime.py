@@ -3,6 +3,7 @@ from typing import Any, Sequence
 
 from pydantic import BaseModel
 from parimana.analyse.analysis_result import AnalysisCharts
+from parimana.app.status import Status, StatusManager
 
 import parimana.base
 import parimana.analyse
@@ -62,8 +63,9 @@ def start_analyse(race_id: str) -> str:
     return batch.start_analyse(settings)
 
 
-def get_analysis_status(race_id: str, analyser_name: str) -> str:
-    return "true"
+def get_status(race_id: str) -> Status:
+    race = RaceSelector.select(race_id)
+    return StatusManager(race).load_status()
 
 
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:

@@ -16,9 +16,14 @@ def get_wait_30_result(task_id: str):
     return rt.get_wait_30_result(task_id)
 
 
-@router.post("/start-analyse/{race_id}")
+@router.post("/analyse/start/{race_id}")
 def start_analyse(race_id: str):
     return {"task_id": rt.start_analyse(race_id)}
+
+
+@router.get("/analyse/status/{race_id}")
+def get_status(race_id: str):
+    return rt.get_status(race_id)
 
 
 @router.get("/analysis/{race_id}/{analyser_name}")
