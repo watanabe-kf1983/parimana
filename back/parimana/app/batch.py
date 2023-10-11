@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 import time
 from typing import Sequence
@@ -19,6 +20,12 @@ app.conf.result_serializer = "pickle"
 app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
 repo = FileRepository(Path(".output"))
+
+
+class ProcessStatus(str, Enum):
+    PROCESSING = "PROCESSING"
+    DONE = "DONE"
+    NOT_STARTED = "NOT_STARTED"
 
 
 @app.task
@@ -49,14 +56,22 @@ def analyse(
         return r
 
 
+@app.task
+def save_status(results=None, /, *, race, status):
+    repo.save_process_status(race, status)
+    return results
+
+
 def get_analysis(settings: Settings):
     race = RaceSelector.select(settings.race_id)
     return chain(
-        get_odds_pool.s(race, not settings.use_cache),
+        save_status.s(race=race, status="PROCESSING"),
+        get_odds_pool.si(race, not settings.use_cache),
         group(
             analyse.s(analyser_name, settings.simulation_count)
             for analyser_name in settings.analyser_names
         ),
+        save_status.s(race=race, status="DONE"),
     )
 
 
@@ -68,6 +83,12 @@ def wait_30_seconds(data):
 
 
 def start_analyse(settings: Settings) -> str:
+    race = RaceSelector.select(settings.race_id)
+    sts = repo.load_process_status(race)
+    if sts == "PROCESSING":
+        raise Exception(f"{settings.race_id} is processing , can't start")
+
+    repo.save_process_status(race, "PROCESSING")
     return get_analysis(settings).delay().id
 
 

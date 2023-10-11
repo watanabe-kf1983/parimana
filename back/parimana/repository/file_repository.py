@@ -88,6 +88,25 @@ class FileRepository:
     def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
         return read_pickle(self._race_dir(race) / "charts_ts.pickle")
 
+    def save_process_status(self, race: Race, status: str) -> None:
+        write_text(self._race_dir(race) / "status.txt", status)
+
+    def load_process_status(self, race: Race) -> Optional[str]:
+        return read_text(self._race_dir(race) / "status.txt")
+
+
+def read_text(file_path: Path) -> Optional[str]:
+    if file_path.exists():
+        with open(file_path, "r") as f:
+            return f.read()
+    else:
+        return None
+
+
+def write_text(file_path: Path, txt: str) -> None:
+    with open(file_path, "w") as f:
+        f.write(txt)
+
 
 def read_pickle(file_path: Path):
     if file_path.exists():

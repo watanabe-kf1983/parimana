@@ -37,11 +37,11 @@ class EyeExpectedValue(BaseModel):
         )
 
 
-repo = FileRepository(Path(".output"))
-
-
 class ResultNotExistError(Exception):
     pass
+
+
+repo = FileRepository(Path(".output"))
 
 
 def start_wait_30() -> str:
@@ -60,6 +60,10 @@ def get_wait_30_result(task_id: str) -> dict[str, Any]:
 def start_analyse(race_id: str) -> str:
     settings = Settings(race_id, analyser_names=["no_cor", "ppf_mtx"])
     return batch.start_analyse(settings)
+
+
+def get_analysis_status(race_id: str, analyser_name: str) -> str:
+    return "true"
 
 
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:
