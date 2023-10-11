@@ -6,6 +6,7 @@ from typing import Sequence
 from celery import Celery, chain, group
 
 from parimana.analyse import analysers, AnalysisResult
+from parimana.app.status import StatusManager
 from parimana.race import Race, RaceOddsPool, RaceSelector
 from parimana.repository import FileRepository
 from parimana.app.settings import Settings
@@ -57,21 +58,26 @@ def analyse(
 
 
 @app.task
-def save_status(results=None, /, *, race, status):
-    repo.save_process_status(race, status)
+def finish_process(results=None, /, *, race):
+    StatusManager(race).finish_process()
     return results
+
+
+@app.task
+def start_process(race):
+    StatusManager(race).start_process()
 
 
 def get_analysis(settings: Settings):
     race = RaceSelector.select(settings.race_id)
     return chain(
-        save_status.s(race=race, status="PROCESSING"),
+        start_process.s(race=race),
         get_odds_pool.si(race, not settings.use_cache),
         group(
             analyse.s(analyser_name, settings.simulation_count)
             for analyser_name in settings.analyser_names
         ),
-        save_status.s(race=race, status="DONE"),
+        finish_process.s(race=race),
     )
 
 
@@ -83,12 +89,6 @@ def wait_30_seconds(data):
 
 
 def start_analyse(settings: Settings) -> str:
-    race = RaceSelector.select(settings.race_id)
-    sts = repo.load_process_status(race)
-    if sts == "PROCESSING":
-        raise Exception(f"{settings.race_id} is processing , can't start")
-
-    repo.save_process_status(race, "PROCESSING")
     return get_analysis(settings).delay().id
 
 
