@@ -5,10 +5,10 @@ from pydantic import BaseModel
 
 import parimana.base
 import parimana.analyse
-from parimana.settings import Settings
 from parimana.race import RaceSelector
 from parimana.repository.file_repository import FileRepository
-import parimana.batch as batch
+from parimana.app.settings import Settings
+import parimana.app.batch as batch
 
 
 class Eye(BaseModel):

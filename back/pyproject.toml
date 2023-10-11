@@ -6,7 +6,7 @@ authors = ["Baya Minami <baya.f.minami@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-parimana = "parimana.batch:main"
+parimana = "parimana.app.batch:main"
 parimana-web = "parimana.webapi.main:start"
 
 [tool.poetry.dependencies]

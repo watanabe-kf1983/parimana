@@ -7,7 +7,7 @@ from celery import Celery, chain, group
 from parimana.analyse import analysers, AnalysisResult
 from parimana.race import Race, RaceOddsPool, RaceSelector
 from parimana.repository import FileRepository
-from parimana.settings import Settings
+from parimana.app.settings import Settings
 
 app = Celery(
     __name__, backend="redis://localhost:6379/0", broker="redis://localhost:6379/0"
