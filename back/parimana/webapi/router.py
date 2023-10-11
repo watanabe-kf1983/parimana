@@ -28,15 +28,11 @@ def get_analysis(race_id: str, analyser_name: str):
 
 @router.get("/analysis/{race_id}/{analyser_name}/box.png")
 def get_box_image(race_id: str, analyser_name: str):
-    if img := rt.get_box_image(race_id, analyser_name):
-        return Response(content=img, media_type="image/png")
-    else:
-        return {"Status": "Not Analysed yet."}
+    img = rt.get_box_image(race_id, analyser_name)
+    return Response(content=img, media_type="image/png")
 
 
 @router.get("/analysis/{race_id}/{analyser_name}/oc.png")
 def get_oc_image(race_id: str, analyser_name: str):
-    if img := rt.get_oc_image(race_id, analyser_name):
-        return Response(content=img, media_type="image/png")
-    else:
-        return {"Status": "Not Analysed yet."}
+    img = rt.get_oc_image(race_id, analyser_name)
+    return Response(content=img, media_type="image/png")

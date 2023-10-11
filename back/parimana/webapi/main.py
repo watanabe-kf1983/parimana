@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 import uvicorn
 
 from parimana.webapi import router
+import parimana.app.realtime as rt
 
 app = FastAPI()
 
@@ -14,6 +16,11 @@ app.add_middleware(
         "http://localhost:8080",
     ],
 )
+
+
+@app.exception_handler(rt.ResultNotExistError)
+def not_exist_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=404)
 
 
 def start():

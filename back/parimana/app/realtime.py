@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, Sequence
 
 from pydantic import BaseModel
+from parimana.analyse.analysis_result import AnalysisCharts
 
 import parimana.base
 import parimana.analyse
@@ -39,6 +40,10 @@ class EyeExpectedValue(BaseModel):
 repo = FileRepository(Path(".output"))
 
 
+class ResultNotExistError(Exception):
+    pass
+
+
 def start_wait_30() -> str:
     return batch.start_wait_30()
 
@@ -57,27 +62,22 @@ def start_analyse(race_id: str) -> str:
     return batch.start_analyse(settings)
 
 
-def get_analysis(
-    race_id: str, analyser_name: str
-) -> Optional[Sequence[EyeExpectedValue]]:
-    charts = repo.load_latest_charts(RaceSelector.select(race_id), analyser_name)
-    if charts:
-        return [EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()]
-    else:
-        return None
+def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:
+    charts = _get_charts(race_id, analyser_name)
+    return [EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()]
 
 
 def get_box_image(race_id: str, analyser_name: str):
-    charts = repo.load_latest_charts(RaceSelector.select(race_id), analyser_name)
-    if charts:
-        return charts.model_box
-    else:
-        return None
+    return _get_charts(race_id, analyser_name).model_box
 
 
 def get_oc_image(race_id: str, analyser_name: str):
+    return _get_charts(race_id, analyser_name).odds_chance
+
+
+def _get_charts(race_id: str, analyser_name: str) -> AnalysisCharts:
     charts = repo.load_latest_charts(RaceSelector.select(race_id), analyser_name)
     if charts:
-        return charts.odds_chance
+        return charts
     else:
-        return None
+        raise ResultNotExistError(f"{race_id}-{analyser_name} 's result not exists")
