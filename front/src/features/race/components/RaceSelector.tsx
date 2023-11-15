@@ -13,7 +13,7 @@ export function RaceSelector(props: RaceSelectorProps) {
       </Typography>
       {/* <FormControl> */}
       <TextField value={raceId} onChange={e => setRaceId(e.target.value)} />
-      <Button onClick={() => props.onSetRaceId(raceId)}> Analyse </Button>
+      <Button onClick={() => props.onSetRaceId(raceId)}> See Analysis </Button>
       {/* </FormControl> */}
     </>
   )

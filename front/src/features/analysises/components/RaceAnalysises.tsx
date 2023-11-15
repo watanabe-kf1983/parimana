@@ -1,20 +1,21 @@
-import { Typography } from '@mui/material';
-import { RaceAnalysisesProps } from '../types';
+import { Button, Typography } from '@mui/material';
+import { AnalysisStatus, RaceAnalysisesProps } from '../types';
 import { Analysis } from './Analysis';
+import { useState, useEffect } from 'react';
+import { getAnalysisStatus } from '../api';
 
 
 export function RaceAnalysises(props: RaceAnalysisesProps) {
 
-  //   const [status, setStatus] = useState<Status>({ "is_processing": false, "has_result": false })
+  const [status, setStatus] = useState<AnalysisStatus>({ "is_processing": false, "has_result": false })
 
-  //   useEffect(() => {
-  //     const getStatus = async () => {
-  //       const response = await axios.get(`http://127.0.0.1:5000/analyse/status/${props.raceId}`);
-  //       setStatus(response.data)
-  //     }
-  //     getStatus()
-  //   }, [props.raceId])
-
+  useEffect(() => {
+    const getStatus = async () => {
+      const s = await getAnalysisStatus(props.raceId);
+      setStatus(s)
+    }
+    getStatus()
+  }, [props.raceId])
 
   return (
     <>
@@ -24,8 +25,17 @@ export function RaceAnalysises(props: RaceAnalysisesProps) {
       <Typography variant="body1">
         for {props.raceId}
       </Typography>
-      <Analysis raceId={props.raceId} modelName="no_cor" />
-      <Analysis raceId={props.raceId} modelName="ppf_mtx" />
+      {status.has_result ?
+        <>
+          <Analysis raceId={props.raceId} modelName="no_cor" />
+          <Analysis raceId={props.raceId} modelName="ppf_mtx" />
+        </>
+        :
+        <>
+          <Button onClick={() => { }}> Request Analyse </Button>
+        </>
+      }
+
     </>
   )
 }

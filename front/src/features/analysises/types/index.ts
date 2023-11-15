@@ -2,6 +2,8 @@ export type RaceAnalysisesProps = { raceId: string }
 
 export type AnalysisProps = { raceId: string, modelName: string }
 
+export type AnalysisStatus = { is_processing: boolean, has_result: boolean }
+
 export type Eye = { text: string, type: string }
 
 export type Recommend = { eye: Eye, odds: number, chance: number, expected: number }
