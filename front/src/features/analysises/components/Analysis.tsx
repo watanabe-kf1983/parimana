@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import { AnalysisProps, Recommend } from '../types';
 import { Recommendation } from './Recommendation';
 import { getBoxPlotUri, getOddsChartUri, getRecommendation } from '../api';
+import styles from '../styles/Analysis.module.css';
 
 export function Analysis(props: AnalysisProps) {
 
@@ -36,11 +37,11 @@ export function Analysis(props: AnalysisProps) {
           Model: {props.modelName}
         </Typography>
         <p>
-          <img src={boxPlotUri} style={{ width: "100%", height: "auto" }} />
+          <img src={boxPlotUri} className={styles.responsiveImage} />
         </p>
         <Recommendation data={recommendation} />
         <p>
-          <img src={oddsChartUri} style={{ width: "100%", height: "auto" }} />
+          <img src={oddsChartUri} className={styles.responsiveImage} />
         </p>
       </>
     )
