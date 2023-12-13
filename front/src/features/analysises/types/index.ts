@@ -1,4 +1,4 @@
-export type RaceAnalysisesProps = { raceId: string }
+export type RaceProps = { raceId: string }
 
 export type AnalysisProps = { raceId: string, modelName: string }
 

@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material"
 import { useState } from "react"
-import { RaceAnalysises } from "../../analysises/components/RaceAnalysises"
+import { Race } from "../../analysises/components/Race"
 import { RaceSelector } from "../../race/components/RaceSelector"
 
 export function Parimana() {
@@ -15,7 +15,7 @@ export function Parimana() {
         PARI-Mutuel odds ANAlyser
       </Typography>
       <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
-      <RaceAnalysises raceId={raceId} />
+      <Race raceId={raceId} />
     </>
   )
 }
