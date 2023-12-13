@@ -12,7 +12,7 @@ export function Race(props: RaceProps) {
   const refresh = () => setTime(new Date());
 
   const requestAnalyse = async () => {
-    setStatus({is_processing: true, has_result: status.has_result})
+    setStatus({ is_processing: true, has_result: status.has_result })
     await api.requestAnalyse(props.raceId);
     refresh();
   };
@@ -27,16 +27,12 @@ export function Race(props: RaceProps) {
 
   return (
     <>
-      <Typography variant="h2">
-        for {props.raceId}
-      </Typography>
       <Button onClick={refresh}> Refresh </Button>
+      <Button onClick={requestAnalyse} disabled={status.is_processing}> Request Analyse </Button>
       {status.has_result ?
         <RaceAnalysises raceId={props.raceId} />
         :
-        <>
-          <Button onClick={requestAnalyse}> Request Analyse </Button>
-        </>
+        <></>
       }
 
     </>
