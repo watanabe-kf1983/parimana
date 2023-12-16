@@ -22,7 +22,7 @@ export function Analysis(props: AnalysisProps) {
   if (recommendation == null) {
     return (
       <>
-        <Typography component="h3" variant="h3">
+        <Typography component="h5" variant="h5">
           Model: {props.modelName}
         </Typography>
         <Typography variant="body1">
@@ -33,7 +33,7 @@ export function Analysis(props: AnalysisProps) {
   } else {
     return (
       <>
-        <Typography component="h3" variant="h3">
+        <Typography component="h5" variant="h5">
           Model: {props.modelName}
         </Typography>
         <p>

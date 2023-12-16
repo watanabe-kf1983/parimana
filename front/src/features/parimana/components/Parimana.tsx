@@ -9,7 +9,10 @@ export function Parimana() {
   return (
     <>
       <Typography variant="h3">
-        parimana: PARI-Mutuel odds ANAlyser
+        parimana
+      </Typography>
+      <Typography variant="body1">
+        PARI-Mutuel odds ANAlyser
       </Typography>
       <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
       <Race raceId={raceId} />
