@@ -1,6 +1,8 @@
 from pathlib import Path
 
 import numpy as np
+import plotly.graph_objects as plgo
+import plotly.tools as pltls
 import matplotlib.pyplot as mpplt
 import matplotlib.figure as mpfig
 import matplotlib.axes as mpaxes
@@ -18,6 +20,9 @@ class Cmap:
 class Chart:
     def __init__(self) -> None:
         self.fig: mpfig.Figure = mpplt.figure(figsize=(6.4, 4.8))
+
+    def plfig(self) -> plgo.Figure:
+        return pltls.mpl_to_plotly(self.fig)
 
     def add_double_log(self, *args, **kwargs) -> "DoubleLogAxes":
         return DoubleLogAxes(self.fig.add_subplot(*args, **kwargs))

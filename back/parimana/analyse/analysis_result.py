@@ -3,7 +3,7 @@ import io
 from typing import Mapping, Optional, Sequence
 
 import pandas as pd
-from matplotlib.figure import Figure
+from plotly.graph_objects import Figure
 
 from parimana.base import Eye, OddsPool, Contestant
 from parimana.analyse.mvn_model import MvnModel
@@ -53,7 +53,7 @@ class AnalysisResult:
         return AnalysisCharts(
             result=self,
             excel=self.to_excel(),
-            odds_chance=fig_to_bytes(self.eev.chart.fig),
+            odds_chance=mpfig_to_bytes(self.eev.chart.fig),
             model_box=fig_to_bytes(self.model.plot_box()),
             model_mds=fig_to_bytes(self.model.plot_mds()),
             model_mds_metric=fig_to_bytes(self.model.plot_mds(metric=True)),
@@ -61,6 +61,12 @@ class AnalysisResult:
 
 
 def fig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
+    buf = io.BytesIO()
+    buf.write(fig.to_image(format=format, scale=dpi/150))
+    return buf.getvalue()
+
+
+def mpfig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
     buf = io.BytesIO()
     fig.savefig(buf, dpi=dpi, format=format)
     return buf.getvalue()

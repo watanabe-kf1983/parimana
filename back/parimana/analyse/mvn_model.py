@@ -4,8 +4,9 @@ from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.figure as mpfig
+import plotly.graph_objects as plgo
+import plotly.tools as pltls
+import matplotlib.pyplot as mpplt
 from sklearn.manifold import MDS
 
 from parimana.base import Comparable, Eye
@@ -63,15 +64,15 @@ class MvnModel(Generic[T]):
     def cor_df(self) -> pd.DataFrame:
         return pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
 
-    def plot_box(self) -> mpfig.Figure:
+    def plot_box(self) -> plgo.Figure:
         values = self.simulate_values(10_000)
-        fig, ax = plt.subplots()
+        fig, ax = mpplt.subplots()
         ax.minorticks_on()
         ax.grid(axis="x", linestyle="dotted", which="both")
         ax.boxplot(values, vert=False, sym="")
-        return fig
+        return pltls.mpl_to_plotly(fig)
 
-    def plot_mds(self, metric: bool = False) -> mpfig.Figure:
+    def plot_mds(self, metric: bool = False) -> plgo.Figure:
         dist = self.cor_sr * (-1) + 1
         distance_df = pd.pivot_table(dist.to_frame(), index="a", columns="b")
         mds = MDS(
@@ -83,11 +84,12 @@ class MvnModel(Generic[T]):
         )
         pos = mds.fit_transform(distance_df.values)
 
-        fig, ax = plt.subplots()
+        fig, ax = mpplt.subplots()
         ax.scatter(pos[:, 0], pos[:, 1], marker="o")
         for i, m in enumerate(self.members):
             ax.text(pos[i, 0], pos[i, 1], str(m))
-        return fig
+
+        return pltls.mpl_to_plotly(fig)
 
     def simulate_values(self, size: int) -> np.ndarray:
         mean = self.a_map.values
