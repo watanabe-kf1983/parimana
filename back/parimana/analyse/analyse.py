@@ -90,7 +90,7 @@ class MultiPassAnalyser(Analyser):
         om = odds_model
         for a in self.analysers:
             result = a.analyse(odds_pool, simulation_count, om)
-            om = result.odds_chance.regression_model
+            om = result.eev.regression_model
 
         result.model.name = self.name
         return result
