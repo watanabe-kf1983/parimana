@@ -53,7 +53,7 @@ class AnalysisResult:
         return AnalysisCharts(
             result=self,
             excel=self.to_excel(),
-            odds_chance=mpfig_to_bytes(self.eev.chart.fig),
+            odds_chance=fig_to_bytes(self.eev.ply_chart.fig),
             model_box=fig_to_bytes(self.model.plot_box()),
             model_mds=fig_to_bytes(self.model.plot_mds()),
             model_mds_metric=fig_to_bytes(self.model.plot_mds(metric=True)),
