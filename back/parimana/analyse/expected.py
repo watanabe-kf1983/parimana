@@ -8,10 +8,8 @@ import numpy as np
 from parimana.base import BettingType, Eye, Odds
 from parimana.analyse.chart import Chart, Cmap, DoubleLogAxes
 from parimana.analyse.regression import (
-    PiecewiseModel,
     RegressionModel,
     linereg,
-    piecewise_linereg,
 )
 
 
@@ -62,7 +60,8 @@ def calc_regression_model(df: pd.DataFrame) -> Mapping[BettingType, RegressionMo
     }
 
 
-# def calc_pw_regression_model(df: pd.DataFrame) -> Mapping[BettingType, PiecewiseModel]:
+# def calc_pw_regression_model(df: pd.DataFrame)
+# -> Mapping[BettingType, PiecewiseModel]:
 #     return {
 #         BettingType[lbl]: piecewise_linereg(
 #             np.log(df["odds"].to_numpy()), np.log(df["chance"].to_numpy())
@@ -81,10 +80,7 @@ class EyeExpectedValues:
         cls, odds: Mapping[Eye, Odds], chances: Mapping[Eye, float]
     ) -> "EyeExpectedValues":
         df = eye_expected_df(odds, chances).sort_values("expected", ascending=False)
-        return EyeExpectedValues(
-            df,
-            calc_regression_model(df)
-        )
+        return EyeExpectedValues(df, calc_regression_model(df))
 
     def filter(
         self, query: str = "expected >= 100", size: Optional[int] = None
@@ -140,15 +136,6 @@ def draw(dla: DoubleLogAxes, df, rgms) -> None:
             fmt="--",
             zorder=2,
         )
-        # pwm = self.pw_regression_model[BettingType[lbl]]
-        # dla.pw_line(
-        #     pwm,
-        #     xmin=t_df["odds"].min() / 1.5,
-        #     xmax=t_df["odds"].max() * 1.5,
-        #     label=lbl,
-        #     fmt="--",
-        #     zorder=2,
-        # )
 
     dla.line(
         RegressionModel(-1, np.log(0.75)),
