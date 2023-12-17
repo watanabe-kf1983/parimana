@@ -17,4 +17,10 @@ def create_headless_chrome() -> webdriver.Chrome:
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    
+    # ChromeDriverがログを吐きまくる対策
+    # https://github.com/SeleniumHQ/selenium/issues/13095
+    options.add_argument("--log-level=3")
+    options.set_capability("browserVersion", "117")
+
     return webdriver.Chrome(options=options)
