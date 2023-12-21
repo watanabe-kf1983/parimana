@@ -73,7 +73,7 @@ def get_wait_30_result(task_id: str) -> dict[str, Any]:
 
 
 def start_analyse(race_id: str) -> str:
-    settings = Settings(race_id, analyser_names=["no_cor", "ppf_mtx"])
+    settings = Settings(race_id, analyser_names=["no_cor"])
     return batch.start_analyse(settings)
 
 

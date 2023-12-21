@@ -7,7 +7,6 @@ import numpy as np
 from plotly.graph_objects import Figure
 
 from parimana.base import BettingType, Eye, Odds
-from parimana.analyse.chart import Chart, Cmap, DoubleLogAxes
 from parimana.analyse.chart_pl import PlDoubleLogAxes
 from parimana.analyse.regression import (
     RegressionModel,
@@ -102,17 +101,6 @@ class EyeExpectedValues:
         ]
 
     @cached_property
-    def chart(self) -> Chart:
-        df = self.df.query("odds > 0 & chance > 0").sort_values("odds", ascending=False)
-        rgms = self.regression_model
-
-        fig = Chart()
-        ax = fig.add_double_log(1, 1, 1)
-        draw(ax, df, rgms)
-
-        return fig
-
-    @cached_property
     def ply_chart(self) -> Figure:
         df = self.df.query("odds > 0 & chance > 0").sort_values("odds", ascending=False)
         rgms = self.regression_model
@@ -184,69 +172,3 @@ def ply_draw(dla: PlDoubleLogAxes, df, rgms) -> None:
             hovertemplate="",
         ),
     )
-
-
-def draw(dla: DoubleLogAxes, df, rgms) -> None:
-    cdict = get_cdict()
-    xmin = df["odds"].min() / 1.5
-    xmax = df["odds"].max() * 1.5
-
-    dla.scatter(
-        df["odds"],
-        df["chance"],
-        c=df["type"].map(cdict),
-        zorder=1,
-        alpha=0.5,
-    )
-
-    for lbl in sorted(df["type"].unique(), key=lambda x: BettingType[x].id):
-        t_df = df[df["type"] == lbl]
-        rgm = rgms[BettingType[lbl]]
-        dla.line(
-            rgm,
-            xmin=t_df["odds"].min() / 1.5,
-            xmax=t_df["odds"].max() * 1.5,
-            label=lbl,
-            cdict=cdict,
-            fmt="--",
-            zorder=2,
-        )
-
-    dla.line(
-        RegressionModel(-1, np.log(0.75)),
-        xmin=xmin,
-        xmax=xmax,
-        label="Theoretical",
-        cdict=cdict,
-        linewidth=3,
-        alpha=0.5,
-        zorder=0,
-    )
-    dla.line(
-        RegressionModel(-1, 0),
-        xmin=xmin,
-        xmax=xmax,
-        label="Breakeven",
-        cdict=cdict,
-        linewidth=3,
-        alpha=0.5,
-        zorder=0,
-    )
-    dla.legend(fontsize="xx-small")
-
-
-def get_cdict():
-    cmap = Cmap()
-    cdict = {}
-    cdict["WIN"] = cmap.get(0)
-    cdict["PLACE"] = cmap.get(1)
-    cdict["SHOW"] = cdict["PLACE"]
-    cdict["EXACTA"] = cmap.get(2)
-    cdict["QUINELLA"] = cmap.get(3)
-    cdict["WIDE"] = cmap.get(4)
-    cdict["TRIFECTA"] = cmap.get(5)
-    cdict["TRIO"] = cmap.get(6)
-    cdict["Theoretical"] = cmap.get(7)
-    cdict["Breakeven"] = cmap.get(8)
-
-    return cdict

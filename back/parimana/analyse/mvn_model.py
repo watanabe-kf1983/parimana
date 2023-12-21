@@ -9,6 +9,7 @@ import plotly.tools as pltls
 import matplotlib.pyplot as mpplt
 from sklearn.manifold import MDS
 
+
 from parimana.base import Comparable, Eye
 import parimana.analyse.normal_dist as nd
 
@@ -65,12 +66,28 @@ class MvnModel(Generic[T]):
         return pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
 
     def plot_box(self) -> plgo.Figure:
-        values = self.simulate_values(10_000)
-        fig, ax = mpplt.subplots()
-        ax.minorticks_on()
-        ax.grid(axis="x", linestyle="dotted", which="both")
-        ax.boxplot(values, vert=False, sym="")
-        return pltls.mpl_to_plotly(fig)
+        names = self.a_map.index
+        mean = self.a_map
+        sd = self.u_map
+        iqr = sd * 1.34898
+        fig = plgo.Figure()
+        fig.add_trace(
+            plgo.Box(
+                y=names,
+                orientation="h",
+                median=mean,
+                q1=mean - iqr * 0.5,
+                q3=mean + iqr * 0.5,
+                lowerfence=mean - iqr * 2.0,
+                upperfence=mean + iqr * 2.0,
+                mean=mean,
+                sd=sd,
+            )
+        )
+        fig.update_layout(
+            hovermode="y",
+        )
+        return fig
 
     def plot_mds(self, metric: bool = False) -> plgo.Figure:
         dist = self.cor_sr * (-1) + 1
