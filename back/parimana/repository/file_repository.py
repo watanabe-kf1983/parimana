@@ -3,6 +3,7 @@ from pathlib import Path
 import pickle
 from typing import Optional
 
+import plotly.io as pio
 
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
 from parimana.analyse import AnalysisCharts
@@ -39,12 +40,11 @@ class FileRepository:
     def save_charts(self, race: Race, timestamp: OddsTimeStamp, charts: AnalysisCharts):
         dir_ = self._result_dir(race, timestamp, charts.result.model.name)
         write_as_pickle(dir_ / "charts.pickle", charts)
-        write_as_pickle(dir_ / "result.pickle", charts.result)
         write_bytes(dir_ / "result.xlsx", charts.excel)
-        write_bytes(dir_ / "oc.png", charts.odds_chance)
-        write_bytes(dir_ / "box-plot.png", charts.model_box)
-        write_bytes(dir_ / "mds.png", charts.model_mds)
-        write_bytes(dir_ / "mds-metric.png", charts.model_mds_metric)
+        write_html_chart(dir_ / "oc.html", charts.odds_chance)
+        write_html_chart(dir_ / "box-plot.html", charts.model_box)
+        write_html_chart(dir_ / "mds.html", charts.model_mds)
+        write_html_chart(dir_ / "mds-metric.html", charts.model_mds_metric)
 
         ts = self.load_latest_charts_time(race)
         if (ts is None) or (ts < timestamp):
@@ -106,6 +106,12 @@ def read_text(file_path: Path) -> Optional[str]:
 def write_text(file_path: Path, txt: str) -> None:
     with open(file_path, "w") as f:
         f.write(txt)
+
+
+def write_html_chart(file_path: Path, chart_json: str) -> None:
+    chart = pio.from_json(chart_json)
+    html = chart.to_html(include_plotlyjs="cdn", include_mathjax="cdn")
+    write_text(file_path, html)
 
 
 def read_pickle(file_path: Path):

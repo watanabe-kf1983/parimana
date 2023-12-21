@@ -3,7 +3,6 @@ import io
 from typing import Mapping, Optional, Sequence
 
 import pandas as pd
-from plotly.graph_objects import Figure
 
 from parimana.base import Eye, OddsPool, Contestant
 from parimana.analyse.mvn_model import MvnModel
@@ -53,30 +52,18 @@ class AnalysisResult:
         return AnalysisCharts(
             result=self,
             excel=self.to_excel(),
-            odds_chance=fig_to_bytes(self.eev.ply_chart.fig),
-            model_box=fig_to_bytes(self.model.plot_box()),
-            model_mds=fig_to_bytes(self.model.plot_mds()),
-            model_mds_metric=fig_to_bytes(self.model.plot_mds(metric=True)),
+            odds_chance=self.eev.ply_chart.fig.to_json(),
+            model_box=self.model.plot_box().to_json(),
+            model_mds=self.model.plot_mds().to_json(),
+            model_mds_metric=self.model.plot_mds(metric=True).to_json(),
         )
-
-
-def fig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
-    buf = io.BytesIO()
-    buf.write(fig.to_image(format=format, scale=dpi/150))
-    return buf.getvalue()
-
-
-def mpfig_to_bytes(fig: Figure, dpi: int = 300, format: str = "png") -> bytes:
-    buf = io.BytesIO()
-    fig.savefig(buf, dpi=dpi, format=format)
-    return buf.getvalue()
 
 
 @dataclass(frozen=True)
 class AnalysisCharts:
     result: AnalysisResult
     excel: bytes
-    odds_chance: bytes
-    model_box: bytes
-    model_mds: bytes
-    model_mds_metric: bytes
+    odds_chance: str
+    model_box: str
+    model_mds: str
+    model_mds_metric: str
