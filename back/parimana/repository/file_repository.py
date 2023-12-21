@@ -43,8 +43,8 @@ class FileRepository:
         write_bytes(dir_ / "result.xlsx", charts.excel)
         write_html_chart(dir_ / "oc.html", charts.odds_chance)
         write_html_chart(dir_ / "box-plot.html", charts.model_box)
-        write_html_chart(dir_ / "mds.html", charts.model_mds)
-        write_html_chart(dir_ / "mds-metric.html", charts.model_mds_metric)
+        # write_html_chart(dir_ / "mds.html", charts.model_mds)
+        # write_html_chart(dir_ / "mds-metric.html", charts.model_mds_metric)
 
         ts = self.load_latest_charts_time(race)
         if (ts is None) or (ts < timestamp):

@@ -54,8 +54,8 @@ class AnalysisResult:
             excel=self.to_excel(),
             odds_chance=self.eev.ply_chart.fig.to_json(),
             model_box=self.model.plot_box().to_json(),
-            model_mds=self.model.plot_mds().to_json(),
-            model_mds_metric=self.model.plot_mds(metric=True).to_json(),
+            # model_mds=self.model.plot_mds().to_json(),
+            # model_mds_metric=self.model.plot_mds(metric=True).to_json(),
         )
 
 
@@ -65,5 +65,5 @@ class AnalysisCharts:
     excel: bytes
     odds_chance: str
     model_box: str
-    model_mds: str
-    model_mds_metric: str
+    # model_mds: str
+    # model_mds_metric: str
