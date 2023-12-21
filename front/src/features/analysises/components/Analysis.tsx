@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react'
 import { Typography } from '@mui/material';
-import { AnalysisProps, Recommend } from '../types';
+import { AnalysisProps, Analysis } from '../types';
 import { Recommendation } from './Recommendation';
-import { getBoxPlotUri, getOddsChartUri, getRecommendation } from '../api';
-import styles from '../styles/Analysis.module.css';
+import { PlotlyChart } from './PlotlyChart';
+import { getAnalysis } from '../api';
 
 export function Analysis(props: AnalysisProps) {
 
-  const [recommendation, setRecommendation] = useState<Array<Recommend> | null>(null);
-  const boxPlotUri = getBoxPlotUri(props.raceId, props.modelName);
-  const oddsChartUri = getOddsChartUri(props.raceId, props.modelName);
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+
 
   useEffect(() => {
-    const getReco = async () => {
-      const r = await getRecommendation(props.raceId, props.modelName);
-      setRecommendation(r)
+    const getAn = async () => {
+      const r = await getAnalysis(props.raceId, props.modelName);
+      setAnalysis(r)
     }
-    getReco()
+    getAn()
   }, [props.raceId])
 
-  if (recommendation == null) {
+  if (analysis == null) {
     return (
       <>
         <Typography component="h5" variant="h5">
@@ -36,13 +35,9 @@ export function Analysis(props: AnalysisProps) {
         <Typography component="h5" variant="h5">
           Model: {props.modelName}
         </Typography>
-        <p>
-          <img src={boxPlotUri} className={styles.responsiveImage} />
-        </p>
-        <Recommendation data={recommendation} />
-        <p>
-          <img src={oddsChartUri} className={styles.responsiveImage} />
-        </p>
+        <PlotlyChart chartJSON={analysis.model_box} />
+        <PlotlyChart chartJSON={analysis.odds_chance} />
+        <Recommendation data={analysis.eev} />
       </>
     )
   }

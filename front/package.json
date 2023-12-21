@@ -14,12 +14,17 @@
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.10",
     "axios": "^1.5.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "better-react-mathjax": "^2.0.3",
+    "plotly.js": "^2.27.1",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0",
+    "react-plotly.js": "^2.6.0"
   },
   "devDependencies": {
+    "@types/plotly.js": "^2.12.31",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/react-plotly.js": "^2.6.3",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.3.2",

@@ -6,7 +6,6 @@ export function RaceAnalysises(props: RaceProps) {
   return (
     <>
       <Analysis raceId={props.raceId} modelName="no_cor" />
-      <Analysis raceId={props.raceId} modelName="ppf_mtx" />
     </>
   )
 }

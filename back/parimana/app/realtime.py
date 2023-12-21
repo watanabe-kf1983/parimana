@@ -17,9 +17,9 @@ class Eye(BaseModel):
     text: str
     type: str
 
-    @classmethod
-    def from_base(cls, eye: parimana.base.Eye):
-        return cls(text=eye.text, type=eye.type.name)
+    @staticmethod
+    def from_base(eye: parimana.base.Eye):
+        return Eye(text=eye.text, type=eye.type.name)
 
 
 class EyeExpectedValue(BaseModel):
@@ -28,13 +28,27 @@ class EyeExpectedValue(BaseModel):
     chance: float
     expected: float
 
-    @classmethod
-    def from_base(cls, eev: parimana.analyse.EyeExpectedValue):
-        return cls(
+    @staticmethod
+    def from_base(eev: parimana.analyse.EyeExpectedValue):
+        return EyeExpectedValue(
             eye=Eye.from_base(eev.eye),
             odds=eev.odds,
             chance=eev.chance,
             expected=eev.expected,
+        )
+
+
+class Result(BaseModel):
+    eev: Sequence[EyeExpectedValue]
+    odds_chance: str
+    model_box: str
+
+    @staticmethod
+    def from_base(charts: parimana.analyse.AnalysisCharts):
+        return Result(
+            eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
+            odds_chance=charts.odds_chance,
+            model_box=charts.model_box,
         )
 
 
@@ -70,15 +84,7 @@ def get_status(race_id: str) -> Status:
 
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:
     charts = _get_charts(race_id, analyser_name)
-    return [EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()]
-
-
-def get_box_image(race_id: str, analyser_name: str):
-    return _get_charts(race_id, analyser_name).model_box
-
-
-def get_oc_image(race_id: str, analyser_name: str):
-    return _get_charts(race_id, analyser_name).odds_chance
+    return Result.from_base(charts)
 
 
 def _get_charts(race_id: str, analyser_name: str) -> AnalysisCharts:

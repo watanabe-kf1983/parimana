@@ -24,7 +24,7 @@ class AnalysisResult:
     def recommend2(
         self, query: Optional[str] = None, size: Optional[int] = None
     ) -> Sequence[EyeExpectedValue]:
-        return self.eev.filter(query, size).values()
+        return self.eev.filter(query, 10).values()
 
     def recommend(
         self, query: Optional[str] = None, size: Optional[int] = None
