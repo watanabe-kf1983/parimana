@@ -6,7 +6,7 @@ from typing import Sequence
 from celery import Celery, chain, group
 
 from parimana.analyse import analysers, AnalysisResult
-from parimana.app.status import StatusManager
+from parimana.app.status import ProcessStatusManager
 from parimana.race import Race, RaceOddsPool, RaceSelector
 from parimana.repository import FileRepository
 from parimana.app.settings import Settings
@@ -59,13 +59,13 @@ def analyse(
 
 @app.task
 def finish_process(results=None, /, *, race):
-    StatusManager(race).finish_process()
+    ProcessStatusManager(race).finish_process()
     return results
 
 
 @app.task
 def start_process(race):
-    StatusManager(race).start_process()
+    ProcessStatusManager(race).start_process()
 
 
 def get_analysis(settings: Settings):

@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Button } from '@mui/material';
 import { AnalysisStatus, RaceProps } from '../types';
 import { useState, useEffect } from 'react';
 import api from '../api/';
@@ -6,15 +6,17 @@ import { RaceAnalysises } from './RaceAnalysises';
 
 
 export function Race(props: RaceProps) {
-
-  const [status, setStatus] = useState<AnalysisStatus>({ "is_processing": false, "has_result": false })
+  const initialStatus: AnalysisStatus = {
+    "is_processing": false, "has_analysis": false, "is_odds_confirmed": false
+  }
+  const [status, setStatus] = useState<AnalysisStatus>(initialStatus)
   const [time, setTime] = useState<Date>(new Date())
-  const refresh = () => setTime(new Date());
+  const reload = () => setTime(new Date());
 
   const requestAnalyse = async () => {
-    setStatus({ is_processing: true, has_result: status.has_result })
+    setStatus({ is_processing: true, has_analysis: status.has_analysis, is_odds_confirmed: status.is_odds_confirmed })
     await api.requestAnalyse(props.raceId);
-    refresh();
+    reload();
   };
 
   useEffect(() => {
@@ -25,16 +27,23 @@ export function Race(props: RaceProps) {
     getStatus()
   }, [props.raceId, time]);
 
+  const requestButtonText = status.is_processing ? "Processing..." : (
+    status.has_analysis ? "Request update odds & re-analyse" : "Request analyse"
+  )
+
   return (
     <>
-      <Button onClick={refresh}> Refresh </Button>
-      <Button onClick={requestAnalyse} disabled={status.is_processing}> Request Analyse </Button>
-      {status.has_result ?
-        <RaceAnalysises raceId={props.raceId} />
-        :
-        <></>
-      }
-
+      {!status.is_odds_confirmed
+        ? <>
+          <Button variant="outlined" onClick={requestAnalyse} disabled={status.is_processing}>
+            {requestButtonText}
+          </Button>
+          <Button variant="outlined" onClick={reload}> Reload </Button>
+        </>
+        : <></>}
+      {status.has_analysis
+        ? <RaceAnalysises raceId={props.raceId} />
+        : <></>}
     </>
   )
 }

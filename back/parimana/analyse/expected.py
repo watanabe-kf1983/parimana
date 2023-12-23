@@ -104,13 +104,18 @@ class EyeExpectedValues:
         rgms = self.regression_model
 
         fig = PlDoubleLogAxes(
-            autosize=True,
-            width=1024,
-            height=768,
             title=dict(text="Odds v.s. Chance of hitting"),
-            xaxis_title="Odds",
-            yaxis_title="Chance of hitting",
-            hoverlabel=dict(align="right"),
+            xaxis=dict(title="Odds"),
+            yaxis=dict(title="Chance of hitting", tickformat="p"),
+            margin=dict(t=50, b=50, r=20, l=50, autoexpand=True),
+            legend=dict(
+                xanchor="left",
+                yanchor="top",
+                x=0,
+                y=-0.1,
+                orientation="h",
+            )
+            # hoverlabel=dict(align="right"),
         )
         ply_draw(fig, df, rgms)
         return fig
@@ -166,8 +171,8 @@ def ply_draw(dla: PlDoubleLogAxes, df, rgms) -> None:
         hover_data={
             "type": False,
             "size": False,
-            "odds": ":1f",
-            "chance": ":.4f",
+            "odds": ":.1f",
+            "chance": ":.4p",
             "expected": ":.4f",
         },
         trendline="ols",

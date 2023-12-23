@@ -12,6 +12,7 @@ export function RaceSelector(props: RaceSelectorProps) {
   return (
     <>
       <TextField
+        sx={{ m: 1, width: '30ch' }}
         value={raceId}
         onChange={e => setRaceId(e.target.value)}
         onKeyDown={(e) => {

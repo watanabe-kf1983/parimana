@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Box, Link, Typography } from '@mui/material';
+import { Link, Typography } from '@mui/material';
 import { AnalysisProps, Analysis } from '../types';
 import { Recommendation } from './Recommendation';
 import { PlotlyChart } from './PlotlyChart';

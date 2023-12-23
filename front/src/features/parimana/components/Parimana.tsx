@@ -11,16 +11,16 @@ export function Parimana() {
   const [raceId, setRaceId] = useState("")
   return (
     <>
-      <MathJaxContext src={mathJaxURL}>
-        <Typography variant="h3">
-          parimana
-        </Typography>
-        <Typography variant="body1">
-          PARI-Mutuel odds ANAlyser
-        </Typography>
-        <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
-        <Race raceId={raceId} />
-      </MathJaxContext>
+        <MathJaxContext src={mathJaxURL}>
+          <Typography variant="h3">
+            parimana
+          </Typography>
+          <Typography variant="body1">
+            PARI-Mutuel odds ANAlyser
+          </Typography>
+          <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
+          <Race raceId={raceId} />
+        </MathJaxContext>
     </>
   )
 }

@@ -10,23 +10,22 @@ from parimana.repository import FileRepository
 repo = FileRepository(Path(".output"))
 
 
-class Status(BaseModel):
+class ProcessStatus(BaseModel):
     is_processing: bool
-    has_result: bool
 
     def __str__(self):
         if self.is_processing:
-            return "DONE,PROCESSING" if self.has_result else "PROCESSING"
+            return "PROCESSING"
         else:
-            return "DONE" if self.has_result else "NOT_START"
+            return "DONE"
 
     @classmethod
-    def from_txt(cls, txt: str) -> "Status":
-        return Status(is_processing=("PROCESSING" in txt), has_result=("DONE" in txt))
+    def from_txt(cls, txt: str) -> "ProcessStatus":
+        return ProcessStatus(is_processing=("PROCESSING" in txt))
 
 
 @dataclass
-class StatusManager:
+class ProcessStatusManager:
     race: Race
 
     def start_process(self, check_status: bool = True) -> None:
@@ -34,16 +33,16 @@ class StatusManager:
         if status.is_processing and check_status:
             raise Exception(f"{self.race.race_id} is processing , can't start")
 
-        self.save_status(Status(is_processing=True, has_result=status.has_result))
+        self.save_status(ProcessStatus(is_processing=True))
 
     def finish_process(self) -> None:
-        self.save_status(Status(is_processing=False, has_result=True))
+        self.save_status(ProcessStatus(is_processing=False))
 
-    def load_status(self) -> Status:
+    def load_status(self) -> ProcessStatus:
         if txt := repo.load_process_status(self.race):
-            return Status.from_txt(txt)
+            return ProcessStatus.from_txt(txt)
         else:
-            return Status(is_processing=False, has_result=False)
+            return ProcessStatus(is_processing=False)
 
-    def save_status(self, status: Status) -> None:
+    def save_status(self, status: ProcessStatus) -> None:
         repo.save_process_status(self.race, str(status))

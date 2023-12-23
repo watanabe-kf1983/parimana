@@ -72,13 +72,12 @@ class MvnModel(Generic[T]):
         iqr = sd * 1.34898
         fig = plgo.Figure(
             layout=dict(
-                autosize=True,
-                width=1024,
-                height=768,
-                title=dict(text="Odds v.s. Chance of hitting"),
-                xaxis_title="Predicted time (0 = average of all contestants,"
-                + " 1 = geometric mean of standard deviations for each contestant)",
-                yaxis_title="Contestants",
+                title=dict(text="Predicted finishing time for all contestants"),
+                xaxis_title="Finishing time"
+                + "<br>(0 = average of all contestants,"
+                + "<br> 1 = GM of SD for each contestant)",
+                yaxis_title="Contestant",
+                margin=dict(t=50, b=50, r=20, l=50, autoexpand=True),
             )
         )
         fig.add_trace(

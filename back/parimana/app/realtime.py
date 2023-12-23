@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import parimana.base as bs
 import parimana.analyse as an
 import parimana.race as rc
-from parimana.app.status import Status, StatusManager
+from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
 from parimana.repository.file_repository import FileRepository
 import parimana.app.batch as batch
@@ -35,6 +35,12 @@ class EyeExpectedValue(BaseModel):
             chance=eev.chance,
             expected=eev.expected,
         )
+
+
+class Status(BaseModel):
+    is_processing: bool
+    has_analysis: bool
+    is_odds_confirmed: bool
 
 
 class Result(BaseModel):
@@ -86,7 +92,15 @@ def start_analyse(race_id: str) -> str:
 
 def get_status(race_id: str) -> Status:
     race = rc.RaceSelector.select(race_id)
-    return StatusManager(race).load_status()
+    is_processing = ProcessStatusManager(race).load_status().is_processing
+    ct = repo.load_latest_charts_time(race)
+    has_analysis = ct is not None
+    is_odds_confirmed = has_analysis and ct.is_confirmed
+    return Status(
+        is_processing=is_processing,
+        has_analysis=has_analysis,
+        is_odds_confirmed=is_odds_confirmed,
+    )
 
 
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:

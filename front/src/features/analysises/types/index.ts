@@ -2,7 +2,7 @@ export type RaceProps = { raceId: string }
 
 export type AnalysisProps = { raceId: string, modelName: string }
 
-export type AnalysisStatus = { is_processing: boolean, has_result: boolean }
+export type AnalysisStatus = { is_processing: boolean, has_analysis: boolean, is_odds_confirmed: boolean }
 
 export type Eye = { text: string, type: string }
 

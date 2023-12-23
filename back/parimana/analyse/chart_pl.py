@@ -16,7 +16,8 @@ class PlDoubleLogAxes:
         x = np.logspace(np.log(xmin), np.log(xmax), base=np.e)
         y = x**reg.slope * np.exp(reg.intercept)
         legend_label = (
-            f"$\\text{{{label}: }}y={np.exp(reg.intercept):.2f}x^{{{reg.slope:.2f}}}$"
+            f"$y={np.exp(reg.intercept):.2f}x^{{{reg.slope:.2f}}}$"
+            # f"$\\text{{{label}: }}y={np.exp(reg.intercept):.2f}x^{{{reg.slope:.2f}}}$"
             # f"$\\text{{  (}}R^2={(reg.rvalue)**2:.2f}\\text{{)}}$"
         )
         self.fig.add_trace(
