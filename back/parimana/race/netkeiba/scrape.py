@@ -9,7 +9,11 @@ from parimana.race.base import (
     RaceSource,
 )
 from parimana.race.netkeiba.data import ratio_data_derby
-from parimana.race.netkeiba.browse import browse_odds_pages, browse_for_odds_timestamp
+from parimana.race.netkeiba.browse import (
+    browse_odds_pages,
+    browse_for_odds_timestamp,
+    get_source_uri,
+)
 from parimana.race.netkeiba.extract import extract_odds, extract_timestamp
 from parimana.race.netkeiba.race import NetKeibaRace
 
@@ -23,6 +27,9 @@ class NetKeibaSource(RaceSource):
 
     def scrape_odds_timestamp(self) -> OddsTimeStamp:
         return scrape_odds_timestamp(self.race)
+
+    def get_uri(self) -> str:
+        return get_source_uri(self.race)
 
 
 def scrape_odds_pool(race: NetKeibaRace) -> RaceOddsPool:

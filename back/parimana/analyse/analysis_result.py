@@ -52,7 +52,7 @@ class AnalysisResult:
         return AnalysisCharts(
             result=self,
             excel=self.to_excel(),
-            odds_chance=self.eev.ply_chart.fig.to_json(),
+            odds_chance=self.eev.chart().fig.to_json(),
             model_box=self.model.plot_box().to_json(),
             # model_mds=self.model.plot_mds().to_json(),
             # model_mds_metric=self.model.plot_mds(metric=True).to_json(),

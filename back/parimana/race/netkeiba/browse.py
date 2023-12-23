@@ -17,6 +17,10 @@ from parimana.race.netkeiba.race import NetKeibaRace
 modestly = ModestFunction(interval=timedelta(seconds=1.5))
 
 
+def get_source_uri(race: NetKeibaRace) -> str:
+    return _odds_page_uri_base(race)
+
+
 def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
     driver: WebDriver = headless_chrome()
 
@@ -79,10 +83,11 @@ def _get_page(driver: WebDriver, race: NetKeibaRace, btype: BettingType):
 
 
 def _odds_page_uri(race: NetKeibaRace, btype: BettingType) -> str:
-    return (
-        "https://race.netkeiba.com/odds/index.html"
-        f"?race_id={race.netkeiba_race_id}&type=b{btype_to_code(btype)}"
-    )
+    return f"{_odds_page_uri_base(race)}&type=b{btype_to_code(btype)}"
+
+
+def _odds_page_uri_base(race: NetKeibaRace) -> str:
+    return f"https://race.netkeiba.com/odds/index.html?race_id={race.netkeiba_race_id}"
 
 
 @modestly

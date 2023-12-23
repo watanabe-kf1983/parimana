@@ -10,7 +10,11 @@ from parimana.race.base import (
 )
 from parimana.race.boatrace.race import BoatRace
 from parimana.race.boatrace.data import ratio_data
-from parimana.race.boatrace.browse import browse_odds_pages, browse_for_odds_timestamp
+from parimana.race.boatrace.browse import (
+    browse_odds_pages,
+    browse_for_odds_timestamp,
+    get_source_uri,
+)
 from parimana.race.boatrace.extract import extract_odds, extract_timestamp
 
 
@@ -23,6 +27,9 @@ class BoatRaceSource(RaceSource):
 
     def scrape_odds_timestamp(self) -> OddsTimeStamp:
         return scrape_odds_timestamp(self.race)
+
+    def get_uri(self) -> str:
+        return get_source_uri(self.race)
 
 
 def scrape_odds_pool(race: BoatRace) -> RaceOddsPool:

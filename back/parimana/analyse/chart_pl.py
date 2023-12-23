@@ -6,15 +6,11 @@ from parimana.analyse.regression import RegressionModel
 
 
 class PlDoubleLogAxes:
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
         self.fig: go.Figure = go.Figure()
         self.fig.update_xaxes(type="log")
         self.fig.update_yaxes(type="log")
-        self.fig.update_layout(
-            xaxis_title="Odds",
-            yaxis_title="Chance of hitting",
-            hoverlabel=dict(align="right"),
-        )
+        self.fig.update_layout(**kwargs)
 
     def line(self, reg: RegressionModel, xmin, xmax, label, **kwargs) -> None:
         x = np.logspace(np.log(xmin), np.log(xmax), base=np.e)

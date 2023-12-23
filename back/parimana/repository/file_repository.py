@@ -54,10 +54,12 @@ class FileRepository:
         dir_ = self._result_dir(race, ts, model)
         return read_pickle(dir_ / "charts.pickle")
 
-    def load_latest_charts(self, race: Race, model: str) -> Optional[AnalysisCharts]:
+    def load_latest_charts(
+        self, race: Race, model: str
+    ) -> Optional[tuple[AnalysisCharts, OddsTimeStamp]]:
         ts = self.load_latest_charts_time(race)
         if ts:
-            return self.load_charts(race, ts, model)
+            return self.load_charts(race, ts, model), ts
         else:
             return None
 

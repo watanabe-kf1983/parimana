@@ -70,7 +70,17 @@ class MvnModel(Generic[T]):
         mean = self.a_map
         sd = self.u_map
         iqr = sd * 1.34898
-        fig = plgo.Figure()
+        fig = plgo.Figure(
+            layout=dict(
+                autosize=True,
+                width=1024,
+                height=768,
+                title=dict(text="Odds v.s. Chance of hitting"),
+                xaxis_title="Predicted time (0 = average of all contestants,"
+                + " 1 = geometric mean of standard deviations for each contestant)",
+                yaxis_title="Contestants",
+            )
+        )
         fig.add_trace(
             plgo.Box(
                 y=names,

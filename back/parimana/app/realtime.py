@@ -1,15 +1,14 @@
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Sequence, Tuple
 
 from pydantic import BaseModel
-from parimana.analyse.analysis_result import AnalysisCharts
-from parimana.app.status import Status, StatusManager
 
-import parimana.base
-import parimana.analyse
-from parimana.race import RaceSelector
-from parimana.repository.file_repository import FileRepository
+import parimana.base as bs
+import parimana.analyse as an
+import parimana.race as rc
+from parimana.app.status import Status, StatusManager
 from parimana.app.settings import Settings
+from parimana.repository.file_repository import FileRepository
 import parimana.app.batch as batch
 
 
@@ -18,7 +17,7 @@ class Eye(BaseModel):
     type: str
 
     @staticmethod
-    def from_base(eye: parimana.base.Eye):
+    def from_base(eye: bs.Eye):
         return Eye(text=eye.text, type=eye.type.name)
 
 
@@ -29,7 +28,7 @@ class EyeExpectedValue(BaseModel):
     expected: float
 
     @staticmethod
-    def from_base(eev: parimana.analyse.EyeExpectedValue):
+    def from_base(eev: an.EyeExpectedValue):
         return EyeExpectedValue(
             eye=Eye.from_base(eev.eye),
             odds=eev.odds,
@@ -40,13 +39,21 @@ class EyeExpectedValue(BaseModel):
 
 class Result(BaseModel):
     eev: Sequence[EyeExpectedValue]
+    source_uri: str
+    odds_update_time: str
     odds_chance: str
     model_box: str
 
     @staticmethod
-    def from_base(charts: parimana.analyse.AnalysisCharts):
+    def from_base(
+        charts: an.AnalysisCharts,
+        race: rc.Race,
+        ost: rc.OddsTimeStamp,
+    ):
         return Result(
             eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
+            source_uri=race.source.get_uri(),
+            odds_update_time=ost.long_str(),
             odds_chance=charts.odds_chance,
             model_box=charts.model_box,
         )
@@ -78,18 +85,20 @@ def start_analyse(race_id: str) -> str:
 
 
 def get_status(race_id: str) -> Status:
-    race = RaceSelector.select(race_id)
+    race = rc.RaceSelector.select(race_id)
     return StatusManager(race).load_status()
 
 
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:
-    charts = _get_charts(race_id, analyser_name)
-    return Result.from_base(charts)
+    return Result.from_base(*_get_charts(race_id, analyser_name))
 
 
-def _get_charts(race_id: str, analyser_name: str) -> AnalysisCharts:
-    charts = repo.load_latest_charts(RaceSelector.select(race_id), analyser_name)
-    if charts:
-        return charts
+def _get_charts(
+    race_id: str, analyser_name: str
+) -> Tuple[an.AnalysisCharts, rc.Race, rc.OddsTimeStamp]:
+    race = rc.RaceSelector.select(race_id)
+    if loaded := repo.load_latest_charts(race, analyser_name):
+        charts, timestamp = loaded
+        return charts, race, timestamp
     else:
         raise ResultNotExistError(f"{race_id}-{analyser_name} 's result not exists")

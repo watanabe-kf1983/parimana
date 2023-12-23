@@ -11,11 +11,15 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
     // JSON文字列をオブジェクトにデシリアライズ
     const graphData = JSON.parse(chartJSON);
 
+
+
     return (
         <MathJax>
             <Plot
-                data={graphData.data}  // データポイント
-                layout={graphData.layout}  // レイアウト設定
+                data={graphData.data}
+                layout={graphData.layout} 
+                config={{ responsive: true }}
+                style={{width: "100%", height: "100%"}}
             />
         </MathJax>
     );

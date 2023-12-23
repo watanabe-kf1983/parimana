@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import cached_property
 from typing import Mapping, Optional, Sequence
 
 import pandas as pd
@@ -100,12 +99,19 @@ class EyeExpectedValues:
             for rec in self.df.itertuples()
         ]
 
-    @cached_property
-    def ply_chart(self) -> Figure:
+    def chart(self) -> Figure:
         df = self.df.query("odds > 0 & chance > 0").sort_values("odds", ascending=False)
         rgms = self.regression_model
 
-        fig = PlDoubleLogAxes()
+        fig = PlDoubleLogAxes(
+            autosize=True,
+            width=1024,
+            height=768,
+            title=dict(text="Odds v.s. Chance of hitting"),
+            xaxis_title="Odds",
+            yaxis_title="Chance of hitting",
+            hoverlabel=dict(align="right"),
+        )
         ply_draw(fig, df, rgms)
         return fig
 

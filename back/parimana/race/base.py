@@ -33,11 +33,22 @@ class RaceSource(ABC):
     def scrape_odds_timestamp(self) -> "OddsTimeStamp":
         pass
 
+    @abstractmethod
+    def get_uri(self) -> str:
+        pass
+
 
 @total_ordering
 @dataclass
 class OddsTimeStamp:
     update_time: Optional[datetime] = None
+
+    def long_str(self) -> str:
+        return (
+            "confirmed"
+            if self.update_time is None
+            else "updated at " + self.update_time.strftime("%Y-%m-%d %H:%M")
+        )
 
     def __str__(self) -> str:
         return (

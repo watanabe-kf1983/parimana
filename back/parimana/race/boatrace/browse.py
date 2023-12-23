@@ -12,6 +12,10 @@ from parimana.driver.modest import ModestFunction
 modestly = ModestFunction(interval=timedelta(seconds=1.5))
 
 
+def get_source_uri(race: BoatRace) -> str:
+    return _odds_page_uri(race, BettingType.TRIFECTA)
+
+
 def browse_for_odds_timestamp(race: BoatRace) -> str:
     return browse_odds_page(race, BettingType.WIN)
 

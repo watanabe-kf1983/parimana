@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Typography } from '@mui/material';
+import { Box, Link, Typography } from '@mui/material';
 import { AnalysisProps, Analysis } from '../types';
 import { Recommendation } from './Recommendation';
 import { PlotlyChart } from './PlotlyChart';
@@ -34,6 +34,10 @@ export function Analysis(props: AnalysisProps) {
       <>
         <Typography component="h5" variant="h5">
           Model: {props.modelName}
+        </Typography>
+        <Typography variant="body1">
+          by analyzing the odds <b>{analysis.odds_update_time}</b>, 
+          Source: <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
         </Typography>
         <PlotlyChart chartJSON={analysis.model_box} />
         <PlotlyChart chartJSON={analysis.odds_chance} />
