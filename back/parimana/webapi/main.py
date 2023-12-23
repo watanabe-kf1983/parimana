@@ -11,10 +11,9 @@ app = FastAPI()
 app.include_router(router.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:8080",
-    ],
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -24,7 +23,7 @@ def not_exist_handler(request, exc):
 
 
 def start():
-    uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=5000, log_level="info")
 
 
 if __name__ == "__main__":
