@@ -7,6 +7,7 @@ readme = "README.md"
 
 [tool.poetry.scripts]
 parimana = "parimana.app.batch:main"
+parimana-worker = "parimana.app.batch:run_worker"
 parimana-web = "parimana.webapi.main:start"
 
 [tool.poetry.dependencies]

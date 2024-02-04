@@ -1,5 +1,5 @@
+import os
 from enum import Enum
-from pathlib import Path
 import time
 from typing import Sequence
 
@@ -11,8 +11,13 @@ from parimana.race import Race, RaceOddsPool, RaceSelector
 from parimana.repository import FileRepository
 from parimana.app.settings import Settings
 
+REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME", "localhost")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+
 app = Celery(
-    __name__, backend="redis://localhost:6379/0", broker="redis://localhost:6379/0"
+    __name__, 
+    backend=f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/0",
+    broker=f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/0"
 )
 
 app.conf.event_serializer = "pickle"
@@ -20,7 +25,7 @@ app.conf.task_serializer = "pickle"
 app.conf.result_serializer = "pickle"
 app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
-repo = FileRepository(Path(".output"))
+repo = FileRepository()
 
 
 class ProcessStatus(str, Enum):
@@ -110,3 +115,6 @@ def main():
     results = results if isinstance(results, Sequence) else [results]
     for result in results:
         result.print_recommendation(settings.recommend_query, settings.recommend_size)
+
+def run_worker():
+    app.worker_main(argv=["worker", "-P", "threads", "--loglevel=info"])

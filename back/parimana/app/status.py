@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pathlib import Path
 
 from pydantic import BaseModel
 
@@ -7,7 +6,7 @@ from parimana.race import Race
 from parimana.repository import FileRepository
 
 
-repo = FileRepository(Path(".output"))
+repo = FileRepository()
 
 
 class ProcessStatus(BaseModel):

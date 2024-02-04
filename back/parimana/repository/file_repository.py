@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from pathlib import Path
 import pickle
 from typing import Optional
@@ -8,10 +9,12 @@ import plotly.io as pio
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
 from parimana.analyse import AnalysisCharts
 
+def repository_path() -> Path:
+    return Path(os.getenv("FILE_REPO_PATH", ".output"))
 
 @dataclass(frozen=True)
 class FileRepository:
-    root_path: Path
+    root_path: Path = field(default_factory=repository_path)
 
     def save_odds_pool(self, odds_pool: RaceOddsPool):
         write_as_pickle(

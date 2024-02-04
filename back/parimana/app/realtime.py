@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any, Sequence, Tuple
 
 from pydantic import BaseModel
@@ -69,7 +68,7 @@ class ResultNotExistError(Exception):
     pass
 
 
-repo = FileRepository(Path(".output"))
+repo = FileRepository()
 
 
 def start_wait_30() -> str:

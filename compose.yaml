@@ -1,0 +1,56 @@
+version: '3'
+services:
+  command:
+    build:
+      context: ./back
+    volumes:
+      - file-repo:/var/parimana/repo
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+  api:
+    build:
+      context: ./back
+    ports:
+      - "5000:5000"
+    environment:
+      REDIS_HOSTNAME: task-db
+      REDIS_PORT: 6379
+    volumes:
+      - file-repo:/var/parimana/repo
+    depends_on:
+      - task-db
+    entrypoint:
+      [
+        "dockerize",
+        "-wait",
+        "tcp://task-db:6379",
+        "-timeout",
+        "30s"
+      ]
+    command: [ "parimana-web" ]
+
+  batch:
+    build:
+      context: ./back
+    environment:
+      REDIS_HOSTNAME: task-db
+      REDIS_PORT: 6379
+    volumes:
+      - file-repo:/var/parimana/repo
+    depends_on:
+      - task-db
+    entrypoint:
+      [
+        "dockerize",
+        "-wait",
+        "tcp://task-db:6379",
+        "-timeout",
+        "30s"
+      ]
+    command: [ "parimana-worker" ]
+
+  task-db:
+    image: redis
+
+volumes:
+  file-repo:
