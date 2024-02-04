@@ -21,6 +21,11 @@ ENV POETRY_NO_INTERACTION=1 \
 RUN curl -sSL https://install.python-poetry.org | python -
 ENV PATH="${POETRY_HOME}/bin:$PATH"
 
+FROM poetry as dev
+RUN apt-get update \
+    && apt-get -y install git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 FROM poetry as prod-build
 
