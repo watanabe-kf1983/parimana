@@ -1,4 +1,3 @@
-version: '3'
 services:
   command:
     build:
@@ -51,6 +50,14 @@ services:
 
   task-db:
     image: redis
+
+  front:
+    build:
+      context: ./front
+    ports:
+      - "80:80"
+    depends_on:
+      - api
 
 volumes:
   file-repo:

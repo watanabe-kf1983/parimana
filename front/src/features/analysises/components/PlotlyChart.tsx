@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import { MathJax } from 'better-react-mathjax';
 import React from 'react';
 import Plot from 'react-plotly.js';
