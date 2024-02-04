@@ -1,0 +1,28 @@
+services:
+  back-dev:
+    build:
+      context: ./back
+      target: dev
+    volumes:
+      - file-repo:/var/parimana/repo
+      - .:/workspace:cached
+    ports:
+      - "5001:5000"
+    environment:
+      REDIS_HOSTNAME: task-db
+      REDIS_PORT: 6379
+    command: ["tail", "-f", "/dev/null"]
+    restart: always
+    depends_on:
+      - task-db
+
+  front-dev:
+    build:
+      context: ./front
+      target: dev
+    volumes:
+      - .:/workspace:cached
+    ports:
+      - "5173:5173"
+    command: ["tail", "-f", "/dev/null"]
+    restart: always
