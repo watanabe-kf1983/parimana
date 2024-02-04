@@ -5,6 +5,7 @@ services:
     volumes:
       - file-repo:/var/parimana/repo
     entrypoint: ["tail", "-f", "/dev/null"]
+    restart: always
 
   api:
     build:
@@ -27,6 +28,7 @@ services:
         "30s"
       ]
     command: [ "parimana-web" ]
+    restart: always
 
   batch:
     build:
@@ -47,9 +49,11 @@ services:
         "30s"
       ]
     command: [ "parimana-worker" ]
+    restart: always
 
   task-db:
     image: redis
+    restart: always
 
   front:
     build:
@@ -58,6 +62,7 @@ services:
       - "80:80"
     depends_on:
       - api
+    restart: always
 
 volumes:
   file-repo:
