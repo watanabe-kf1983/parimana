@@ -2,7 +2,10 @@ services:
   back-dev:
     build:
       context: ./back
-      target: dev
+      target: vscode-devcontainer
+      args:
+          - USER_ID=1000
+          - GROUP_ID=1000
     volumes:
       - file-repo:/var/parimana/repo
       - .:/workspace:cached
@@ -19,7 +22,7 @@ services:
   front-dev:
     build:
       context: ./front
-      target: dev
+      target: vscode-devcontainer
     volumes:
       - .:/workspace:cached
     ports:

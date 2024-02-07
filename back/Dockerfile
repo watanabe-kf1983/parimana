@@ -21,11 +21,28 @@ ENV POETRY_NO_INTERACTION=1 \
 RUN curl -sSL https://install.python-poetry.org | python -
 ENV PATH="${POETRY_HOME}/bin:$PATH"
 
-FROM poetry as dev
+
+FROM poetry as vscode-devcontainer
+
+# install git sudo
 RUN apt-get update \
-    && apt-get -y install git \
+    && apt-get -y install git sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Add non-root user
+ARG USERNAME=vscode
+ARG USER_ID=1000
+ARG GROUP_ID=$USER_ID
+
+RUN groupadd --gid $GROUP_ID $USERNAME \
+    && useradd -s /bin/bash --uid $USER_ID --gid $GROUP_ID -m $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+USER $USERNAME
+WORKDIR /home/$USERNAME/
+ENV FILE_REPO_PATH="/var/parimana/repo"
 
 FROM poetry as prod-build
 
