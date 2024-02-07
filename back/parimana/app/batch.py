@@ -1,4 +1,3 @@
-import os
 from enum import Enum
 import time
 from typing import Sequence
@@ -7,18 +6,12 @@ from celery import Celery, chain, group
 
 from parimana.analyse import analysers, AnalysisResult
 from parimana.app.status import ProcessStatusManager
+from parimana.app.settings import Settings
 from parimana.race import Race, RaceOddsPool, RaceSelector
 from parimana.repository import FileRepository
-from parimana.app.settings import Settings
+import parimana.message as msg
 
-REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-
-app = Celery(
-    __name__, 
-    backend=f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/0",
-    broker=f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/0"
-)
+app = Celery(__name__, backend=msg.uri, broker=msg.uri)
 
 app.conf.event_serializer = "pickle"
 app.conf.task_serializer = "pickle"
@@ -63,13 +56,18 @@ def analyse(
 
 
 @app.task
-def finish_process(results=None, /, *, race):
+def finish_process(results=None, /, *, race: Race):
     ProcessStatusManager(race).finish_process()
+    c = msg.Channel(race.race_id)
+    c.publish("oshimai")
+    c.close()
     return results
 
 
 @app.task
-def start_process(race):
+def start_process(race: Race):
+    c = msg.Channel(race.race_id)
+    c.publish("start")
     ProcessStatusManager(race).start_process()
 
 
@@ -111,10 +109,24 @@ def get_wait_30_result(task_id: str):
 
 def main():
     settings = Settings.from_cli_args()
-    results = get_analysis(settings).apply().get()
+    s = msg.Channel(settings.race_id).subscribe()
+
+    # results = get_analysis(settings).apply().get()
+    # results = results if isinstance(results, Sequence) else [results]
+    # for result in results:
+    #     result.print_recommendation(settings.recommend_query, settings.recommend_size)
+
+
+    result = get_analysis(settings).delay()
+    print(result.id)
+    for message in s.listen():
+        print(message)
+
+    results = result.get(timeout=1)
     results = results if isinstance(results, Sequence) else [results]
     for result in results:
         result.print_recommendation(settings.recommend_query, settings.recommend_size)
+    
 
 def run_worker():
     app.worker_main(argv=["worker", "-P", "threads", "--loglevel=info"])
