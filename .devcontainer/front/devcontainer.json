@@ -3,8 +3,7 @@
 {
 	"name": "Node Container",
 	"dockerComposeFile": [
-		"../../compose.yaml",
-		"../compose.devcontainer.yaml"
+		"../compose.yaml"
 	],
 	"service": "front-dev",
 	"shutdownAction": "none",

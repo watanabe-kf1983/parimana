@@ -3,8 +3,7 @@
 {
 	"name": "Python Container",
 	"dockerComposeFile": [
-		"../../compose.yaml",
-		"../compose.devcontainer.yaml",
+		"../compose.yaml",
 	],
 	"service": "back-dev",
 	"shutdownAction": "none",

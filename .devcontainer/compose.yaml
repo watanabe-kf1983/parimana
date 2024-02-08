@@ -1,14 +1,14 @@
 services:
   back-dev:
     build:
-      context: ./back
+      context: ../back
       target: vscode-devcontainer
       args:
           - USER_ID=1000
           - GROUP_ID=1000
     volumes:
       - file-repo:/var/parimana/repo
-      - .:/workspace:cached
+      - ..:/workspace:cached
     ports:
       - "5001:5000"
     environment:
@@ -21,11 +21,20 @@ services:
 
   front-dev:
     build:
-      context: ./front
+      context: ../front
       target: vscode-devcontainer
     volumes:
-      - .:/workspace:cached
+      - ..:/workspace:cached
     ports:
       - "5173:5173"
+    environment:
+      API_PORT: 5001
     command: ["tail", "-f", "/dev/null"]
     restart: always
+
+  task-db:
+    image: redis
+    restart: always
+
+volumes:
+  file-repo:
