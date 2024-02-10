@@ -5,6 +5,7 @@ from datetime import timedelta
 import requests
 
 from parimana.base import BettingType
+from parimana.message import mprint
 from parimana.race.boatrace.race import BoatRace
 from parimana.driver.modest import ModestFunction
 
@@ -36,10 +37,9 @@ def browse_odds_page(race: BoatRace, btype: BettingType, attempt: str = "1st") -
 @functools.cache
 @modestly
 def _get(uri: str, attempt: str):
-    print(f"opening {uri} ({attempt})...", end=" ", flush=True)
+    mprint(f"opening {uri} ({attempt})...")
     res = requests.get(uri)
     res.raise_for_status()
-    print("done.", flush=True)
     return res.text
 
 

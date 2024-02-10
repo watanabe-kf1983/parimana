@@ -11,8 +11,9 @@ uri: str = f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/{REDIS_DB_ID}"
 
 
 def createClient() -> redis.Redis:
-    return redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ID)
-
+    r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ID)
+    r.ping()    
+    return r
 
 @dataclass
 class Subscribe:
@@ -37,7 +38,6 @@ class Channel:
         self.publish("finished")
 
     def publish(self, message: str) -> None:
-        print(f"{self.name}-{message}")
         self.client.publish(f"channel-{self.name}", message)
 
     def subscribe(self) -> Subscribe:

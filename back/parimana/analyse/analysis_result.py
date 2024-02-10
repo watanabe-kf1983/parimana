@@ -5,6 +5,7 @@ from typing import Mapping, Optional, Sequence
 import pandas as pd
 
 from parimana.base import Eye, OddsPool, Contestant
+from parimana.message import mprint
 from parimana.analyse.mvn_model import MvnModel
 from parimana.analyse.expected import EyeExpectedValue, EyeExpectedValues
 
@@ -34,10 +35,10 @@ class AnalysisResult:
     def print_recommendation(
         self, query: Optional[str] = None, size: Optional[int] = None
     ) -> pd.DataFrame:
-        print()
-        print(f"-- Recommendation by {self.model.name} [{query}] --")
-        print(self.recommend(query, size))
-        print()
+        mprint()
+        mprint(f"-- Recommendation by {self.model.name} [{query}] --")
+        mprint(self.recommend(query, size))
+        mprint()
 
     def to_excel(self) -> bytes:
         xlbuf = io.BytesIO()

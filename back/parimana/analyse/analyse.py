@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence, Tuple
 
 from parimana.base import BettingType, Distribution, OddsPool, Contestant
+from parimana.message import mprint
 from parimana.analyse.analysis_result import AnalysisResult
 from parimana.analyse.regression import RegressionModel
 from parimana.analyse.correlation import (
@@ -52,12 +53,12 @@ class OnePassAnalyser(Analyser):
         simulation_count: int,
         odds_model: Mapping[BettingType, RegressionModel] = {},
     ) -> AnalysisResult:
-        print(f"extract_destribution by '{self.name}' ...")
+        mprint(f"extract_destribution by '{self.name}' ...")
         vote_tallies = calc_vote_tally(odds_pool.odds, odds_pool.vote_ratio, odds_model)
         dist = odds_pool.contestants.destribution(vote_tallies)
-        print(f"estimating model by '{self.name}' ...")
+        mprint(f"estimating model by '{self.name}' ...")
         model = self.estimate_model(dist)
-        print(f"simulating '{model.name}' ...")
+        mprint(f"simulating '{model.name}' ...")
         chances = model.simulate(simulation_count)
         return AnalysisResult(odds_pool, model, chances)
 

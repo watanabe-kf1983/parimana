@@ -9,6 +9,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base import BettingType
+from parimana.message import mprint
 from parimana.driver.chrome import headless_chrome
 from parimana.driver.modest import ModestFunction
 from parimana.race.netkeiba.btype import btype_to_code, supported_types
@@ -43,14 +44,13 @@ def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
 
 @modestly
 def _update_odds(driver: WebDriver):
-    print("updating odds ...", end=" ", flush=True)
+    mprint("updating odds ...")
     driver.delete_all_cookies()
     driver.refresh()
     update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
     limit = _get_update_limit(driver)
     update_button.click()
     WebDriverWait(driver, timeout=10).until(lambda d: limit != _get_update_limit(d))
-    print("done.", flush=True)
 
 
 def _get_update_limit(driver: WebDriver):
@@ -92,18 +92,17 @@ def _odds_page_uri_base(race: NetKeibaRace) -> str:
 
 @modestly
 def _get(driver: WebDriver, uri):
-    print(f"opening {uri} ...", end=" ", flush=True)
+    mprint(f"opening {uri} ...")
     driver.get(uri)
-    print("done.", flush=True)
 
 
 @modestly
 def _download_axis(driver: WebDriver, axis, dropdown):
-    print(f" downloading axis {axis} odds...", end=" ", flush=True)
+    mprint(f" downloading axis {axis} odds...")
     dropdown = driver.find_element(By.CSS_SELECTOR, "#list_select_horse")
     Select(dropdown).select_by_value(axis)
     WebDriverWait(driver, timeout=10).until(_axis_is_loaded(axis))
-    print("done.", flush=True)
+    mprint("done.", flush=True)
 
 
 def _axis_is_loaded(axis: str):

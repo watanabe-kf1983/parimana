@@ -1,6 +1,7 @@
 from enum import Enum
 import time
 from typing import Sequence
+from functools import wraps
 
 from celery import Celery, chain, group
 
@@ -27,8 +28,22 @@ class ProcessStatus(str, Enum):
     NOT_STARTED = "NOT_STARTED"
 
 
+def with_race_channel(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if "race" in kwargs:
+            channel_id = kwargs["race"].race_id
+        else:
+            channel_id = None
+
+        with msg.set_printer(channel_id) as p:
+            return func(*args, **kwargs)
+
+    return wrapper
+
 @app.task
-def get_odds_pool(race: Race, scrape_force: bool = False) -> RaceOddsPool:
+@with_race_channel
+def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
     odds_pool = repo.load_latest_odds_pool(race)
 
     if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
@@ -42,8 +57,9 @@ def get_odds_pool(race: Race, scrape_force: bool = False) -> RaceOddsPool:
 
 
 @app.task
+@with_race_channel
 def analyse(
-    odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int
+    odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int, *, race: Race
 ) -> AnalysisResult:
     charts = repo.load_charts(odds_pool.race, odds_pool.timestamp, analyser_name)
 
@@ -56,18 +72,15 @@ def analyse(
 
 
 @app.task
+@with_race_channel
 def finish_process(results=None, /, *, race: Race):
     ProcessStatusManager(race).finish_process()
-    c = msg.Channel(race.race_id)
-    c.publish("oshimai")
-    c.close()
     return results
 
 
 @app.task
-def start_process(race: Race):
-    c = msg.Channel(race.race_id)
-    c.publish("start")
+@with_race_channel
+def start_process(*, race: Race):
     ProcessStatusManager(race).start_process()
 
 
@@ -75,9 +88,9 @@ def get_analysis(settings: Settings):
     race = RaceSelector.select(settings.race_id)
     return chain(
         start_process.s(race=race),
-        get_odds_pool.si(race, not settings.use_cache),
+        get_odds_pool.si(race=race, scrape_force=not settings.use_cache),
         group(
-            analyse.s(analyser_name, settings.simulation_count)
+            analyse.s(analyser_name, settings.simulation_count,race=race)
             for analyser_name in settings.analyser_names
         ),
         finish_process.s(race=race),
@@ -85,6 +98,7 @@ def get_analysis(settings: Settings):
 
 
 @app.task
+@with_race_channel
 def wait_30_seconds(data):
     time.sleep(30)
     result = data + ": waited_30_seconds"
@@ -109,24 +123,19 @@ def get_wait_30_result(task_id: str):
 
 def main():
     settings = Settings.from_cli_args()
-    s = msg.Channel(settings.race_id).subscribe()
 
-    # results = get_analysis(settings).apply().get()
-    # results = results if isinstance(results, Sequence) else [results]
-    # for result in results:
-    #     result.print_recommendation(settings.recommend_query, settings.recommend_size)
+    results = get_analysis(settings).apply().get()
 
+    # result = get_analysis(settings).delay()
+    # s = msg.Channel(settings.race_id).subscribe()
+    # for message in s.listen():
+    #     print(message)
+    # results = result.get(timeout=1)
 
-    result = get_analysis(settings).delay()
-    print(result.id)
-    for message in s.listen():
-        print(message)
-
-    results = result.get(timeout=1)
     results = results if isinstance(results, Sequence) else [results]
     for result in results:
         result.print_recommendation(settings.recommend_query, settings.recommend_size)
-    
+
 
 def run_worker():
     app.worker_main(argv=["worker", "-P", "threads", "--loglevel=info"])

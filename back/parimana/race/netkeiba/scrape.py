@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Mapping, Tuple
 
 from parimana.base import Eye, Odds
+from parimana.message import mprint
 from parimana.race.base import (
     OddsTimeStamp,
     OddsUpdatedException,
@@ -64,7 +65,7 @@ def attempt_collect_odds(
 
     for content, btype in browse_odds_pages(race):
         if extract_timestamp(content) != timestamp:
-            print("Odds update detected")
+            mprint("Odds update detected")
             raise OddsUpdatedException()
 
         odds |= extract_odds(content, btype)

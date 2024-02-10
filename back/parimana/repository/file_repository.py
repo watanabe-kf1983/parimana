@@ -6,6 +6,7 @@ from typing import Optional
 
 import plotly.io as pio
 
+from parimana.message import mprint
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
 from parimana.analyse import AnalysisCharts
 
@@ -121,7 +122,7 @@ def write_html_chart(file_path: Path, chart_json: str) -> None:
 
 def read_pickle(file_path: Path):
     if file_path.exists():
-        print(f"reading {file_path}...")
+        mprint(f"reading {file_path}...")
         with open(file_path, "rb") as f:
             return pickle.load(f)
     else:
@@ -130,11 +131,11 @@ def read_pickle(file_path: Path):
 
 def write_as_pickle(file_path: Path, obj):
     with open(file_path, "wb") as f:
-        print(f"writing {file_path}...")
+        mprint(f"writing {file_path}...")
         pickle.dump(obj, f)
 
 
 def write_bytes(file_path: Path, binary: bytes):
     with open(file_path, "wb") as f:
-        print(f"writing {file_path}...")
+        mprint(f"writing {file_path}...")
         f.write(binary)

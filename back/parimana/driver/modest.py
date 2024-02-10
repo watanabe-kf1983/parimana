@@ -3,6 +3,7 @@ from functools import wraps
 import time
 from datetime import datetime, timedelta
 
+from parimana.message import mprint
 
 @dataclass
 class ModestFunction:
@@ -17,7 +18,7 @@ class ModestFunction:
             delta = datetime.now() - self.last_accessed
             sleep_seconds = (self.interval - delta).total_seconds()
             if sleep_seconds > 0:
-                print(f"waiting {sleep_seconds}secs ...")
+                mprint(f"waiting {sleep_seconds}secs ...")
                 time.sleep(sleep_seconds)
             self.last_accessed = datetime.now()
             return func(*args, **kwargs)
