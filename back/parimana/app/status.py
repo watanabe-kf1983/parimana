@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 from parimana.race import Race
+from parimana.message import mprint
 from parimana.repository import FileRepository
 
 
@@ -33,9 +34,11 @@ class ProcessStatusManager:
             raise Exception(f"{self.race.race_id} is processing , can't start")
 
         self.save_status(ProcessStatus(is_processing=True))
+        mprint("process started.")
 
     def finish_process(self) -> None:
         self.save_status(ProcessStatus(is_processing=False))
+        mprint("process finished.")
 
     def load_status(self) -> ProcessStatus:
         if txt := repo.load_process_status(self.race):

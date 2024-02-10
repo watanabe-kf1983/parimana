@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Response
+from fastapi.responses import StreamingResponse
 
 import parimana.app.realtime as rt
 
@@ -26,6 +27,11 @@ def get_status(race_id: str):
     return rt.get_status(race_id)
 
 
+@router.get("/analyse/progress/{race_id}", response_class=StreamingResponse)
+def get_progress(race_id: str):
+    return eventStreamResponse(rt.get_progress(race_id))
+
+
 @router.get("/analysis/{race_id}/{analyser_name}")
 def get_analysis(race_id: str, analyser_name: str):
     return rt.get_analysis(race_id, analyser_name)
@@ -41,3 +47,9 @@ def get_box_image(race_id: str, analyser_name: str):
 def get_oc_image(race_id: str, analyser_name: str):
     img = rt.get_oc_image(race_id, analyser_name)
     return Response(content=img, media_type="image/png")
+
+
+def eventStreamResponse(generator):
+    return StreamingResponse(
+        (f"data: {msg}\n\n" for msg in generator), media_type="text/event-stream"
+    )

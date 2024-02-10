@@ -75,6 +75,7 @@ def analyse(
 @with_race_channel
 def finish_process(results=None, /, *, race: Race):
     ProcessStatusManager(race).finish_process()
+    msg.mclose()
     return results
 
 
@@ -125,12 +126,6 @@ def main():
     settings = Settings.from_cli_args()
 
     results = get_analysis(settings).apply().get()
-
-    # result = get_analysis(settings).delay()
-    # s = msg.Channel(settings.race_id).subscribe()
-    # for message in s.listen():
-    #     print(message)
-    # results = result.get(timeout=1)
 
     results = results if isinstance(results, Sequence) else [results]
     for result in results:

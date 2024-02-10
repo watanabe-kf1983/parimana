@@ -1,9 +1,11 @@
 import axios from "axios";
 import { AnalysisStatus } from "../types";
+import { EventSourceManager } from "./eventSourceManager";
 
 const hostname = window.location.hostname
 const port = API_PORT;
 const baseUrl = `http://${hostname}:${port}`;
+
 
 export async function getAnalysis(raceId: string, modelName: string) {
     const response = await axios.get(`${baseUrl}/analysis/${raceId}/${modelName}`);
@@ -19,5 +21,8 @@ export async function requestAnalyse(raceId: string) {
     await axios.post(`${baseUrl}/analyse/start/${raceId}`);
 }
 
+export function getProgress(raceId: string) {
+    return new EventSourceManager(`${baseUrl}/analyse/progress/${raceId}`);
+}
 
-export default { getAnalysis, getAnalysisStatus, requestAnalyse};
+export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress};

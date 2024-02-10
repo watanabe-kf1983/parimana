@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import os
-
 import redis
 
 REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME", "localhost")
@@ -12,8 +11,9 @@ uri: str = f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/{REDIS_DB_ID}"
 
 def createClient() -> redis.Redis:
     r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ID)
-    r.ping()    
+    r.ping()
     return r
+
 
 @dataclass
 class Subscribe:

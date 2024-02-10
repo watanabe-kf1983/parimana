@@ -3,6 +3,7 @@ import { AnalysisStatus, RaceProps } from '../types';
 import { useState, useEffect } from 'react';
 import api from '../api/';
 import { RaceAnalysises } from './RaceAnalysises';
+import { AnalysisProgress } from './AnalysisProgress';
 
 
 export function Race(props: RaceProps) {
@@ -33,13 +34,17 @@ export function Race(props: RaceProps) {
 
   return (
     <>
+      {(!status.is_odds_confirmed || status.is_processing)
+        ? <Button variant="outlined" onClick={reload}> Reload </Button>
+        : <></>
+      }
       {!status.is_odds_confirmed
-        ? <>
-          <Button variant="outlined" onClick={requestAnalyse} disabled={status.is_processing}>
-            {requestButtonText}
-          </Button>
-          <Button variant="outlined" onClick={reload}> Reload </Button>
-        </>
+        ? <Button variant="outlined" onClick={requestAnalyse} disabled={status.is_processing}>
+          {requestButtonText}
+        </Button>
+        : <></>}
+      {status.is_processing
+        ? <><AnalysisProgress raceId={props.raceId} /></>
         : <></>}
       {status.has_analysis
         ? <RaceAnalysises raceId={props.raceId} />

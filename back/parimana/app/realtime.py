@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import parimana.base as bs
 import parimana.analyse as an
 import parimana.race as rc
+import parimana.message as mg
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
 from parimana.repository.file_repository import FileRepository
@@ -79,11 +80,6 @@ def get_wait_30_result(task_id: str) -> dict[str, Any]:
     return batch.get_wait_30_result(task_id)
 
 
-# def start_analyse(settings: Settings):
-#     task_id = batch.start_analyse(settings)
-#     return {"task_id": task_id}
-
-
 def start_analyse(race_id: str) -> str:
     settings = Settings(race_id, analyser_names=["no_cor"])
     return batch.start_analyse(settings)
@@ -105,6 +101,8 @@ def get_status(race_id: str) -> Status:
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:
     return Result.from_base(*_get_charts(race_id, analyser_name))
 
+def get_progress(race_id: str):
+    return mg.Channel(race_id).subscribe().listen()
 
 def _get_charts(
     race_id: str, analyser_name: str
