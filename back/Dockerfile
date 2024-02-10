@@ -42,7 +42,6 @@ RUN groupadd --gid $GROUP_ID $USERNAME \
 
 USER $USERNAME
 WORKDIR /home/$USERNAME/
-ENV FILE_REPO_PATH="/var/parimana/repo"
 
 FROM poetry as prod-build
 
