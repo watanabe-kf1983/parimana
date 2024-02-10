@@ -102,7 +102,6 @@ def _download_axis(driver: WebDriver, axis, dropdown):
     dropdown = driver.find_element(By.CSS_SELECTOR, "#list_select_horse")
     Select(dropdown).select_by_value(axis)
     WebDriverWait(driver, timeout=10).until(_axis_is_loaded(axis))
-    mprint("done.", flush=True)
 
 
 def _axis_is_loaded(axis: str):

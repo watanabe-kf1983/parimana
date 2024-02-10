@@ -45,10 +45,9 @@ export function Race(props: RaceProps) {
         : <></>}
       {status.is_processing
         ? <><AnalysisProgress raceId={props.raceId} /></>
-        : <></>}
-      {status.has_analysis
-        ? <RaceAnalysises raceId={props.raceId} />
-        : <></>}
+        : (status.has_analysis
+          ? <RaceAnalysises raceId={props.raceId} />
+          : <></>)}
     </>
   )
 }

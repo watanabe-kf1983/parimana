@@ -11,7 +11,7 @@ from parimana.race.netkeiba.btype import code_to_btype, btype_to_code
 
 
 # <span id="official_time">13:33(142分前)</span>
-UPDATE_PATTERN: re.Pattern = re.compile(r"(?P<time>[0-9]{1,2}:[0-9]{2})\([0-9]+分前\)")
+UPDATE_PATTERN: re.Pattern = re.compile(r"(?P<time>[0-9]{1,2}:[0-9]{2})\([0-9-]+分前\)")
 
 jst = ZoneInfo("Asia/Tokyo")
 

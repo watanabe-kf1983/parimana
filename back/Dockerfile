@@ -3,6 +3,17 @@ FROM python:3.11-slim as python-base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# install chrome
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends wget gnupg \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends google-chrome-stable \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/
+
+
 FROM python-base as poetry
 
 # install curl
@@ -43,6 +54,7 @@ RUN groupadd --gid $GROUP_ID $USERNAME \
 USER $USERNAME
 WORKDIR /home/$USERNAME/
 
+
 FROM poetry as prod-build
 
 # poetry install
@@ -63,16 +75,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends wget \
     && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# install chrome
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends gnupg \
-  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends google-chrome-stable \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/
 
 # install parimana
 ENV APP_PATH="/app" \

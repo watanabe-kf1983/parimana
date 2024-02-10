@@ -18,7 +18,6 @@ class ModestFunction:
             delta = datetime.now() - self.last_accessed
             sleep_seconds = (self.interval - delta).total_seconds()
             if sleep_seconds > 0:
-                mprint(f"waiting {sleep_seconds}secs ...")
                 time.sleep(sleep_seconds)
             self.last_accessed = datetime.now()
             return func(*args, **kwargs)
