@@ -1,6 +1,6 @@
 from typing import Collection, Iterator, Mapping, Tuple
 import functools
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import requests
 
@@ -31,13 +31,13 @@ def browse_odds_pages(
 
 def browse_odds_page(race: BoatRace, btype: BettingType, attempt: str = "1st") -> str:
     uri = _odds_page_uri(race, btype)
-    return _get(uri, attempt)
+    return _get(uri, f"{datetime.now():%Y%m%d%H%M}-{attempt}")
 
 
 @functools.cache
 @modestly
 def _get(uri: str, attempt: str):
-    mprint(f"opening {uri} ({attempt})...")
+    mprint(f"opening {uri} ...")
     res = requests.get(uri)
     res.raise_for_status()
     return res.text
