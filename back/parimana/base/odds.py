@@ -37,7 +37,7 @@ class PlaceOdds(Odds):
 
     @property
     def odds(self) -> float:
-        return self.min
+        return round((self.min*2 + self.max) / 3, 1)
 
 
 @dataclass
