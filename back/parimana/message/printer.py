@@ -2,6 +2,7 @@ from contextlib import contextmanager
 
 from parimana.message.redis import Channel
 
+
 class Printer:
     def __init__(self, channel_id: str | None = None):
         self.channel_id = channel_id
@@ -15,7 +16,8 @@ class Printer:
     def mprint(self, message: str) -> None:
         print(message)
         if c := self.channel:
-            c.publish(message)
+            for line in message.splitlines():
+                c.publish(line)
 
     def close(self) -> None:
         if c := self.channel:

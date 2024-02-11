@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 from parimana.race import Race
-from parimana.message import mprint
+from parimana.message import mprint, mclose
 from parimana.repository import FileRepository
 
 
@@ -39,6 +39,12 @@ class ProcessStatusManager:
     def finish_process(self) -> None:
         self.save_status(ProcessStatus(is_processing=False))
         mprint("process finished.")
+        mclose()
+
+    def abort_process(self) -> None:
+        self.save_status(ProcessStatus(is_processing=False))
+        mprint("process aborted.")
+        mclose()
 
     def load_status(self) -> ProcessStatus:
         if txt := repo.load_process_status(self.race):

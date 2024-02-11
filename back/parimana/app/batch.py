@@ -2,6 +2,7 @@ from enum import Enum
 import time
 from typing import Sequence
 from functools import wraps
+import traceback
 
 from celery import Celery, chain, group
 
@@ -37,9 +38,17 @@ def with_race_channel(func):
             channel_id = None
 
         with msg.set_printer(channel_id) as p:
-            return func(*args, **kwargs)
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                p.mprint("ERROR occurred:")
+                stack_trace = traceback.format_exc()
+                p.mprint(stack_trace)
+                ProcessStatusManager(kwargs["race"]).abort_process()
+                raise
 
     return wrapper
+
 
 @app.task
 @with_race_channel
@@ -91,7 +100,7 @@ def get_analysis(settings: Settings):
         start_process.s(race=race),
         get_odds_pool.si(race=race, scrape_force=not settings.use_cache),
         group(
-            analyse.s(analyser_name, settings.simulation_count,race=race)
+            analyse.s(analyser_name, settings.simulation_count, race=race)
             for analyser_name in settings.analyser_names
         ),
         finish_process.s(race=race),
