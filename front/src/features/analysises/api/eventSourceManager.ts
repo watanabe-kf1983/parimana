@@ -1,29 +1,41 @@
 export class EventSourceManager {
-    private url: string;
-    private eventSource: EventSource | null = null;
-  
-    constructor(url: string) {
-      this.url = url;
-    }
-  
-    startListening(onMessage: (data: any) => void): void {
-      this.eventSource = new EventSource(this.url);
-  
-      this.eventSource.onmessage = (event) => {
+  private url: string;
+  private terminateMessage: string;
+  private eventSource: EventSource | null = null;
+
+  constructor(url: string, terminateMessage: string) {
+    this.url = url;
+    this.terminateMessage = terminateMessage;
+  }
+
+  startListening(onMessage: (data: any) => void, onTerminate: () => void): void {
+    this.stopListening();
+
+    const eventSource: EventSource = new EventSource(this.url);
+    eventSource.onmessage = (event) => {
+      const message: string = event.data;
+      if (message !== this.terminateMessage) {
         onMessage(event.data);
-      };
-  
-      this.eventSource.onerror = (error) => {
-        console.error('EventSource failed:', error);
+      } else {
         this.stopListening();
-      };
-    }
-  
-    stopListening(): void {
-      if (this.eventSource) {
-        this.eventSource.close();
-        this.eventSource = null;
+        onTerminate();
       }
+    };
+    eventSource.onerror = (error) => {
+      if (eventSource.readyState === EventSource.CLOSED) {
+        console.log('Connection was closed or failed.');
+      }
+      console.error('EventSource failed:', error);
+      this.stopListening();
+    };
+
+    this.eventSource = eventSource
+  }
+
+  stopListening(): void {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
     }
   }
-  
+}

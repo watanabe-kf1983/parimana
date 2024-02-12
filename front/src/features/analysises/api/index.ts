@@ -22,7 +22,7 @@ export async function requestAnalyse(raceId: string) {
 }
 
 export function getProgress(raceId: string) {
-    return new EventSourceManager(`${baseUrl}/analyse/progress/${raceId}`);
+    return new EventSourceManager(`${baseUrl}/analyse/progress/${raceId}`, "====END====");
 }
 
-export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress};
+export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress };

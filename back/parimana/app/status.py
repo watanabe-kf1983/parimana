@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from typing import Any, AsyncGenerator
 
 from pydantic import BaseModel
 
 from parimana.race import Race
-from parimana.message import mprint, mclose
+from parimana.message import mprint, mclose, Channel
 from parimana.repository import FileRepository
 
 
@@ -39,11 +40,13 @@ class ProcessStatusManager:
     def finish_process(self) -> None:
         self.save_status(ProcessStatus(is_processing=False))
         mprint("process finished.")
+        mprint("====END====")
         mclose()
 
     def abort_process(self) -> None:
         self.save_status(ProcessStatus(is_processing=False))
         mprint("process aborted.")
+        mprint("====END====")
         mclose()
 
     def load_status(self) -> ProcessStatus:
@@ -54,3 +57,10 @@ class ProcessStatusManager:
 
     def save_status(self, status: ProcessStatus) -> None:
         repo.save_process_status(self.race, str(status))
+
+    async def alisten(self) -> AsyncGenerator[str, Any]:
+        status = self.load_status()
+        if status.is_processing:
+            return Channel(self.race.race_id).alisten()
+        else:
+            raise ValueError(f"Not processing, {status=}")

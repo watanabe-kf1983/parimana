@@ -1,21 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
-import { RaceProps } from '../types';
+import { AnalysisProgressProps } from '../types';
 import { getProgress } from '../api';
 
-export function AnalysisProgress(props: RaceProps): JSX.Element {
+export function AnalysisProgress(props: AnalysisProgressProps): JSX.Element {
   const [messages, setMessages] = useState<String>("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const progressManager = getProgress(props.raceId);
 
-    progressManager.startListening((newMessage) => {
+    const messageListener = (newMessage: string) => {
       setMessages((prevMessages) => `${prevMessages}\n${newMessage}`);
       if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
-    });
+    }
+
+    progressManager.startListening(messageListener, props.onTerminate);
 
     return () => progressManager.stopListening();
   }, []);
