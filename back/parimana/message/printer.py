@@ -9,7 +9,7 @@ class Printer:
         self.channel: Channel | None = None
         if channel_id:
             try:
-                self.channel = Channel(channel_id)
+                self.channel = Channel(channel_id).pingged()
             except:
                 self.channel = None
 

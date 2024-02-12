@@ -1,4 +1,4 @@
-from typing import Any, Sequence, Tuple
+from typing import Any, AsyncGenerator, Sequence, Tuple
 
 from pydantic import BaseModel
 
@@ -101,8 +101,10 @@ def get_status(race_id: str) -> Status:
 def get_analysis(race_id: str, analyser_name: str) -> Sequence[EyeExpectedValue]:
     return Result.from_base(*_get_charts(race_id, analyser_name))
 
-def get_progress(race_id: str):
-    return mg.Channel(race_id).subscribe().listen()
+
+def get_progress(race_id: str) -> AsyncGenerator[str, Any]:
+    return mg.Channel(race_id).alisten()
+
 
 def _get_charts(
     race_id: str, analyser_name: str

@@ -1,3 +1,4 @@
+from typing import Any, AsyncGenerator
 from fastapi import APIRouter, Response
 from fastapi.responses import StreamingResponse
 
@@ -28,7 +29,7 @@ def get_status(race_id: str):
 
 
 @router.get("/analyse/progress/{race_id}", response_class=StreamingResponse)
-def get_progress(race_id: str):
+async def get_progress(race_id: str):
     return eventStreamResponse(rt.get_progress(race_id))
 
 
@@ -49,7 +50,7 @@ def get_oc_image(race_id: str, analyser_name: str):
     return Response(content=img, media_type="image/png")
 
 
-def eventStreamResponse(generator):
+def eventStreamResponse(generator: AsyncGenerator[str, Any]):
     return StreamingResponse(
-        (f"data: {msg}\n\n" for msg in generator), media_type="text/event-stream"
+        (f"data: {msg}\n\n" async for msg in generator), media_type="text/event-stream"
     )
