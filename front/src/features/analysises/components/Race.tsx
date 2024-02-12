@@ -35,7 +35,7 @@ export function Race(props: RaceProps) {
   return (
     <>
       {(!status.is_odds_confirmed || status.is_processing)
-        ? <Button variant="outlined" onClick={reload}> Reload </Button>
+        ? <Button onClick={reload}> Reload </Button>
         : <></>
       }
       {!status.is_odds_confirmed

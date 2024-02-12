@@ -14,8 +14,8 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
 
     const windowWidth = useWindowSize();
 
-    const graphWidth = windowWidth > 600 ? windowWidth - 20 : 580
-    const graphHeight = windowWidth > 600 ? graphWidth * 3 / 4 : graphWidth
+    const graphWidth = windowWidth > 1000 ? 950 : (windowWidth > 600 ? windowWidth - 50 : 550)
+    const graphHeight = graphWidth * 3 / 4
     graphData.layout.width = graphWidth;
     graphData.layout.height = graphHeight;
 
@@ -26,11 +26,13 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
         graphData.layout.legend.y = 0.99;
         graphData.layout.legend.orientation = "v";
     }
+    graphData.layout.autosize = true;
 
     return (
         <MathJax>
             <Plot
                 data={graphData.data}
+                useResizeHandler={true}
                 layout={graphData.layout}
             />
         </MathJax>
