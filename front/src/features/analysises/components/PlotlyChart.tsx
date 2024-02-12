@@ -14,7 +14,7 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
 
     const windowWidth = useWindowSize();
 
-    const graphWidth = windowWidth > 1000 ? 950 : (windowWidth > 600 ? windowWidth - 50 : 550)
+    const graphWidth = windowWidth > 1000 ? 990 : windowWidth - 10
     const graphHeight = graphWidth * 3 / 4
     graphData.layout.width = graphWidth;
     graphData.layout.height = graphHeight;
