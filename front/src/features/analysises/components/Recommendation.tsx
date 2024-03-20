@@ -1,46 +1,27 @@
-import { Table, TableBody, TableHead, TableRow, TableCell, Typography } from '@mui/material';
-import { Recommend, RecommendQueryProps } from '../types';
+import { Candidate, RecommendQueryProps } from '../types';
 import { useEffect, useState } from 'react';
 import { getRecommend } from '../api';
+import { Candidates } from './Candidates';
+import { QuerySelector } from './QuerySelector';
 
 export function Recommendation(props: RecommendQueryProps) {
-  const [recs, setRecs] = useState<Recommend[]>([])
+  const [query, setQuery] = useState<string>("type=='TRIFECTA' and 10<odds<200 and expected<1");
+  const [recs, setRecs] = useState<Candidate[]>([]);
 
   useEffect(() => {
     const getRecs = async () => {
-      const r = await getRecommend(props.raceId, props.modelName, props.query);
+      const r = await getRecommend(props.raceId, props.modelName, query);
       setRecs(r)
     }
     getRecs()
-  }, [props.raceId, props.modelName, props.query])
+  }, [props.raceId, props.modelName, query])
 
   return (
     <>
-      <br />
-      <Typography component="h5" variant="h5">
-        Recommends:
-      </Typography>
-      <Table stickyHeader style={{ maxWidth: "600px" }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>eye</TableCell>
-            <TableCell align="right">odds</TableCell>
-            <TableCell align="right">chance</TableCell>
-            <TableCell align="right">expected</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {recs.map(rec => (
-            <TableRow>
-              <TableCell>{rec.eye.text}</TableCell>
-              <TableCell align="right">{rec.odds.toFixed(1)}</TableCell>
-              <TableCell align="right">{(rec.chance * 100).toFixed(2)}%</TableCell>
-              <TableCell align="right">{rec.expected.toFixed(4)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <br />
+      <QuerySelector onSetQuery={setQuery}></QuerySelector>
+      <br></br>
+      <Candidates data={recs}>
+      </Candidates>
     </>
   )
 }

@@ -103,8 +103,7 @@ def get_analysis(race_id: str, analyser_name: str) -> Result:
 
 def get_recommendation(race_id: str, analyser_name: str, query: str) -> Sequence[EyeExpectedValue]:
     charts, _ , __ = _get_charts(race_id, analyser_name)
-    print(query)
-    return [EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2(query=query, size=20)]
+    return [EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2(query=query, size=10)]
 
 def get_progress(race_id: str) -> AsyncGenerator[str, Any]:
     return mg.Channel(race_id).alisten()

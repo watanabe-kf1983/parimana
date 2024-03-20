@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react'
+
 export type RaceProps = { raceId: string }
 
 export type AnalysisProgressProps = { raceId: string, onTerminate: () => void }
@@ -18,6 +20,11 @@ export type Analysis = {
 
 export type Recommend = { eye: Eye, odds: number, chance: number, expected: number }
 
-export type RecommendQueryProps = { raceId: string, modelName: string, query: string }
+export type RecommendQueryProps = { raceId: string, modelName: string}
 
 export type RecommendProps = { data: Array<Recommend> }
+
+export type Candidate = { eye: Eye, odds: number, chance: number, expected: number }
+export type CandidatesProps = { data: Array<Candidate> }
+
+export type QuerySelectorProps = { onSetQuery: Dispatch<SetStateAction<string>> }
