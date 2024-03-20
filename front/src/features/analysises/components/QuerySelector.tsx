@@ -3,7 +3,7 @@ import { TextField } from '@mui/material';
 import { QuerySelectorProps } from '../types';
 
 export function QuerySelector(props: QuerySelectorProps) {
-    const [query, setQuery] = useState<string>("expected > 1")
+    const [query, setQuery] = useState<string>(props.query)
 
     const onQueryEntered = () => {
         props.onSetQuery(query);

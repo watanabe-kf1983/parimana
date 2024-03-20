@@ -27,4 +27,4 @@ export type RecommendProps = { data: Array<Recommend> }
 export type Candidate = { eye: Eye, odds: number, chance: number, expected: number }
 export type CandidatesProps = { data: Array<Candidate> }
 
-export type QuerySelectorProps = { onSetQuery: Dispatch<SetStateAction<string>> }
+export type QuerySelectorProps = { query: string, onSetQuery: Dispatch<SetStateAction<string>> }
