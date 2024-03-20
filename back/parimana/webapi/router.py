@@ -37,17 +37,21 @@ async def get_progress(race_id: str):
 def get_analysis(race_id: str, analyser_name: str):
     return rt.get_analysis(race_id, analyser_name)
 
-
-@router.get("/analysis/{race_id}/{analyser_name}/box.png")
-def get_box_image(race_id: str, analyser_name: str):
-    img = rt.get_box_image(race_id, analyser_name)
-    return Response(content=img, media_type="image/png")
+@router.get("/recommend/{race_id}/{analyser_name}/{query}")
+def get_recommendation(race_id: str, analyser_name: str, query: str):
+    return rt.get_recommendation(race_id, analyser_name, query)
 
 
-@router.get("/analysis/{race_id}/{analyser_name}/oc.png")
-def get_oc_image(race_id: str, analyser_name: str):
-    img = rt.get_oc_image(race_id, analyser_name)
-    return Response(content=img, media_type="image/png")
+# @router.get("/analysis/{race_id}/{analyser_name}/box.png")
+# def get_box_image(race_id: str, analyser_name: str):
+#     img = rt.get_box_image(race_id, analyser_name)
+#     return Response(content=img, media_type="image/png")
+
+
+# @router.get("/analysis/{race_id}/{analyser_name}/oc.png")
+# def get_oc_image(race_id: str, analyser_name: str):
+#     img = rt.get_oc_image(race_id, analyser_name)
+#     return Response(content=img, media_type="image/png")
 
 
 def eventStreamResponse(generator: AsyncGenerator[str, Any]):

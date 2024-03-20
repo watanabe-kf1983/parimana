@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AnalysisStatus } from "../types";
+import { AnalysisStatus, Recommend } from "../types";
 import { EventSourceManager } from "./eventSourceManager";
 
 const hostname = window.location.hostname
@@ -14,6 +14,12 @@ export async function getAnalysis(raceId: string, modelName: string) {
 
 export async function getAnalysisStatus(raceId: string): Promise<AnalysisStatus> {
     const response = await axios.get(`${baseUrl}/analyse/status/${raceId}`);
+    return response.data;
+}
+
+export async function getRecommend(raceId: string, modelName: string, query: string)
+    : Promise<Array<Recommend>> {
+    const response = await axios.get(`${baseUrl}/recommend/${raceId}/${modelName}/${encodeURIComponent(query)}`);
     return response.data;
 }
 
