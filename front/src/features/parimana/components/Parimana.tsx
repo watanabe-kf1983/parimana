@@ -32,7 +32,7 @@ function ParimanaLayout(props: { content: React.ReactNode }) {
         display: 'flex',
         justifyContent: 'center',
         minHeight: '100vh',
-        minWidth: '700px', // 最小幅をコンテンツの幅に合わせる
+        minWidth: '600px', // 最小幅をコンテンツの幅に合わせる
       }}
     >
       <Box

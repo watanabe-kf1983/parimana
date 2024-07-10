@@ -1,3 +1,5 @@
+import { Box } from "@mui/material"
+
 import { Candidate, RecommendQueryProps } from '../types';
 import { useEffect, useState } from 'react';
 import { getRecommend } from '../api';
@@ -18,9 +20,15 @@ export function Recommendation(props: RecommendQueryProps) {
 
   return (
     <>
-      <QuerySelector onSetQuery={setQuery} query={query} />
-      <br />
-      <Candidates data={recs} />
+      <Box
+        sx={{
+          maxWidth: '600px'
+        }}
+      >
+        <QuerySelector onSetQuery={setQuery} query={query} />
+        <br />
+        <Candidates data={recs} />
+      </Box>
     </>
   )
 }
