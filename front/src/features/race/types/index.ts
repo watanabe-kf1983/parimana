@@ -1,4 +1,2 @@
-import { Dispatch, SetStateAction } from 'react'
-
-export type RaceSelectorProps = { raceId: string, onSetRaceId: Dispatch<SetStateAction<string>> }
+export type RaceSelectorProps = { raceId: string, onSetRaceId: (input: string) => void }
 
