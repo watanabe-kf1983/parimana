@@ -22,10 +22,8 @@ RUN npm run build
 
 FROM nginx:stable-alpine as production-stage
 
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-
-# Nginxの設定ファイルをコピー（必要に応じて）
-# COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
