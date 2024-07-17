@@ -74,8 +74,8 @@ class MvnModel(Generic[T]):
             layout=dict(
                 title=dict(text="Predicted finishing time for all contestants"),
                 xaxis_title="Finishing time"
-                + "<br>(0 = average of all contestants,"
-                + "<br> 1 = GM of SD for each contestant)",
+                + " (0: mean time of all contestants,"
+                + "<br> 1: geometric mean of SD for each contestant)",
                 yaxis_title="Contestant",
                 margin=dict(t=50, b=50, r=20, l=50, autoexpand=True),
             )
