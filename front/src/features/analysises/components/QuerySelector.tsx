@@ -11,7 +11,7 @@ export function QuerySelector(props: QuerySelectorProps) {
 
     return (
         <TextField
-            sx={{ m: 1, width: '50ch' }}
+            sx={{ m: 1, width: '350px' }}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={(e) => {

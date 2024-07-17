@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, Typography } from '@mui/material';
-import { AnalysisProps, Analysis } from '../types';
+import { AnalysisProps, AnalysisData } from '../types';
 import { Recommendation } from './Recommendation';
 import { PlotlyChart } from './PlotlyChart';
 import { getAnalysis } from '../api';
 
 export function Analysis(props: AnalysisProps) {
 
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
 
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function Analysis(props: AnalysisProps) {
     <>
       <br />
       <br />
-      <Typography component="h4" variant="h4">
+      <Typography component="h5" variant="h5">
         Model: {props.modelName}
       </Typography>
       {analysis

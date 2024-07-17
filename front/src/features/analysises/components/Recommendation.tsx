@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { getRecommend } from '../api';
 import { Candidates } from './Candidates';
 import { QuerySelector } from './QuerySelector';
+import { Typography } from '@mui/material';
 
 export function Recommendation(props: RecommendQueryProps) {
   const [query, setQuery] = useState<string>("type=='TRIFECTA' and 10<odds<200 and expected>1");
@@ -20,6 +21,9 @@ export function Recommendation(props: RecommendQueryProps) {
     <>
       <QuerySelector onSetQuery={setQuery} query={query} />
       <br />
+      <Typography component="h5" variant="h5">
+        Reccommendations
+      </Typography>
       <Candidates data={recs} />
     </>
   )

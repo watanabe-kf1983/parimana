@@ -10,21 +10,25 @@ interface PlotlyChartProps {
 
 export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
     // JSON文字列をオブジェクトにデシリアライズ
-    const graphData = JSON.parse(chartJSON);
-
-    const windowWidth = useWindowSize();
-
-    const graphWidth = windowWidth > 1000 ? 990 : windowWidth - 10
+    const MAX_FRAME_WIDTH = 1030;
+    const FRAME_PADDING = 15;
+    const frameWidth = Math.min(useWindowSize(), MAX_FRAME_WIDTH)
+    const graphWidth = frameWidth - FRAME_PADDING * 2;
     const graphHeight = graphWidth * 3 / 4
+
+    const graphData = JSON.parse(chartJSON);
     graphData.layout.width = graphWidth;
     graphData.layout.height = graphHeight;
 
-    if ('legend' in graphData.layout && windowWidth > 600) {
+    if ('legend' in graphData.layout && graphWidth > 700) {
         graphData.layout.legend.xanchor = "right";
         graphData.layout.legend.yanchor = "top";
         graphData.layout.legend.x = 0.99;
         graphData.layout.legend.y = 0.99;
         graphData.layout.legend.orientation = "v";
+    }
+    if ('legend' in graphData.layout) {
+        graphData.layout.showlegend = graphWidth > 500;
     }
     graphData.layout.autosize = true;
 
@@ -34,6 +38,7 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
                 data={graphData.data}
                 useResizeHandler={true}
                 layout={graphData.layout}
+                config={{ displayModeBar: graphWidth > 700 }}
             />
         </MathJax>
     );

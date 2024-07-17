@@ -31,26 +31,27 @@ function ParimanaLayout(props: { content: React.ReactNode }) {
       sx={{
         display: 'flex',
         justifyContent: 'center',
+        padding: '10px',
         minHeight: '100vh',
-        minWidth: '600px', // 最小幅をコンテンツの幅に合わせる
+        // minWidth: '1000px', // 最小幅をコンテンツの幅に合わせる
       }}
     >
       <Box
         sx={{
-          maxWidth: '1000px'
+          maxWidth: '800px'
         }}
       >
-        <Typography variant="h3">
+        <Typography variant="h4">
           parimana
         </Typography>
         <Typography variant="body1">
           PARI-Mutuel odds ANAlyser
         </Typography>
 
-          {props.content}
+        {props.content}
 
       </Box>
-    </Box>
+    </Box >
   )
 }
 

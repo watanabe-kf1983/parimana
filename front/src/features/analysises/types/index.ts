@@ -10,7 +10,7 @@ export type AnalysisStatus = { is_processing: boolean, has_analysis: boolean, is
 
 export type Eye = { text: string, type: string }
 
-export type Analysis = {
+export type AnalysisData = {
     eev: Array<Recommend>,
     source_uri: string,
     odds_update_time: string,
