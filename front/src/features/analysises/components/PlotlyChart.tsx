@@ -19,7 +19,7 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
     graphData.layout.width = graphWidth;
     graphData.layout.height = graphHeight;
 
-    if ('legend' in graphData.layout && graphWidth > 600) {
+    if ('legend' in graphData.layout && graphWidth > 700) {
         graphData.layout.legend.xanchor = "right";
         graphData.layout.legend.yanchor = "top";
         graphData.layout.legend.x = 0.99;
@@ -37,7 +37,7 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
                 data={graphData.data}
                 useResizeHandler={true}
                 layout={graphData.layout}
-                config={{ displayModeBar: graphWidth > 600 }}
+                config={{ displayModeBar: graphWidth > 700 }}
             />
         </MathJax>
     );
