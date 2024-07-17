@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, Typography } from '@mui/material';
 import { AnalysisProps, AnalysisData } from '../types';
-import { Recommendation } from './Recommendation';
+import { Betting } from './Betting';
 import { PlotlyChart } from './PlotlyChart';
 import { getAnalysis } from '../api';
 
@@ -22,18 +22,25 @@ export function Analysis(props: AnalysisProps) {
     <>
       <br />
       <br />
-      <Typography component="h5" variant="h5">
-        Model: {props.modelName}
-      </Typography>
       {analysis
         ? <>
           <Typography variant="body1">
-            by analyzing the odds <b>{analysis.odds_update_time}</b>,
-            Source: <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
+            Analysis of odds {analysis.odds_update_time}, <br />
+            sourced from <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
+          </Typography>
+          <hr />
+          <Typography variant="h5">
+            Estimated '{props.modelName}' model
+          </Typography>
+          <Typography variant="h6">
+            Competence of contestants
           </Typography>
           <PlotlyChart chartJSON={analysis.model_box} />
+          <Typography variant="h6">
+            Simulation
+          </Typography>
           <PlotlyChart chartJSON={analysis.odds_chance} />
-          <Recommendation raceId={props.raceId} modelName={props.modelName} />
+          <Betting raceId={props.raceId} modelName={props.modelName} />
         </>
         : <Typography variant="body1">
           Loading...

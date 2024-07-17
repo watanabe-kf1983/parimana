@@ -20,7 +20,7 @@ export type AnalysisData = {
 
 export type Recommend = { eye: Eye, odds: number, chance: number, expected: number }
 
-export type RecommendQueryProps = { raceId: string, modelName: string}
+export type BettingQueryProps = { raceId: string, modelName: string}
 
 export type RecommendProps = { data: Array<Recommend> }
 

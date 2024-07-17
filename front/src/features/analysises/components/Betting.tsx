@@ -1,11 +1,11 @@
-import { Candidate, RecommendQueryProps } from '../types';
+import { Candidate, BettingQueryProps } from '../types';
 import { useEffect, useState } from 'react';
 import { getRecommend } from '../api';
 import { Candidates } from './Candidates';
 import { QuerySelector } from './QuerySelector';
 import { Typography } from '@mui/material';
 
-export function Recommendation(props: RecommendQueryProps) {
+export function Betting(props: BettingQueryProps) {
   const [query, setQuery] = useState<string>("type=='TRIFECTA' and 10<odds<200 and expected>1");
   const [recs, setRecs] = useState<Candidate[]>([]);
 
@@ -19,11 +19,11 @@ export function Recommendation(props: RecommendQueryProps) {
 
   return (
     <>
+      <Typography variant="h6">
+        Candidates for betting
+      </Typography>
       <QuerySelector onSetQuery={setQuery} query={query} />
       <br />
-      <Typography component="h5" variant="h5">
-        Reccommendations
-      </Typography>
       <Candidates data={recs} />
     </>
   )

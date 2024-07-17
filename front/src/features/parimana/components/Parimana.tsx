@@ -38,10 +38,10 @@ function ParimanaLayout(props: { content: React.ReactNode }) {
     >
       <Box
         sx={{
-          maxWidth: '800px'
+          maxWidth: '1030px'
         }}
       >
-        <Typography variant="h4">
+        <Typography variant="h3">
           parimana
         </Typography>
         <Typography variant="body1">

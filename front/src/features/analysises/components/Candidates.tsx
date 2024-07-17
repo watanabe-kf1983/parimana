@@ -7,10 +7,10 @@ export function Candidates(props: CandidatesProps) {
         <Table stickyHeader style={{ maxWidth: "400px" }}>
             <TableHead>
                 <TableRow>
-                    <TableCell>eye</TableCell>
-                    <TableCell align="right">odds</TableCell>
-                    <TableCell align="right">chance</TableCell>
-                    <TableCell align="right">expected</TableCell>
+                    <TableCell>Bet</TableCell>
+                    <TableCell align="right">Odds</TableCell>
+                    <TableCell align="right">Chance</TableCell>
+                    <TableCell align="right">Expectation</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
