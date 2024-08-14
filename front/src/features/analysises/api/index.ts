@@ -17,9 +17,9 @@ export async function getAnalysisStatus(raceId: string): Promise<AnalysisStatus>
     return response.data;
 }
 
-export async function getRecommend(raceId: string, modelName: string, query: string)
+export async function getCandidates(raceId: string, modelName: string, query: string)
     : Promise<Array<Candidate>> {
-    const response = await axios.get(`${baseUrl}/recommend/${raceId}/${modelName}/${encodeURIComponent(query)}`);
+    const response = await axios.get(`${baseUrl}/candidates/${raceId}/${modelName}/${encodeURIComponent(serverQuery(query))}`);
     return response.data;
 }
 
@@ -30,5 +30,22 @@ export async function requestAnalyse(raceId: string) {
 export function getProgress(raceId: string) {
     return new EventSourceManager(`${baseUrl}/analyse/progress/${raceId}`, "====END====", "====ABEND====");
 }
+
+const serverQuery: (name: string) => string = (name) => {
+    type Column = { name: string, field: string }
+    const columns: Column[] = [
+        { field: 'eye', name: 'Betting' },
+        { field: 'type', name: 'Type' },
+        { field: 'odds', name: 'Odds' },
+        { field: 'chance', name: 'Chance' },
+        { field: 'expected', name: 'Expectation' },
+    ];
+    var replacing = name;
+    for (const col of columns) {
+        replacing = replacing.replace(col.name, col.field)
+    }
+    return replacing;
+}
+
 
 export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress };

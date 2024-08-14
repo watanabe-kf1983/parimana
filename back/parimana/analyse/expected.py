@@ -83,7 +83,7 @@ class EyeExpectedValues:
         return EyeExpectedValues(df, calc_regression_model(df))
 
     def filter(
-        self, query: str = "expected >= 1", size: Optional[int] = None
+        self, query: str = "", size: Optional[int] = None
     ) -> "EyeExpectedValues":
         df = self.df.sort_values("expected", ascending=False)
         if query:

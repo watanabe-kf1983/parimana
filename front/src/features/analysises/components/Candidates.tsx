@@ -10,21 +10,40 @@ export function Candidates(props: CandidatesProps) {
         id: rec.eye.text,
         eye: rec.eye.text,
         type: rec.eye.type,
-        odds: rec.odds.toFixed(1),
-        chance: (rec.chance * 100).toFixed(2),
-        expected: rec.expected.toFixed(4)
+        odds: rec.odds,
+        chance: rec.chance,
+        expected: rec.expected
     }));
 
     const columns: GridColDef[] = [
-        { field: 'eye', headerName: 'Bet', width: 100 },
-        { field: 'odds', headerName: 'Odds', width: 100 },
-        { field: 'chance', headerName: 'Chance', width: 100 },
-        { field: 'expected', headerName: 'Expectation', width: 100 },
+        { field: 'eye', headerName: 'Betting', type: 'string' },
+        {
+            field: 'type', headerName: 'Type', type: 'singleSelect',
+            valueOptions: ['WIN', 'PLACE', 'SHOW', 'EXACTA', 'QUINELLA', 'WIDE', 'TRIFECTA', 'TRIO']
+        },
+        {
+            field: 'odds', headerName: 'Odds', type: 'number',
+            valueFormatter: (value: number) => `${value.toFixed(1)}`
+        },
+        {
+            field: 'chance', headerName: 'Chance', type: 'number',
+            valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`
+        },
+        {
+            field: 'expected', headerName: 'Expectation', type: 'number',
+            valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`
+        },
     ];
 
     return (
-        <div style={{ height: 300, maxWidth: '400px' }}>
-            <DataGrid rows={rows} columns={columns} />
+        <div style={{ maxWidth: '100%' }}>
+            <DataGrid autoHeight rows={rows} columns={columns}
+                density='compact' pageSizeOptions={[10, 25, 50]}
+                initialState={{
+                    pagination: { paginationModel: { pageSize: 10 } },
+                }}
+            // slots={{ toolbar: GridToolbar }}
+            />
         </div>
     )
 }

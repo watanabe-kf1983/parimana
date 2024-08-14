@@ -37,9 +37,13 @@ async def get_progress(race_id: str):
 def get_analysis(race_id: str, analyser_name: str):
     return rt.get_analysis(race_id, analyser_name)
 
-@router.get("/recommend/{race_id}/{analyser_name}/{query}")
-def get_recommendation(race_id: str, analyser_name: str, query: str):
-    return rt.get_recommendation(race_id, analyser_name, query)
+@router.get("/candidates/{race_id}/{analyser_name}/")
+def get_candidates(race_id: str, analyser_name: str):
+    return rt.get_candidates(race_id, analyser_name, "")
+
+@router.get("/candidates/{race_id}/{analyser_name}/{query}")
+def get_candidates(race_id: str, analyser_name: str, query: str):
+    return rt.get_candidates(race_id, analyser_name, query)
 
 
 # @router.get("/analysis/{race_id}/{analyser_name}/box.png")
