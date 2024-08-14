@@ -1,24 +1,29 @@
 export class EventSourceManager {
   private url: string;
   private terminateMessage: string;
+  private abortMessage: string;
   private eventSource: EventSource | null = null;
 
-  constructor(url: string, terminateMessage: string) {
+  constructor(url: string, terminateMessage: string, abortMessage: string) {
     this.url = url;
     this.terminateMessage = terminateMessage;
+    this.abortMessage = abortMessage;
   }
 
-  startListening(onMessage: (data: any) => void, onTerminate: () => void): void {
+  startListening(onMessage: (data: any) => void, onTerminate: () => void, onAbort: () => void): void {
     this.stopListening();
 
     const eventSource: EventSource = new EventSource(this.url);
     eventSource.onmessage = (event) => {
       const message: string = event.data;
-      if (message !== this.terminateMessage) {
-        onMessage(event.data);
-      } else {
+      if (message === this.terminateMessage) {
         this.stopListening();
         onTerminate();
+      } else if (message === this.abortMessage) {
+        this.stopListening();
+        onAbort();
+      } else {
+        onMessage(event.data);
       }
     };
     eventSource.onerror = (error) => {

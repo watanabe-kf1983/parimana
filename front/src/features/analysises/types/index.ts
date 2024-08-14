@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 
 export type RaceProps = { raceId: string }
 
-export type AnalysisProgressProps = { raceId: string, onTerminate: () => void }
+export type AnalysisProgressProps = { raceId: string, onComplete: () => void, onAbort: () => void }
 
 export type AnalysisProps = { raceId: string, modelName: string }
 
@@ -20,7 +20,7 @@ export type AnalysisData = {
 
 export type Recommend = { eye: Eye, odds: number, chance: number, expected: number }
 
-export type BettingQueryProps = { raceId: string, modelName: string}
+export type BettingQueryProps = { raceId: string, modelName: string }
 
 export type RecommendProps = { data: Array<Recommend> }
 

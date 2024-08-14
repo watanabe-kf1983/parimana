@@ -46,7 +46,7 @@ class ProcessStatusManager:
     def abort_process(self) -> None:
         self.save_status(ProcessStatus(is_processing=False))
         mprint("process aborted.")
-        mprint("====END====")
+        mprint("====ABEND====")
         mclose()
 
     def load_status(self) -> ProcessStatus:

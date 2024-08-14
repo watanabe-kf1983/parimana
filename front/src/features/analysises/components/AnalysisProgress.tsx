@@ -17,7 +17,7 @@ export function AnalysisProgress(props: AnalysisProgressProps): JSX.Element {
       }
     }
 
-    progressManager.startListening(messageListener, props.onTerminate);
+    progressManager.startListening(messageListener, props.onComplete, props.onAbort);
 
     return () => progressManager.stopListening();
   }, []);

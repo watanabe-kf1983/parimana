@@ -44,7 +44,7 @@ export function Race(props: RaceProps) {
         </Button>
         : <></>}
       {status.is_processing
-        ? <><AnalysisProgress raceId={props.raceId} onTerminate={reload} /></>
+        ? <><AnalysisProgress raceId={props.raceId} onComplete={reload} onAbort={() => { }} /></>
         : (status.has_analysis
           ? <RaceAnalysises raceId={props.raceId} />
           : <></>)}
