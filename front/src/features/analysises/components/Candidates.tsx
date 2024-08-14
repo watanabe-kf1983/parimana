@@ -1,4 +1,3 @@
-import { Table, TableBody, TableHead, TableRow, TableCell } from '@mui/material';
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 import { CandidatesProps } from '../types';
