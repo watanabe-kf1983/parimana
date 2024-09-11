@@ -46,8 +46,8 @@ export function Candidates(props: CandidatesProps) {
     return (
         <>
             <DataGrid autoHeight rows={rows} columns={columns}
-                disableColumnMenu={tableWidth > 800}
-                disableColumnSorting={tableWidth > 800}
+                disableColumnMenu={tableWidth < 800}
+                disableColumnSorting={tableWidth < 800}
                 density='compact' pageSizeOptions={[10, 25, 50]}
                 initialState={{
                     pagination: { paginationModel: { pageSize: 10 } },
