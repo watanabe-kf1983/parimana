@@ -9,8 +9,6 @@ services:
     volumes:
       - file-repo:/var/parimana/repo
       - ..:/workspace:cached
-    ports:
-      - "5001:5000"
     environment:
       REDIS_HOSTNAME: task-db
       REDIS_PORT: 6379
@@ -25,11 +23,6 @@ services:
       target: vscode-devcontainer
     volumes:
       - ..:/workspace:cached
-    ports:
-      - "5173:5173"
-      - "4173:4173"
-    environment:
-      API_PORT: 5001
     command: ["tail", "-f", "/dev/null"]
     restart: always
 

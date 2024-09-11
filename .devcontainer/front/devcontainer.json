@@ -7,12 +7,12 @@
 	],
 	"service": "front-dev",
 	"shutdownAction": "none",
-	"workspaceFolder": "/workspace/front"
+	"workspaceFolder": "/workspace/front",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [5173, 4173]
 
 	// Uncomment the next line to run commands after the container is created.
 	// "postCreateCommand": "cat /etc/os-release",
