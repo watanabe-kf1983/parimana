@@ -20,26 +20,22 @@ export function Candidates(props: CandidatesProps) {
     }));
 
     const columns: GridColDef[] = [
-        { field: 'eye', headerName: 'Betting', type: 'string', width: 80 },
+        { field: 'eye', headerName: 'Betting', type: 'string' },
         {
             field: 'type', headerName: 'Type', type: 'singleSelect',
             valueOptions: ['WIN', 'PLACE', 'SHOW', 'EXACTA', 'QUINELLA', 'WIDE', 'TRIFECTA', 'TRIO'],
-            width: 100 
-        },
-        {
-            field: 'odds', headerName: 'Odds', type: 'number',
-            valueFormatter: (value: number) => `${value.toFixed(1)}`,
-            width: 80
         },
         {
             field: 'chance', headerName: 'Chance', type: 'number',
             valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`,
-            width: 80
+        },
+        {
+            field: 'odds', headerName: 'Odds', type: 'number',
+            valueFormatter: (value: number) => `${value.toFixed(1)}`,
         },
         {
             field: 'expected', headerName: 'Expectation', type: 'number',
             valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`,
-            width: 100
         },
     ];
 
@@ -53,8 +49,8 @@ export function Candidates(props: CandidatesProps) {
                     pagination: { paginationModel: { pageSize: 10 } },
                 }}
                 columnVisibilityModel={{
-                    type: (tableWidth > 440),
-                    chance: (tableWidth > 340),
+                    type: (tableWidth > 500),
+                    odds: (tableWidth > 400),
                 }}
             // sx={{ maxWidth: '100%' }}
             // slots={{ toolbar: GridToolbar }}
