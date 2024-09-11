@@ -1,10 +1,14 @@
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 import { CandidatesProps } from '../types';
+import { useWindowSize } from '../hooks/useWindowSize';
 
 
 export function Candidates(props: CandidatesProps) {
 
+    const MAX_TABLE_WIDTH = 1000;
+    const FRAME_PADDING = 15;
+    const tableWidth = Math.min(useWindowSize() - FRAME_PADDING * 2, MAX_TABLE_WIDTH)
 
     const rows: GridRowsProp = props.data.map(rec => ({
         id: rec.eye.text,
@@ -15,35 +19,50 @@ export function Candidates(props: CandidatesProps) {
         expected: rec.expected
     }));
 
+    const isMobileDevice = () => {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    };
+
     const columns: GridColDef[] = [
-        { field: 'eye', headerName: 'Betting', type: 'string' },
+        { field: 'eye', headerName: 'Betting', type: 'string', width: 80 },
         {
             field: 'type', headerName: 'Type', type: 'singleSelect',
-            valueOptions: ['WIN', 'PLACE', 'SHOW', 'EXACTA', 'QUINELLA', 'WIDE', 'TRIFECTA', 'TRIO']
+            valueOptions: ['WIN', 'PLACE', 'SHOW', 'EXACTA', 'QUINELLA', 'WIDE', 'TRIFECTA', 'TRIO'],
+            width: 100 
         },
         {
             field: 'odds', headerName: 'Odds', type: 'number',
-            valueFormatter: (value: number) => `${value.toFixed(1)}`
+            valueFormatter: (value: number) => `${value.toFixed(1)}`,
+            width: 80
         },
         {
             field: 'chance', headerName: 'Chance', type: 'number',
-            valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`
+            valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`,
+            width: 80
         },
         {
             field: 'expected', headerName: 'Expectation', type: 'number',
-            valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`
+            valueFormatter: (value: number) => `${(value * 100).toFixed(2)}%`,
+            width: 100
         },
     ];
 
     return (
-        <div style={{ maxWidth: '100%' }}>
+        <>
             <DataGrid autoHeight rows={rows} columns={columns}
+                disableColumnMenu={!isMobileDevice()}
+                disableColumnSorting={!isMobileDevice()}
                 density='compact' pageSizeOptions={[10, 25, 50]}
                 initialState={{
                     pagination: { paginationModel: { pageSize: 10 } },
                 }}
+                columnVisibilityModel={{
+                    type: (tableWidth > 440),
+                    chance: (tableWidth > 340),
+                }}
+            // sx={{ maxWidth: '100%' }}
             // slots={{ toolbar: GridToolbar }}
             />
-        </div>
+        </>
     )
 }
