@@ -19,10 +19,6 @@ export function Candidates(props: CandidatesProps) {
         expected: rec.expected
     }));
 
-    const isMobileDevice = () => {
-        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    };
-
     const columns: GridColDef[] = [
         { field: 'eye', headerName: 'Betting', type: 'string', width: 80 },
         {
@@ -50,8 +46,8 @@ export function Candidates(props: CandidatesProps) {
     return (
         <>
             <DataGrid autoHeight rows={rows} columns={columns}
-                disableColumnMenu={!isMobileDevice()}
-                disableColumnSorting={!isMobileDevice()}
+                disableColumnMenu={tableWidth > 800}
+                disableColumnSorting={tableWidth > 800}
                 density='compact' pageSizeOptions={[10, 25, 50]}
                 initialState={{
                     pagination: { paginationModel: { pageSize: 10 } },
