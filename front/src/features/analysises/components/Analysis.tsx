@@ -4,6 +4,7 @@ import { AnalysisProps, AnalysisData } from '../types';
 import { Betting } from './Betting';
 import { PlotlyChart } from './PlotlyChart';
 import { Competences } from './Competences';
+import { Simulation } from './Simulation';
 import { getAnalysis } from '../api';
 
 export function Analysis(props: AnalysisProps) {
@@ -31,14 +32,10 @@ export function Analysis(props: AnalysisProps) {
           </Typography>
           <hr />
           <Typography variant="h5">
-            Estimated '{props.modelName}' model
+            In '{props.modelName}' model:
           </Typography>
           <Competences competences={analysis.competences} chart={analysis.model_box} />
-          <Typography variant="h6">
-            Simulation
-          </Typography>
-          <PlotlyChart chartJSON={analysis.odds_chance} />
-          <Betting raceId={props.raceId} modelName={props.modelName} />
+          <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />
         </>
         : <Typography variant="body1">
           Loading...

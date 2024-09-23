@@ -24,8 +24,8 @@ export type Recommend = { eye: Eye, odds: number, chance: number, expected: numb
 export type Competence = { contestant: string, mean: number, q1: number, q3: number, sd: number }
 
 export type BettingQueryProps = { raceId: string, modelName: string }
-
 export type RecommendProps = { data: Array<Recommend> }
+export type SimulationProps = { raceId: string, modelName: string, chart: string }
 
 export type Candidate = { eye: Eye, odds: number, chance: number, expected: number }
 export type CandidatesProps = { data: Array<Candidate> }

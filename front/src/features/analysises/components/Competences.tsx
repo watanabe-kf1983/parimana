@@ -39,7 +39,7 @@ export function Competences(props: CompetenceProps) {
     return (
         <>
             <Typography variant="h6">
-                Competence of contestants
+                Estimated competence of contestants
             </Typography>
             <Typography variant="h6">
             </Typography>
