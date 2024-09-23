@@ -3,6 +3,7 @@ import { Link, Typography } from '@mui/material';
 import { AnalysisProps, AnalysisData } from '../types';
 import { Betting } from './Betting';
 import { PlotlyChart } from './PlotlyChart';
+import { Competences } from './Competences';
 import { getAnalysis } from '../api';
 
 export function Analysis(props: AnalysisProps) {
@@ -32,10 +33,7 @@ export function Analysis(props: AnalysisProps) {
           <Typography variant="h5">
             Estimated '{props.modelName}' model
           </Typography>
-          <Typography variant="h6">
-            Competence of contestants
-          </Typography>
-          <PlotlyChart chartJSON={analysis.model_box} />
+          <Competences competences={analysis.competences} chart={analysis.model_box} />
           <Typography variant="h6">
             Simulation
           </Typography>
