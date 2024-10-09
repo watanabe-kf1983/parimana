@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, Typography } from '@mui/material';
 import { AnalysisProps, AnalysisData } from '../types';
-import { Betting } from './Betting';
-import { PlotlyChart } from './PlotlyChart';
 import { Competences } from './Competences';
 import { Simulation } from './Simulation';
 import { getAnalysis } from '../api';

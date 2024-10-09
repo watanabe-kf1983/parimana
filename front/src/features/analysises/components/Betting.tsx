@@ -18,7 +18,7 @@ export function Betting(props: BettingQueryProps) {
 
   return (
     <>
-      {/* <QuerySelector onSetQuery={setQuery} query={query} /> */}
+      <QuerySelector onSetQuery={setQuery} query={query} />
       <Candidates data={recs} />
     </>
   )
