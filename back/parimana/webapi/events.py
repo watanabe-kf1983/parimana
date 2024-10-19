@@ -12,26 +12,26 @@ def get_categories():
     return rt.get_categories()
 
 
-@router.get("/calendars")
-def get_calendar(
-    category_id: str = Query(min_length=1),
-) -> Mapping[datetime.date, Sequence[rt.MeetingDay]]:
+@router.get("/calendars/{category_id}")
+def get_calendar(category_id: str) -> Mapping[datetime.date, Sequence[rt.Course]]:
     return rt.get_calendar(rt.get_category(category_id))
 
 
 @router.get("/races")
 def get_races(
-    category_id: Optional[str] = Query(None),
     course_id: Optional[str] = Query(None),
     date: Optional[datetime.date] = Query(None),
     url: Optional[str] = Query(None),
 ) -> Sequence[rt.Race]:
-    md = rt.MeetingDay(
-        category=rt.get_category(category_id),
-        course=rt.get_course(course_id),
-        date=date,
-    )
-    return rt.get_races_by_meeting_day(md)
+    if url:
+        race = rt.find_race(url)
+        return [race] if race else []
+    else:
+        try:
+            return rt.get_races_by_course(course=rt.get_course(course_id), date=date)
+
+        except Exception:
+            return []
 
 
 @router.get("/races/{race_id}")

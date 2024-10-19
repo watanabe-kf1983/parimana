@@ -9,70 +9,60 @@ class Category(BaseModel):
     name: str
 
 
-categories = {
-    "01": Category(id="01", name="ボートレース"),
-    "02": Category(id="02", name="競馬(JRA)"),
-}
+categories = [
+    Category(id="1", name="ボートレース"),
+    Category(id="2", name="競馬(JRA)"),
+]
+
+category_dict = {c.id: c for c in categories}
 
 
 class Course(BaseModel):
     id: str
     name: str
-
-
-courses = {
-    "01": Course(id="01", name="桐生"),
-    "02": Course(id="02", name="府中"),
-}
-
-
-class MeetingDay(BaseModel):
     category: Category
-    course: Course
-    date: datetime.date
+
+
+courses = [
+    Course(id="101", name="桐生", category=category_dict["1"]),
+    Course(id="102", name="戸田", category=category_dict["1"]),
+    Course(id="201", name="府中", category=category_dict["2"]),
+    Course(id="202", name="中山", category=category_dict["2"]),
+]
+
+course_dict = {c.id: c for c in courses}
 
 
 class Race(BaseModel):
     id: str
     name: str
-    meeting_day: MeetingDay
+    date: datetime.date
+    course: Course
 
 
 def get_categories() -> Sequence[Category]:
-    return [v for k, v in categories.items()]
+    return categories
 
 
-def get_category(category_id: str) -> Optional[Category]:
-    return categories.get(category_id, None)
+def get_category(category_id: str) -> Category:
+    return category_dict[category_id]
 
 
-def get_course(course_id: str) -> Optional[Course]:
-    return courses.get(course_id, None)
+def get_course(course_id: str) -> Course:
+    return course_dict[course_id]
 
 
-def get_calendar(category: Category) -> Mapping[datetime.date, Sequence[MeetingDay]]:
-    if category.id == "01":
+def get_calendar(category: Category) -> Mapping[datetime.date, Sequence[Course]]:
+    if category.id == "1":
         d = datetime.date.today()
-        return {
-            d: [
-                MeetingDay(
-                    category=category,
-                    course=courses["01"],
-                    date=d,
-                )
-            ]
-        }
+        return {d: [get_course("101"), get_course("102")]}
     else:
-        return {}
+        return {d: [get_course("201"), get_course("202")]}
 
 
-def get_races_by_meeting_day(meeting_day: MeetingDay) -> Sequence[Race]:
+def get_races_by_course(course: Course, date: datetime.date) -> Sequence[Race]:
     return [
-        Race(
-            id=f"boatrace-20240901-1-{i+1}",
-            name=f"{i+1} R",
-            meeting_day=meeting_day,
-        )
+        Race(id=f"boatrace-20240901-1-{i+1}", name=f"{i+1}R", date=date, course=course)
         for i in range(12)
     ]
 
@@ -83,11 +73,5 @@ def find_race(url: str) -> Optional[Race]:
 
 def get_race(race_id: str) -> Race:
     return Race(
-        id=race_id,
-        name=race_id,
-        meeting_day=MeetingDay(
-            category=categories["01"],
-            course=courses["01"],
-            date=datetime.date.today(),
-        ),
+        id=race_id, name=race_id, date=datetime.date.today(), course=courses["101"]
     )
