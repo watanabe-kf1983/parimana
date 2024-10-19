@@ -3,7 +3,7 @@
 {
 	"name": "Python Container",
 	"dockerComposeFile": [
-		"../compose.yaml",
+		"../compose.yaml"
 	],
 	"service": "back-dev",
 	"shutdownAction": "none",
@@ -13,14 +13,25 @@
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [5000]
+	"forwardPorts": [5000],
 
 	// Uncomment the next line to run commands after the container is created.
 	// "postCreateCommand": "cat /etc/os-release",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
-
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+				"ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "ms-python.flake8",
+				"ms-python.debugpy",
+                "mhutchie.git-graph"
+            ]
+        }
+    }
 	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "devcontainer"
 }

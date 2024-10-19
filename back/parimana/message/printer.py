@@ -10,7 +10,7 @@ class Printer:
         if channel_id:
             try:
                 self.channel = Channel(channel_id).pingged()
-            except:
+            except Exception:
                 self.channel = None
 
     def mprint(self, message: str) -> None:

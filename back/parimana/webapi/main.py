@@ -3,12 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
 
-from parimana.webapi import router
-import parimana.app.realtime as rt
+import parimana.webapi.analyse as analyse
+import parimana.webapi.events as events
 
 app = FastAPI()
 
-app.include_router(router.router)
+app.include_router(analyse.router, prefix="/analyses", tags=["analysis"])
+app.include_router(events.router, prefix="/events", tags=["event"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,7 +18,7 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(rt.ResultNotExistError)
+@app.exception_handler(analyse.rt.ResultNotExistError)
 def not_exist_handler(request, exc):
     return PlainTextResponse(str(exc), status_code=404)
 

@@ -4,31 +4,35 @@ import { EventSourceManager } from "./eventSourceManager";
 
 const hostname = window.location.hostname
 const port = API_PORT;
-const baseUrl = `http://${hostname}:${port}`;
+const baseUrl = `http://${hostname}:${port}/analyses`;
 
 
-export async function getAnalysis(raceId: string, modelName: string) {
-    const response = await axios.get(`${baseUrl}/analysis/${raceId}/${modelName}`);
-    return response.data;
+export async function requestAnalyse(raceId: string) {
+    await axios.post(`${baseUrl}/${raceId}/start`);
 }
 
 export async function getAnalysisStatus(raceId: string): Promise<AnalysisStatus> {
-    const response = await axios.get(`${baseUrl}/analyse/status/${raceId}`);
+    const response = await axios.get(`${baseUrl}/${raceId}/status`);
+    return response.data;
+}
+
+export function getProgress(raceId: string) {
+    return new EventSourceManager(`${baseUrl}/${raceId}/progress`, "====END====", "====ABEND====");
+}
+
+export async function getAnalysis(raceId: string, modelName: string) {
+    const response = await axios.get(`${baseUrl}/${raceId}/${modelName}`);
     return response.data;
 }
 
 export async function getCandidates(raceId: string, modelName: string, query: string)
     : Promise<Array<Candidate>> {
-    const response = await axios.get(`${baseUrl}/candidates/${raceId}/${modelName}/${encodeURIComponent(serverQuery(query))}`);
+    const response = await axios.get(`${baseUrl}/${raceId}/${modelName}/candidates`, {
+        params: {
+            query: serverQuery(query)
+        }
+    });
     return response.data;
-}
-
-export async function requestAnalyse(raceId: string) {
-    await axios.post(`${baseUrl}/analyse/start/${raceId}`);
-}
-
-export function getProgress(raceId: string) {
-    return new EventSourceManager(`${baseUrl}/analyse/progress/${raceId}`, "====END====", "====ABEND====");
 }
 
 const serverQuery: (name: string) => string = (name) => {
