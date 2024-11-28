@@ -4,25 +4,36 @@ export type RaceSelectorProps = {
 };
 
 export type Category = { id: string; name: string };
-export type MeetingDay = { category: Category; course: Course; date: string };
+export type MeetingDay = {
+  category: Category;
+  course: Course;
+  date: string;
+};
 export type Course = { id: string; name: string };
-export type Calendar = Map<string, Course[]>;
-export type Race = { id: string; name: string; meeting_day: MeetingDay };
+export type Calendar = { [date: string]: { course: Course; races: Race[] }[] };
+export type Race = { id: string; name: string };
+export type RaceInfo = { id: string; name: string; meeting_day: MeetingDay };
 
 export type CategorySelectorProps = {
   value?: string;
-  items: Category[];
-  onSetCategoryId: (input: string) => void;
+  items?: Category[];
+  onChange: (input: string) => void;
 };
 
 export type DateSelectorProps = {
   value?: string;
-  items: string[];
-  onSetDate: (input: string) => void;
+  items?: string[];
+  onChange: (input: string) => void;
+};
+
+export type CourseSelectorProps = {
+  value?: string;
+  items?: Course[];
+  onChange: (input: string) => void;
 };
 
 export type RaceOnDaySelectorProps = {
-  raceId?: string;
-  races: Race[];
-  onSetRaceId: (input: string) => void;
+  value?: string;
+  items?: Race[];
+  onChange: (input: string) => void;
 };

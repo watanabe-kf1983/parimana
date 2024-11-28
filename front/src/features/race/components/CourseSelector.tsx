@@ -1,7 +1,7 @@
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { DateSelectorProps } from "../types";
+import { CourseSelectorProps } from "../types";
 
-export function DateSelector(props: DateSelectorProps) {
+export function CourseSelector(props: CourseSelectorProps) {
   const handleChange = (event: SelectChangeEvent) => {
     props.onChange(event.target.value);
   };
@@ -13,7 +13,7 @@ export function DateSelector(props: DateSelectorProps) {
         onChange={handleChange}
       >
         {props.items?.map((item) => (
-          <MenuItem value={item}>{item}</MenuItem>
+          <MenuItem value={item.id}>{item.name}</MenuItem>
         ))}
       </Select>
     </>

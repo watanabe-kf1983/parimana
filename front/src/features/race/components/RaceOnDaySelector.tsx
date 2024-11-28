@@ -1,7 +1,7 @@
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { CategorySelectorProps } from "../types";
+import { RaceOnDaySelectorProps } from "../types";
 
-export function CategorySelector(props: CategorySelectorProps) {
+export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
   const handleChange = (event: SelectChangeEvent) => {
     props.onChange(event.target.value);
   };
@@ -9,8 +9,8 @@ export function CategorySelector(props: CategorySelectorProps) {
   return (
     <>
       <Select value={props.value} onChange={handleChange}>
-        {props.items?.map((item) => (
-          <MenuItem value={item.id}>{item.name}</MenuItem>
+        {props.items?.map((race) => (
+          <MenuItem value={race.id}>{race.name}</MenuItem>
         ))}
       </Select>
     </>

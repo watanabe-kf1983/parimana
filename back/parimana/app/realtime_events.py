@@ -1,4 +1,7 @@
 import datetime
+from itertools import groupby
+from operator import attrgetter
+import re
 from typing import Mapping, Optional, Sequence
 
 from pydantic import BaseModel
@@ -9,12 +12,12 @@ class Category(BaseModel):
     name: str
 
 
-categories = [
-    Category(id="1", name="ボートレース"),
-    Category(id="2", name="競馬(JRA)"),
+category_list = [
+    Category(id="b", name="ボートレース"),
+    Category(id="h", name="競馬"),
 ]
 
-category_dict = {c.id: c for c in categories}
+category_dict = {c.id: c for c in category_list}
 
 
 class Course(BaseModel):
@@ -22,15 +25,23 @@ class Course(BaseModel):
     name: str
     category: Category
 
+    @classmethod
+    def of(cls, cat_id, id, name) -> "Course":
+        return cls(id=id, name=name, category=category_dict[cat_id])
 
-courses = [
-    Course(id="101", name="桐生", category=category_dict["1"]),
-    Course(id="102", name="戸田", category=category_dict["1"]),
-    Course(id="201", name="府中", category=category_dict["2"]),
-    Course(id="202", name="中山", category=category_dict["2"]),
+
+course_list = [
+    Course.of("b", "01", name="桐生"),
+    Course.of("b", "02", name="戸田"),
+    Course.of("h", "03", name="府中"),
+    Course.of("h", "04", name="中山"),
 ]
 
-course_dict = {c.id: c for c in courses}
+course_dict = {cr.id: cr for cr in course_list}
+
+cat_course_dict = {
+    cat.id: list(crs) for cat, crs in groupby(course_list, key=attrgetter("category"))
+}
 
 
 class Race(BaseModel):
@@ -41,7 +52,7 @@ class Race(BaseModel):
 
 
 def get_categories() -> Sequence[Category]:
-    return categories
+    return category_list
 
 
 def get_category(category_id: str) -> Category:
@@ -52,26 +63,57 @@ def get_course(course_id: str) -> Course:
     return course_dict[course_id]
 
 
-def get_calendar(category: Category) -> Mapping[datetime.date, Sequence[Course]]:
-    if category.id == "1":
-        d = datetime.date.today()
-        return {d: [get_course("101"), get_course("102")]}
+class DaySchedules(BaseModel):
+    course: Course
+    races: Sequence[Race]
+
+
+def get_calendar(
+    cat: Category,
+) -> Mapping[datetime.date, Sequence[DaySchedules]]:
+    return {
+        d: [
+            DaySchedules(
+                course=course,
+                races=[
+                    Race(
+                        id=f"{cat.id}{d:%Y%m%d}-{course.id}-{n:02}",
+                        name=f"{n:02}R",
+                        date=d,
+                        course=course,
+                    )
+                    for n in range(1, 13)
+                ],
+            )
+            for course in cat_course_dict[cat.id]
+        ]
+        for d in [
+            datetime.date.today() + datetime.timedelta(days=i) for i in range(-2, 2)
+        ]
+    }
+
+
+RACE_ID_PATTERN: re.Pattern = re.compile(
+    r"(?P<cat_id>.)(?P<date>[0-9]{8})-(?P<cr_id>[0-9A-Z]{2})-(?P<no>[0-9]{2})"
+)
+
+
+def from_id(race_id: str) -> Optional[Race]:
+    if m := re.fullmatch(RACE_ID_PATTERN, race_id):
+        parsed = m.groupdict()
+        return Race(
+            id=race_id,
+            name=f"{parsed['no']}R",
+            date=datetime.datetime.strptime(parsed["date"], "%Y%m%d").date(),
+            course=course_dict[parsed["cr_id"]],
+        )
     else:
-        return {d: [get_course("201"), get_course("202")]}
-
-
-def get_races_by_course(course: Course, date: datetime.date) -> Sequence[Race]:
-    return [
-        Race(id=f"boatrace-20240901-1-{i+1}", name=f"{i+1}R", date=date, course=course)
-        for i in range(12)
-    ]
+        return None
 
 
 def find_race(url: str) -> Optional[Race]:
     return None
 
 
-def get_race(race_id: str) -> Race:
-    return Race(
-        id=race_id, name=race_id, date=datetime.date.today(), course=courses["101"]
-    )
+def get_race(race_id: str) -> Optional[Race]:
+    return from_id(race_id)

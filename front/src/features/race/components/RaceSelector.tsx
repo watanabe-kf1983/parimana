@@ -1,65 +1,121 @@
-import { useState } from "react";
-import { TextField } from "@mui/material";
-import { RaceSelectorProps } from "../types";
+import { useEffect, useState } from "react";
+import { TextField, Typography } from "@mui/material";
+import useSWR from "swr";
+
+import { Calendar, Category, RaceInfo, RaceSelectorProps } from "../types";
 import { CategorySelector } from "./CategorySelector";
 import { DateSelector } from "./DateSelector";
+import { RaceOnDaySelector } from "./RaceOnDaySelector";
+import { CourseSelector } from "./CourseSelector";
+import * as api from "../api";
 
-const getCategories = () => [
-  { id: "1", name: "boat" },
-  { id: "2", name: "horse" },
-];
+const fetchCategories = async (_params: any): Promise<Category[]> => {
+  return await api.getCategories();
+};
 
-const getDates = (catId: string) => [`2024-0${catId}-01`, `2024-0${catId}-02`];
+const fetchCalendar = async (params: {
+  categoryId?: string;
+  additionalRace?: RaceInfo;
+}): Promise<Calendar | undefined> => {
+  if (params.categoryId) {
+    return await api.getCalendar(params.categoryId);
+  } else {
+    return undefined;
+  }
+};
 
-const getCourses = (catId: string, date: string) =>
-  catId === "1"
-    ? [
-        { id: "101", name: "Kiryu" },
-        { id: "102", name: "Toda" },
-      ]
-    : [
-        { id: "201", name: "Fuchu" },
-        { id: "202", name: "Nakayama" },
-      ];
+const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
+  if (raceId) {
+    return await api.getRaceInfo(raceId);
+  } else {
+    return undefined;
+  }
+};
 
 export function RaceSelector(props: RaceSelectorProps) {
-  const [raceId, setRaceId] = useState(props.raceId);
-  const [catId, setCatId] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const selectRace = () => {
-    props.onSetRaceId(raceId);
+  const [raceId, setRaceId] = useState<string>(props.raceId);
+  const [categoryId, setCategoryId] = useState<string | undefined>();
+  const [date, setDate] = useState<string | undefined>();
+  const [courseId, setCourseId] = useState<string | undefined>();
+  const [raceInfo, setRaceInfo] = useState<RaceInfo | undefined>();
+
+  useEffect(() => {
+    const getRI = async () => {
+      const ri = await fetchRaceInfo(props.raceId);
+      setRaceInfo(ri);
+      setCategoryId(ri?.meeting_day.category.id);
+      setDate(ri?.meeting_day.date);
+      setCourseId(ri?.meeting_day.course.id);
+    };
+    getRI();
+  }, [props.raceId]);
+
+  const categoryItems = useSWR<Category[] | undefined>(
+    "x",
+    fetchCategories
+  ).data;
+  const calendar = useSWR<Calendar | undefined>(
+    { categoryId, additionalRace: raceInfo },
+    fetchCalendar
+  ).data;
+
+  const dateItems = calendar ? Object.keys(calendar) : undefined;
+  const courseItems =
+    calendar && date ? calendar[date].map((o) => o.course) : undefined;
+  const raceItems =
+    calendar && date && courseId
+      ? calendar[date].find((o) => o.course.id === courseId)?.races
+      : undefined;
+
+  const onChangeCategoryId = (cid: string) => {
+    setCategoryId(cid);
+    setDate(undefined);
+    setCourseId(undefined);
+    setRaceId("");
   };
-  const selectCategory = (c: string) => {
-    setCatId(c);
-    setDate(getDates(c)[0]);
-  };
-  const selectDate = (d: string) => {
+  const onChangeDate = (d: string) => {
     setDate(d);
+    setCourseId(undefined);
+    setRaceId("");
+  };
+  const onChangeCourseId = (cid: string) => {
+    setCourseId(cid);
+    setRaceId("");
   };
 
   return (
     <>
       <CategorySelector
-        value={catId}
-        items={getCategories()}
-        onSetCategoryId={selectCategory}
+        value={categoryId}
+        items={categoryItems}
+        onChange={onChangeCategoryId}
       />
-      <DateSelector
-        value={date}
-        items={getDates(catId)}
-        onSetDate={selectDate}
+      <DateSelector value={date} items={dateItems} onChange={onChangeDate} />
+      <CourseSelector
+        value={courseId}
+        items={courseItems}
+        onChange={onChangeCourseId}
       />
-      <TextField
+      <RaceOnDaySelector
+        value={raceId}
+        items={raceItems}
+        onChange={(rid) => {
+          setRaceId(rid);
+          props.onSetRaceId(rid);
+        }}
+      />
+      {raceId}
+      {/* <TextField
         sx={{ width: "30ch" }}
         value={raceId}
         onChange={(e) => setRaceId(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            selectRace();
+            props.onSetRaceId(raceId);
           }
         }}
-        onBlur={selectRace}
-      />
+        onBlur={() => props.onSetRaceId(raceId)}
+      /> */}
     </>
   );
 }

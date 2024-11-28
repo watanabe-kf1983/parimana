@@ -13,7 +13,9 @@ def get_categories():
 
 
 @router.get("/calendars/{category_id}")
-def get_calendar(category_id: str) -> Mapping[datetime.date, Sequence[rt.Course]]:
+def get_calendar(
+    category_id: str,
+) -> Mapping[datetime.date, Sequence[rt.DaySchedules]]:
     return rt.get_calendar(rt.get_category(category_id))
 
 
