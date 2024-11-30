@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Category, Race, Calendar, RaceInfo } from "../types";
+import { Category, RaceInfo, Calendar } from "../types";
 
 const hostname = window.location.hostname;
 const port = API_PORT;
@@ -15,7 +15,9 @@ export async function getCalendar(categoryId: string): Promise<Calendar> {
   return response.data;
 }
 
-export async function findRaceByUri(uri: String): Promise<Race | undefined> {
+export async function findRaceByUri(
+  uri: String
+): Promise<RaceInfo | undefined> {
   const response = await axios.get(`${baseUrl}/races`, {
     params: {
       uri: uri,

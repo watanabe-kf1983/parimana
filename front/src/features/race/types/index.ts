@@ -4,15 +4,19 @@ export type RaceSelectorProps = {
 };
 
 export type Category = { id: string; name: string };
-export type MeetingDay = {
+export type Course = {
+  id: string;
+  name: string;
+  category: Category;
+};
+export type Fixture = {
   category: Category;
   course: Course;
   date: string;
 };
-export type Course = { id: string; name: string };
-export type Calendar = { [date: string]: { course: Course; races: Race[] }[] };
-export type Race = { id: string; name: string };
-export type RaceInfo = { id: string; name: string; meeting_day: MeetingDay };
+export type RaceInfo = { id: string; name: string; fixture: Fixture };
+export type RaceSchedule = { course: Course; races: RaceInfo[] };
+export type Calendar = { [date: string]: RaceSchedule[] };
 
 export type CategorySelectorProps = {
   value?: string;
@@ -34,6 +38,6 @@ export type CourseSelectorProps = {
 
 export type RaceOnDaySelectorProps = {
   value?: string;
-  items?: Race[];
+  items?: RaceInfo[];
   onChange: (input: string) => void;
 };

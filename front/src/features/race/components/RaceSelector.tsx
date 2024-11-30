@@ -43,9 +43,9 @@ export function RaceSelector(props: RaceSelectorProps) {
     const getRI = async () => {
       const ri = await fetchRaceInfo(props.raceId);
       setRaceInfo(ri);
-      setCategoryId(ri?.meeting_day.category.id);
-      setDate(ri?.meeting_day.date);
-      setCourseId(ri?.meeting_day.course.id);
+      setCategoryId(ri?.fixture.category.id);
+      setDate(ri?.fixture.date);
+      setCourseId(ri?.fixture.course.id);
     };
     getRI();
   }, [props.raceId]);
@@ -74,9 +74,9 @@ export function RaceSelector(props: RaceSelectorProps) {
     setRaceId("");
   };
   const onChangeDate = (d: string) => {
-    setDate(d);
     setCourseId(undefined);
     setRaceId("");
+    setDate(d);
   };
   const onChangeCourseId = (cid: string) => {
     setCourseId(cid);
@@ -104,7 +104,6 @@ export function RaceSelector(props: RaceSelectorProps) {
           props.onSetRaceId(rid);
         }}
       />
-      {raceId}
       {/* <TextField
         sx={{ width: "30ch" }}
         value={raceId}

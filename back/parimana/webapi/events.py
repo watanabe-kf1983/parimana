@@ -15,7 +15,7 @@ def get_categories():
 @router.get("/calendars/{category_id}")
 def get_calendar(
     category_id: str,
-) -> Mapping[datetime.date, Sequence[rt.DaySchedules]]:
+) -> Mapping[datetime.date, Sequence[rt.RaceSchedule]]:
     return rt.get_calendar(rt.get_category(category_id))
 
 
@@ -24,7 +24,7 @@ def get_races(
     course_id: Optional[str] = Query(None),
     date: Optional[datetime.date] = Query(None),
     url: Optional[str] = Query(None),
-) -> Sequence[rt.Race]:
+) -> Sequence[rt.RaceInfo]:
     if url:
         race = rt.find_race(url)
         return [race] if race else []
@@ -37,5 +37,5 @@ def get_races(
 
 
 @router.get("/races/{race_id}")
-def get_race(race_id: str) -> rt.Race:
+def get_race(race_id: str) -> rt.RaceInfo:
     return rt.get_race(race_id)
