@@ -21,7 +21,6 @@ const fetchCategories = async (_params: any): Promise<Category[]> => {
 
 const fetchCalendar = async (params: {
   categoryId?: string;
-  additionalRace?: RaceInfo;
 }): Promise<Calendar | undefined> => {
   if (params.categoryId) {
     return await api.getCalendar(params.categoryId);
@@ -48,10 +47,12 @@ export function RaceSelector(props: RaceSelectorProps) {
   useEffect(() => {
     const getRI = async () => {
       const ri = await fetchRaceInfo(props.raceId);
-      setRaceInfo(ri);
-      setCategoryId(ri?.fixture.category.id);
-      setDate(ri?.fixture.date);
-      setCourseId(ri?.fixture.course.id);
+      if (ri) {
+        setRaceInfo(ri);
+        setCategoryId(ri.fixture.category.id);
+        setDate(ri.fixture.date);
+        setCourseId(ri.fixture.course.id);
+      }
     };
     getRI();
   }, [props.raceId]);
@@ -60,9 +61,9 @@ export function RaceSelector(props: RaceSelectorProps) {
     "x",
     fetchCategories
   ).data;
-  
+
   const calendar = useSWR<Calendar | undefined>(
-    { categoryId, additionalRace: raceInfo },
+    { categoryId },
     fetchCalendar
   ).data;
 
@@ -84,7 +85,7 @@ export function RaceSelector(props: RaceSelectorProps) {
     if (calendar) {
       Object.keys(calendar).forEach((date) => set.add(date));
     }
-    if (raceInfo) {
+    if (raceInfo && raceInfo.fixture.category.id === categoryId) {
       set.add(raceInfo.fixture.date);
     }
     return Array.from(set).sort();
@@ -95,7 +96,11 @@ export function RaceSelector(props: RaceSelectorProps) {
     if (calendar && date) {
       calendar[date]?.forEach((schedule) => items.push(schedule.course));
     }
-    if (raceInfo) {
+    if (
+      raceInfo &&
+      raceInfo.fixture.category.id === categoryId &&
+      raceInfo.fixture.date === date
+    ) {
       if (!items.find((c) => c.id === raceInfo.fixture.course.id)) {
         items.push(raceInfo.fixture.course);
       }
@@ -110,7 +115,12 @@ export function RaceSelector(props: RaceSelectorProps) {
         ?.find((o) => o.course.id === courseId)
         ?.races.forEach((r) => items.push(r));
     }
-    if (raceInfo) {
+    if (
+      raceInfo &&
+      raceInfo.fixture.category.id === categoryId &&
+      raceInfo.fixture.date === date &&
+      raceInfo.fixture.course.id == courseId
+    ) {
       if (!items.find((r) => r.id === raceInfo.id)) {
         items.push(raceInfo);
       }
