@@ -47,7 +47,7 @@ def _odds_page_uri(race: BoatRace, btype: BettingType) -> str:
     return (
         "https://www.boatrace.jp/owpc/pc/race/"
         f"odds{btype_to_code(btype)}?"
-        f"rno={race.race_no}&jcd={race.cource:02}&hd={race.date}"
+        f"rno={race.race_no}&jcd={race.jo_code}&hd={race.date:%Y%m%d}"
     )
 
 

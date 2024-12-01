@@ -1,24 +1,25 @@
 from dataclasses import dataclass
-from datetime import datetime
+import datetime
+import re
 from typing import Optional
 
 from parimana.race.base import Race, RaceSource
-from parimana.race.boatrace.race_id import RaceIdElements
+
+
+RACE_ID_PATTERN: re.Pattern = re.compile(
+    r"bt(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
+)
 
 
 @dataclass
 class BoatRace(Race):
-    date: str
-    cource: int
+    date: datetime.date
+    jo_code: str
     race_no: int
 
     @property
     def race_id(self) -> str:
-        return RaceIdElements(
-            date=datetime.strptime(self.date, "%Y%m%d").date(),
-            course_id=self.cource,
-            race_no=self.race_no,
-        ).generate_id()
+        return f"bt{self.date:%Y%m%d}{self.jo_code}{self.race_no:02}"
 
     @property
     def source(self) -> RaceSource:
@@ -27,14 +28,18 @@ class BoatRace(Race):
         return BoatRaceSource(self)
 
     @classmethod
-    def from_id(cls, race_id: str) -> Optional[Race]:
+    def from_id(cls, race_id: str) -> Optional["BoatRace"]:
 
-        if elements := RaceIdElements.parse_from_id(race_id):
-            return BoatRace(
-                date=elements.date.strftime("%Y%m%d"),
-                cource=elements.course_id,
-                race_no=elements.race_no,
-            )
+        if m := re.fullmatch(RACE_ID_PATTERN, race_id):
+            parsed = m.groupdict()
+            try:
+                return cls(
+                    date=datetime.datetime.strptime(parsed["date"], "%Y%m%d").date(),
+                    jo_code=parsed["jo_code"],
+                    race_no=int(parsed["race_no"]),
+                )
+            except Exception:
+                return None
 
         else:
             return None
