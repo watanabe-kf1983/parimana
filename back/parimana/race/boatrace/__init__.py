@@ -1,4 +1,4 @@
 from parimana.race.boatrace.race import BoatRace
-from parimana.race.boatrace.fixture import boatCategory
+from parimana.race.boatrace.fixture import BoatRaceCategory
 
-__all__ = ["BoatRace", "boatCategory"]
+__all__ = ["BoatRace", "BoatRaceCategory"]

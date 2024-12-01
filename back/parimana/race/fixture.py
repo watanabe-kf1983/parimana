@@ -5,10 +5,21 @@ from datetime import date
 
 
 @dataclass
-class Category:
-    id: str
-    name: str
-    fixture_source: "FixtureSource"
+class Category(ABC):
+    @property
+    @abstractmethod
+    def id(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def fixture_source(self) -> "FixtureSource":
+        pass
 
 
 @dataclass
