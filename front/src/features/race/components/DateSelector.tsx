@@ -8,10 +8,7 @@ export function DateSelector(props: DateSelectorProps) {
 
   return (
     <>
-      <Select
-        value={props.value}
-        onChange={handleChange}
-      >
+      <Select value={props.value} key={props.value} onChange={handleChange}>
         {props.items?.map((item) => (
           <MenuItem value={item}>{item}</MenuItem>
         ))}

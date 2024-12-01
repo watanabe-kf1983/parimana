@@ -8,7 +8,7 @@ export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
 
   return (
     <>
-      <Select value={props.value} onChange={handleChange}>
+      <Select value={props.value} key={props.value} onChange={handleChange}>
         {props.items?.map((race) => (
           <MenuItem value={race.id}>{race.name}</MenuItem>
         ))}

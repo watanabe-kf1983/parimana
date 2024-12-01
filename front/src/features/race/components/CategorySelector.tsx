@@ -8,7 +8,7 @@ export function CategorySelector(props: CategorySelectorProps) {
 
   return (
     <>
-      <Select value={props.value} onChange={handleChange}>
+      <Select value={props.value} key={props.value} onChange={handleChange}>
         {props.items?.map((item) => (
           <MenuItem value={item.id}>{item.name}</MenuItem>
         ))}
