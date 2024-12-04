@@ -5,9 +5,11 @@ import itertools
 from typing import Mapping, Optional, Sequence
 
 
-from parimana.race.boatrace.fixture import BoatRaceCategory
+from parimana.race.boatrace.fixture import BoatRaceCategory, BoatRaceJo
 from parimana.race.boatrace.race import BoatRace
-from parimana.race.fixture import Course, Fixture, FixtureSource, RaceInfo, RaceSchedule
+from parimana.race.fixture import Fixture, FixtureSource, RaceInfo, RaceSchedule
+import parimana.race.boatrace.browse as browser
+import parimana.race.boatrace.extract_schedule as ext
 
 
 @dataclass
@@ -30,6 +32,23 @@ class BoatFixtureSource(FixtureSource):
             )
         }
 
+    def scrape_calendar2(
+        self, date_from: Optional[date] = None, date_to: Optional[date] = None
+    ) -> Mapping[date, Sequence[RaceSchedule]]:
+
+        date_from = date_from or (datetime.date.today() + datetime.timedelta(days=-2))
+        date_to = date_to or datetime.date.today()
+        return {
+            date: [_scrape_schedule(date, jo) for jo in _scrape_joes(date)]
+            for date in itertools.takewhile(
+                lambda d: d <= date_to,
+                (date_from + datetime.timedelta(days=n) for n in itertools.count()),
+            )
+        }
+
+    def test(self):
+        print(self.scrape_calendar2())
+
     def find_race_info(cls, race_id: str) -> Optional[RaceInfo]:
         if race := BoatRace.from_id(race_id):
             return RaceInfo(
@@ -45,15 +64,30 @@ class BoatFixtureSource(FixtureSource):
             return None
 
 
-@dataclass
-class BoatRaceJo:
-    jo_code: str
-    name: str
+def _scrape_joes(date: datetime.date) -> Sequence[BoatRaceJo]:
+    idx_page = browser.browse_day_index(date)
+    return ext.extract_joes(idx_page)
 
-    def to_fixture_course(self):
-        return Course(
-            id=f"bj{self.jo_code}", name=self.name, category=BoatRaceCategory()
-        )
+
+def _scrape_schedule(date: datetime.date, boat_jo: BoatRaceJo):
+    fixture = Fixture(
+        category=BoatRaceCategory(), date=date, course=boat_jo.to_fixture_course()
+    )
+    jo_page = browser.browse_schedule(date, boat_jo.jo_code)
+    s_races = ext.extract_races(jo_page)
+    return RaceSchedule(
+        fixture=fixture,
+        races=[
+            RaceInfo(
+                race_id=BoatRace(
+                    date=date, jo_code=boat_jo.jo_code, race_no=sr.race_no
+                ).race_id,
+                name=sr.name,
+                fixture=fixture,
+            )
+            for sr in s_races
+        ],
+    )
 
 
 def generate_boat_jo_map() -> Mapping[str, BoatRaceJo]:
@@ -97,3 +131,7 @@ def _create_schedule(date: date, boat_jo: BoatRaceJo):
             for race_no in range(1, 13)
         ],
     )
+
+
+if __name__ == "__main__":
+    BoatFixtureSource().test()
