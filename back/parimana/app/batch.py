@@ -1,6 +1,7 @@
+import datetime
 from enum import Enum
 import time
-from typing import Sequence
+from typing import Mapping, Sequence
 from functools import wraps
 import traceback
 
@@ -10,6 +11,7 @@ from parimana.analyse import analysers, AnalysisResult
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
 from parimana.race import Race, RaceOddsPool, RaceSelector
+from parimana.race.fixture import Category, RaceSchedule
 from parimana.repository import FileRepository
 import parimana.message as msg
 
@@ -63,6 +65,23 @@ def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
             odds_pool = race.source.scrape_odds_pool()
             repo.save_odds_pool(odds_pool)
         return odds_pool
+
+
+# @app.task
+# def get_schedule(*, cat: Category) -> Mapping[datetime.date, Sequence[RaceSchedule]]:
+#     odds_pool = repo.load_latest_odds_pool(race)
+
+#     if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
+#         return odds_pool
+#     else:
+#         timestamp = race.source.scrape_odds_timestamp()
+#         if (not odds_pool) or odds_pool.timestamp < timestamp:
+#             odds_pool = race.source.scrape_odds_pool()
+#             repo.save_odds_pool(odds_pool)
+#         return odds_pool
+
+
+
 
 
 @app.task
