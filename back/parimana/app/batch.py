@@ -10,7 +10,7 @@ from celery import Celery, chain, group
 from parimana.analyse import analysers, AnalysisResult
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
-from parimana.race import Race, RaceOddsPool, RaceSelector
+from parimana.race import Race, RaceOddsPool, RaceSelector, CategorySelector
 from parimana.race.fixture import Category, RaceSchedule
 from parimana.repository import FileRepository
 import parimana.message as msg
@@ -42,7 +42,7 @@ def with_race_channel(func):
         with msg.set_printer(channel_id) as p:
             try:
                 return func(*args, **kwargs)
-            except Exception as e:
+            except Exception:
                 p.mprint("ERROR occurred:")
                 stack_trace = traceback.format_exc()
                 p.mprint(stack_trace)
@@ -50,6 +50,39 @@ def with_race_channel(func):
                 raise
 
     return wrapper
+
+
+# def with_channel(channel_id: str):
+
+#     def with_channel_w(func):
+#         @wraps(func)
+#         def wrapper(*args, **kwargs):
+
+#             with msg.set_printer(channel_id) as p:
+#                 try:
+#                     return func(*args, **kwargs)
+#                 except Exception:
+#                     p.mprint("ERROR occurred:")
+#                     stack_trace = traceback.format_exc()
+#                     p.mprint(stack_trace)
+#                     raise
+
+#         return wrapper
+
+#     return with_channel_w
+
+
+@app.task
+def get_schedule(*, cat: Category) -> Mapping[datetime.date, Sequence[RaceSchedule]]:
+
+    schedule = repo.load_schedule(cat)
+
+    if schedule and (datetime.date.today() in schedule):
+        return schedule
+    else:
+        schedule = cat.fixture_source.scrape_calendar()
+        repo.save_schedule(cat, schedule)
+        return schedule
 
 
 @app.task
@@ -65,23 +98,6 @@ def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
             odds_pool = race.source.scrape_odds_pool()
             repo.save_odds_pool(odds_pool)
         return odds_pool
-
-
-# @app.task
-# def get_schedule(*, cat: Category) -> Mapping[datetime.date, Sequence[RaceSchedule]]:
-#     odds_pool = repo.load_latest_odds_pool(race)
-
-#     if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
-#         return odds_pool
-#     else:
-#         timestamp = race.source.scrape_odds_timestamp()
-#         if (not odds_pool) or odds_pool.timestamp < timestamp:
-#             odds_pool = race.source.scrape_odds_pool()
-#             repo.save_odds_pool(odds_pool)
-#         return odds_pool
-
-
-
 
 
 @app.task
@@ -162,3 +178,9 @@ def main():
 
 def run_worker():
     app.worker_main(argv=["worker", "-P", "threads", "--loglevel=info"])
+
+
+if __name__ == "__main__":
+    cat = CategorySelector.select("bt")
+    sc = get_schedule.s(cat=cat).apply().get()
+    print(sc)

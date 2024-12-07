@@ -1,9 +1,12 @@
 import datetime
 from typing import Mapping, Optional, Sequence
 
+from parimana.repository.file_repository import FileRepository
 from pydantic import BaseModel
 
 import parimana.race as rc
+
+repo = FileRepository()
 
 
 class Category(BaseModel):
@@ -80,9 +83,10 @@ def get_calendar(
 ) -> Mapping[datetime.date, Sequence[RaceSchedule]]:
 
     rc_cat = rc.CategorySelector.select(cat.id)
+    calendar = repo.load_schedule(rc_cat)
     return {
         date: [RaceSchedule.from_base(sc) for sc in schedules]
-        for date, schedules in rc_cat.fixture_source.scrape_calendar().items()
+        for date, schedules in calendar.items()
     }
 
 

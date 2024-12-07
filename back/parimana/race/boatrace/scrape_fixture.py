@@ -15,24 +15,10 @@ import parimana.race.boatrace.extract_schedule as ext
 @dataclass
 class BoatFixtureSource(FixtureSource):
 
+
+
+
     def scrape_calendar(
-        self, date_from: Optional[date] = None, date_to: Optional[date] = None
-    ) -> Mapping[date, Sequence[RaceSchedule]]:
-
-        date_from = date_from or (datetime.date.today() + datetime.timedelta(days=-2))
-        date_to = date_to or (datetime.date.today() + datetime.timedelta(days=2))
-        return {
-            date: [
-                _create_schedule(date=date, boat_jo=boat_jo)
-                for boat_jo in _boat_jo_map.values()
-            ]
-            for date in itertools.takewhile(
-                lambda d: d < date_to,
-                (date_from + datetime.timedelta(days=n) for n in itertools.count()),
-            )
-        }
-
-    def scrape_calendar2(
         self, date_from: Optional[date] = None, date_to: Optional[date] = None
     ) -> Mapping[date, Sequence[RaceSchedule]]:
 
@@ -46,8 +32,6 @@ class BoatFixtureSource(FixtureSource):
             )
         }
 
-    def test(self):
-        print(self.scrape_calendar2())
 
     def find_race_info(cls, race_id: str) -> Optional[RaceInfo]:
         if race := BoatRace.from_id(race_id):
@@ -131,7 +115,3 @@ def _create_schedule(date: date, boat_jo: BoatRaceJo):
             for race_no in range(1, 13)
         ],
     )
-
-
-if __name__ == "__main__":
-    BoatFixtureSource().test()

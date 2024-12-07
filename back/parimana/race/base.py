@@ -1,31 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, date
-from enum import Enum, auto
+from datetime import datetime
 from functools import total_ordering
 from typing import Optional
 
 from parimana.base import OddsPool
-
-
-class Category(Enum):
-    HORSE = auto()
-    BOAT = auto()
-    KEIRIN = auto()
-    MOTORBIKE = auto()
-
-
-@dataclass
-class Course:
-    id: str
-    name: str
-
-
-@dataclass
-class MeetingDay:
-    category: Category
-    course: Course
-    date: date
 
 
 class Race(ABC):

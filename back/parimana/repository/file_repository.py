@@ -1,17 +1,21 @@
+import datetime
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
 import pickle
-from typing import Optional
+from typing import Mapping, Optional, Sequence
 
 import plotly.io as pio
 
 from parimana.message import mprint
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
+from parimana.race.fixture import Category, RaceSchedule
 from parimana.analyse import AnalysisCharts
+
 
 def repository_path() -> Path:
     return Path(os.getenv("FILE_REPO_PATH", ".output"))
+
 
 @dataclass(frozen=True)
 class FileRepository:
@@ -67,6 +71,20 @@ class FileRepository:
         else:
             return None
 
+    def save_schedule(
+        self,
+        cat: Category,
+        schedule: Mapping[datetime.date, Sequence[RaceSchedule]],
+    ):
+        dir_ = self._cat_dir(cat)
+        write_as_pickle(dir_ / "schedule.pickle", schedule)
+
+    def load_schedule(
+        self, cat: Category
+    ) -> Optional[Mapping[datetime.date, Sequence[RaceSchedule]]]:
+        dir_ = self._cat_dir(cat)
+        return read_pickle(dir_ / "schedule.pickle")
+
     def _race_dir(self, race: Race) -> Path:
         dir_ = self.root_path / race.race_id
         dir_.mkdir(exist_ok=True, parents=True)
@@ -79,6 +97,11 @@ class FileRepository:
 
     def _result_dir(self, race: Race, ts: OddsTimeStamp, model: str) -> Path:
         dir_ = self._op_dir(race, ts) / model
+        dir_.mkdir(exist_ok=True, parents=True)
+        return dir_
+
+    def _cat_dir(self, cat: Category) -> Path:
+        dir_ = self.root_path / "cat" / cat.id
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_
 
