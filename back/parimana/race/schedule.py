@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Sequence
 from datetime import date
+from zoneinfo import ZoneInfo
 
 
 @dataclass
@@ -19,6 +20,11 @@ class Category(ABC):
     @property
     @abstractmethod
     def schedule_source(self) -> "ScheduleSource":
+        pass
+
+    @property
+    @abstractmethod
+    def timezone(self) -> ZoneInfo:
         pass
 
 

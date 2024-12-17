@@ -1,3 +1,3 @@
-from parimana.race.boatrace.base import BoatRace, BoatRaceCategory
+from parimana.race.boatrace.base import BoatRace, category_boat
 
-__all__ = ["BoatRace", "BoatRaceCategory"]
+__all__ = ["BoatRace", "category_boat"]

@@ -1,11 +1,11 @@
 from typing import Collection, Sequence, Type
 from parimana.race.base import Race
-from parimana.race.boatrace import BoatRace, BoatRaceCategory
+from parimana.race.boatrace import BoatRace, category_boat
 from parimana.race.schedule import Category, RaceInfo
 from parimana.race.netkeiba.race import NetKeibaRace
 
 _race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
-_categories: Sequence[Category] = [BoatRaceCategory()]
+_categories: Sequence[Category] = [category_boat]
 
 
 class CategorySelector:

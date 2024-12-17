@@ -1,6 +1,5 @@
 from typing import Mapping, Sequence
 from datetime import datetime
-from zoneinfo import ZoneInfo
 import re
 
 from bs4 import BeautifulSoup, Tag
@@ -8,12 +7,11 @@ import numpy as np
 
 from parimana.base import BettingType, Eye, Odds
 from parimana.race.base import OddsTimeStamp
+from parimana.race.boatrace.base import category_boat
 
 UPDATE_PATTERN: re.Pattern = re.compile(
     r"\s*オッズ更新時間\s*(?P<time>[0-9]{1,2}:[0-9]{2})\s*"
 )
-
-jst = ZoneInfo("Asia/Tokyo")
 
 
 def extract_timestamp(html: str) -> OddsTimeStamp:
@@ -22,9 +20,10 @@ def extract_timestamp(html: str) -> OddsTimeStamp:
         return OddsTimeStamp.confirmed()
 
     elif m := re.fullmatch(UPDATE_PATTERN, text):
-        today = datetime.now(jst).date()
+        tz = category_boat.timezone
+        today = datetime.now(tz).date()
         time = datetime.strptime(m.group("time"), "%H:%M")
-        dt = datetime.combine(today, time.time(), jst)
+        dt = datetime.combine(today, time.time(), tz)
         return OddsTimeStamp(dt)
 
     else:

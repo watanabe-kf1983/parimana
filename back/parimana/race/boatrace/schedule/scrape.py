@@ -5,14 +5,14 @@ from typing import Sequence
 
 
 from parimana.race.schedule import Fixture, ScheduleSource, RaceInfo
-from parimana.race.boatrace.base import BoatRace
+from parimana.race.boatrace.base import BoatRace, category_boat
 from parimana.race.boatrace.schedule.base import BoatRaceJo
 import parimana.race.boatrace.schedule.browse as browser
 import parimana.race.boatrace.schedule.extract as ext
 
 
 @dataclass
-class BoatScheduleSource(ScheduleSource):
+class _BoatScheduleSource(ScheduleSource):
 
     def scrape_day_schedule(self, date: date) -> Sequence[RaceInfo]:
         return [
@@ -20,8 +20,11 @@ class BoatScheduleSource(ScheduleSource):
         ]
 
     def scrape_calendar(self) -> Sequence[date]:
-        today = datetime.date.today()
+        today = datetime.now(category_boat.timezone).date()
         return [today + datetime.timedelta(days=n) for n in range(0, -2, -1)]
+
+
+schedule_source = _BoatScheduleSource()
 
 
 def _scrape_joes(date: datetime.date) -> Sequence[BoatRaceJo]:

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from parimana.race.schedule import Course
-from parimana.race.boatrace.base import BoatRaceCategory
+from parimana.race.boatrace.base import category_boat
 
 
 @dataclass
@@ -10,6 +10,4 @@ class BoatRaceJo:
     name: str
 
     def to_course(self):
-        return Course(
-            id=f"bj{self.jo_code}", name=self.name, category=BoatRaceCategory()
-        )
+        return Course(id=f"bj{self.jo_code}", name=self.name, category=category_boat)

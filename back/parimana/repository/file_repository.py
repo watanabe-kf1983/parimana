@@ -78,12 +78,16 @@ class FileRepository:
     ):
         dir_ = self._cat_dir(cat)
         write_as_pickle(
-            dir_ / f"calendar{datetime.date.today():%Y%m%d}.pickle", calendar
+            dir_
+            / f"calendar{datetime.datetime.now(cat.timezone).date():%Y%m%d}.pickle",
+            calendar,
         )
 
     def load_calendar(self, cat: Category) -> Optional[Sequence[datetime.date]]:
         dir_ = self._cat_dir(cat)
-        return read_pickle(dir_ / f"calendar{datetime.date.today():%Y%m%d}.pickle")
+        return read_pickle(
+            dir_ / f"calendar{datetime.datetime.now(cat.timezone).date():%Y%m%d}.pickle"
+        )
 
     def save_schedule(
         self,

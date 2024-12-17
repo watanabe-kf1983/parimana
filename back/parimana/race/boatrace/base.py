@@ -2,12 +2,15 @@ from dataclasses import dataclass
 import datetime
 import re
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from parimana.race.base import Race, OddsSource
 from parimana.race.schedule import Category, ScheduleSource
 
+_boat_timezone = ZoneInfo("Asia/Tokyo")
 
-class BoatRaceCategory(Category):
+
+class _CategoryBoatRace(Category):
     @property
     def id(self) -> str:
         return "bt"
@@ -18,12 +21,18 @@ class BoatRaceCategory(Category):
 
     @property
     def schedule_source(self) -> ScheduleSource:
-        from parimana.race.boatrace.schedule.scrape import BoatScheduleSource
+        from parimana.race.boatrace.schedule.scrape import schedule_source
 
-        return BoatScheduleSource()
+        return schedule_source
+
+    @property
+    def timezone(self) -> ZoneInfo:
+        return _boat_timezone
 
 
-RACE_ID_PATTERN: re.Pattern = re.compile(
+category_boat = _CategoryBoatRace()
+
+_RACE_ID_PATTERN: re.Pattern = re.compile(
     r"bt(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
 )
 
@@ -47,7 +56,7 @@ class BoatRace(Race):
     @classmethod
     def from_id(cls, race_id: str) -> Optional["BoatRace"]:
 
-        if m := re.fullmatch(RACE_ID_PATTERN, race_id):
+        if m := re.fullmatch(_RACE_ID_PATTERN, race_id):
             parsed = m.groupdict()
             try:
                 return cls(
