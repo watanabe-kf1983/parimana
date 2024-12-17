@@ -12,8 +12,8 @@ from parimana.base import BettingType
 from parimana.message import mprint
 from parimana.driver.chrome import headless_chrome
 from parimana.driver.modest import ModestFunction
-from parimana.race.netkeiba.btype import btype_to_code, supported_types
-from parimana.race.netkeiba.race import NetKeibaRace
+from parimana.race.netkeiba.odds.btype import btype_to_code, supported_types
+from parimana.race.netkeiba.base import NetKeibaRace
 
 modestly = ModestFunction(interval=timedelta(seconds=1.5))
 

@@ -15,7 +15,7 @@ class NetKeibaRace(Race):
 
     @property
     def odds_source(self) -> OddsSource:
-        from parimana.race.netkeiba.scrape import NetKeibaSource
+        from parimana.race.netkeiba.odds.scrape import NetKeibaSource
 
         return NetKeibaSource(self)
 

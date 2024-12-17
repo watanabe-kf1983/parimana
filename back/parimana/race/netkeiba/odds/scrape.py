@@ -9,14 +9,14 @@ from parimana.race.base import (
     RaceOddsPool,
     OddsSource,
 )
-from parimana.race.netkeiba.data import ratio_data_derby
-from parimana.race.netkeiba.browse import (
+from parimana.race.netkeiba.base import NetKeibaRace
+from parimana.race.netkeiba.odds.data import ratio_data_derby
+from parimana.race.netkeiba.odds.extract import extract_odds, extract_timestamp
+from parimana.race.netkeiba.odds.browse import (
     browse_odds_pages,
     browse_for_odds_timestamp,
     get_source_uri,
 )
-from parimana.race.netkeiba.extract import extract_odds, extract_timestamp
-from parimana.race.netkeiba.race import NetKeibaRace
 
 
 @dataclass
