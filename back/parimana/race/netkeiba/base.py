@@ -1,8 +1,36 @@
 from dataclasses import dataclass
 import re
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from parimana.race.base import Race, OddsSource
+from parimana.race.schedule import Category, ScheduleSource
+
+
+_keiba_timezone = ZoneInfo("Asia/Tokyo")
+
+
+class _CategoryNetKeiba(Category):
+    @property
+    def id(self) -> str:
+        return "hr"
+
+    @property
+    def name(self) -> str:
+        return "競馬"
+
+    @property
+    def schedule_source(self) -> ScheduleSource:
+        from parimana.race.netkeiba.schedule.scrape import schedule_source
+
+        return schedule_source
+
+    @property
+    def timezone(self) -> ZoneInfo:
+        return _keiba_timezone
+
+
+category_keiba = _CategoryNetKeiba()
 
 
 @dataclass
@@ -11,7 +39,7 @@ class NetKeibaRace(Race):
 
     @property
     def race_id(self) -> str:
-        return f"netkeiba-{self.netkeiba_race_id}"
+        return f"hr{self.netkeiba_race_id}"
 
     @property
     def odds_source(self) -> OddsSource:
@@ -21,10 +49,10 @@ class NetKeibaRace(Race):
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional[Race]:
-        if m := re.fullmatch(RACE_ID_PATTERN, race_id):
+        if m := re.fullmatch(_RACE_ID_PATTERN, race_id):
             return NetKeibaRace(**m.groupdict())
         else:
             return None
 
 
-RACE_ID_PATTERN: re.Pattern = re.compile(r"netkeiba-(?P<netkeiba_race_id>[0-9]{12})")
+_RACE_ID_PATTERN: re.Pattern = re.compile(r"hr(?P<netkeiba_race_id>[0-9]{12})")

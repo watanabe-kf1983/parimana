@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Iterator, Tuple
 
 from selenium.webdriver.common.by import By
@@ -10,12 +9,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.base import BettingType
 from parimana.message import mprint
-from parimana.driver.chrome import headless_chrome
-from parimana.driver.modest import ModestFunction
 from parimana.race.netkeiba.odds.btype import btype_to_code, supported_types
 from parimana.race.netkeiba.base import NetKeibaRace
-
-modestly = ModestFunction(interval=timedelta(seconds=1.5))
+from parimana.race.netkeiba.browser import driver, modestly
 
 
 def get_source_uri(race: NetKeibaRace) -> str:
@@ -23,7 +19,6 @@ def get_source_uri(race: NetKeibaRace) -> str:
 
 
 def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
-    driver: WebDriver = headless_chrome()
 
     _get_page(driver, race, BettingType.WIN)
     update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
@@ -33,8 +28,6 @@ def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
 
 
 def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
-    driver: WebDriver = headless_chrome()
-
     for btype in supported_types:
         pages = _browse_odds_by_btype(driver, race, btype)
 

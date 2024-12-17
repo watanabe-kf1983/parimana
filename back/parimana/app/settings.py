@@ -34,8 +34,8 @@ def _arg_parser() -> argparse.ArgumentParser:
         "race_id",
         type=str,
         help=(
-            "'boatrace-{YYYYMMDD}-{JCD}-{RACE_NO}' or 'netkeiba-{NETKEIBA_RACE_ID}' \n"
-            "  (ex: boatrace-20230531-1-12, netkeiba-202305021211)"
+            "'bt{YYYYMMDD}{JCD}{RACE_NO}' or 'hr{NETKEIBA_RACE_ID}' \n"
+            "  (ex: bt202305310112, hr202305021211)"
         ),
     )
     parser.add_argument(

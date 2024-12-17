@@ -193,6 +193,6 @@ def run_worker():
 
 
 if __name__ == "__main__":
-    cat = CategorySelector.select("bt")
-    sc = get_schedule.s(cat=cat).apply().get()
-    print(sc)
+    for cat in CategorySelector.all():
+        sc = get_schedule.s(cat=cat).apply().get()
+        print(sc)

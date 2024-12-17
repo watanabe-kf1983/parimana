@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import date
 import datetime
 from typing import Sequence
@@ -11,7 +10,6 @@ import parimana.race.boatrace.schedule.browse as browser
 import parimana.race.boatrace.schedule.extract as ext
 
 
-@dataclass
 class _BoatScheduleSource(ScheduleSource):
 
     def scrape_day_schedule(self, date: date) -> Sequence[RaceInfo]:
@@ -20,7 +18,7 @@ class _BoatScheduleSource(ScheduleSource):
         ]
 
     def scrape_calendar(self) -> Sequence[date]:
-        today = datetime.now(category_boat.timezone).date()
+        today = datetime.datetime.now(category_boat.timezone).date()
         return [today + datetime.timedelta(days=n) for n in range(0, -2, -1)]
 
 
