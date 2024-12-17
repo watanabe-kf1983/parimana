@@ -9,7 +9,7 @@ import plotly.io as pio
 
 from parimana.message import mprint
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
-from parimana.race.fixture import Category, RaceSchedule
+from parimana.race.schedule import Category, RaceSchedule
 from parimana.analyse import AnalysisCharts
 
 

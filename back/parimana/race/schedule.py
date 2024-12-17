@@ -18,7 +18,7 @@ class Category(ABC):
 
     @property
     @abstractmethod
-    def fixture_source(self) -> "FixtureSource":
+    def schedule_source(self) -> "ScheduleSource":
         pass
 
 
@@ -54,9 +54,9 @@ class RaceSchedule:
     races: Sequence[RaceInfo]
 
 
-class FixtureSource(ABC):
+class ScheduleSource(ABC):
     @abstractmethod
-    def scrape_calendar(
+    def scrape(
         self, date_from: Optional[date] = None, date_to: Optional[date] = None
     ) -> Mapping[date, Sequence[RaceSchedule]]:
         pass

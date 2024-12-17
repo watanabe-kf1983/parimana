@@ -7,7 +7,7 @@ from parimana.race.base import (
     OddsTimeStamp,
     OddsUpdatedException,
     RaceOddsPool,
-    RaceSource,
+    OddsSource,
 )
 from parimana.race.netkeiba.data import ratio_data_derby
 from parimana.race.netkeiba.browse import (
@@ -20,14 +20,14 @@ from parimana.race.netkeiba.race import NetKeibaRace
 
 
 @dataclass
-class NetKeibaSource(RaceSource):
+class NetKeibaSource(OddsSource):
     race: NetKeibaRace
 
     def scrape_odds_pool(self) -> RaceOddsPool:
         return scrape_odds_pool(self.race)
 
-    def scrape_odds_timestamp(self) -> OddsTimeStamp:
-        return scrape_odds_timestamp(self.race)
+    def scrape_timestamp(self) -> OddsTimeStamp:
+        return scrape_timestamp(self.race)
 
     def get_uri(self) -> str:
         return get_source_uri(self.race)
@@ -43,7 +43,7 @@ def scrape_odds_pool(race: NetKeibaRace) -> RaceOddsPool:
     )
 
 
-def scrape_odds_timestamp(race: NetKeibaRace) -> OddsTimeStamp:
+def scrape_timestamp(race: NetKeibaRace) -> OddsTimeStamp:
     return extract_timestamp(browse_for_odds_timestamp(race))
 
 
@@ -61,7 +61,7 @@ def attempt_collect_odds(
     race: NetKeibaRace,
 ) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
     odds: dict[Eye, Odds] = {}
-    timestamp = scrape_odds_timestamp(race)
+    timestamp = scrape_timestamp(race)
 
     for content, btype in browse_odds_pages(race):
         if extract_timestamp(content) != timestamp:

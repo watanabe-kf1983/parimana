@@ -11,7 +11,7 @@ from parimana.analyse import analysers, AnalysisResult
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
 from parimana.race import Race, RaceOddsPool, RaceSelector, CategorySelector
-from parimana.race.fixture import Category, RaceSchedule
+from parimana.race.schedule import Category, RaceSchedule
 from parimana.repository import FileRepository
 import parimana.message as msg
 
@@ -80,7 +80,7 @@ def get_schedule(*, cat: Category) -> Mapping[datetime.date, Sequence[RaceSchedu
     if schedule and (datetime.date.today() in schedule):
         return schedule
     else:
-        schedule = cat.fixture_source.scrape_calendar()
+        schedule = cat.schedule_source.scrape()
         repo.save_schedule(cat, schedule)
         return schedule
 
@@ -93,9 +93,9 @@ def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
     if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
         return odds_pool
     else:
-        timestamp = race.source.scrape_odds_timestamp()
+        timestamp = race.odds_source.scrape_timestamp()
         if (not odds_pool) or odds_pool.timestamp < timestamp:
-            odds_pool = race.source.scrape_odds_pool()
+            odds_pool = race.odds_source.scrape_odds_pool()
             repo.save_odds_pool(odds_pool)
         return odds_pool
 

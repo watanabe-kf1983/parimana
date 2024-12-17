@@ -4,12 +4,12 @@ from fastapi.responses import PlainTextResponse
 import uvicorn
 
 import parimana.webapi.analyse as analyse
-import parimana.webapi.events as events
+import parimana.webapi.schedule as schedule
 
 app = FastAPI()
 
 app.include_router(analyse.router, prefix="/analyses", tags=["analysis"])
-app.include_router(events.router, prefix="/events", tags=["event"])
+app.include_router(schedule.router, prefix="/schedule", tags=["schedule"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

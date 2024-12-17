@@ -95,7 +95,7 @@ class Result(BaseModel):
         return Result(
             eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
             competences=Competence.from_abilities(charts.result.model.abilities),
-            source_uri=race.source.get_uri(),
+            source_uri=race.odds_source.get_uri(),
             odds_update_time=ost.long_str(),
             odds_chance=charts.odds_chance,
             model_box=charts.model_box,

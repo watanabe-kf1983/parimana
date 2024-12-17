@@ -1,17 +1,14 @@
 from dataclasses import dataclass
 from typing import Optional, Sequence
 import datetime
-from zoneinfo import ZoneInfo
 import re
 
 from bs4 import BeautifulSoup, Tag
 
-from parimana.race.boatrace.fixture import BoatRaceJo
+from parimana.race.boatrace.schedule.base import BoatRaceJo
 
 IMG_JO_CODE_PATTERN: re.Pattern = re.compile(r"text_place1_(?P<jo_code>[0-9]{2})\.png")
 RACE_NO_PATTERN: re.Pattern = re.compile(r"rno=(?P<race_no>[0-9]{1,2})")
-
-jst = ZoneInfo("Asia/Tokyo")
 
 
 @dataclass
@@ -52,9 +49,7 @@ def extract_races(schedule_page_html: str) -> Sequence[SimpleRaceInfo]:
 def _extract_race_from_tr(tr: Tag) -> Optional[SimpleRaceInfo]:
     race_anchor = tr.select_one("td:nth-child(1) > a")
     race_name = race_anchor.get_text(strip=True)
-    race_no = int(
-        re.search(RACE_NO_PATTERN, race_anchor.get("href")).group("race_no")
-    )
+    race_no = int(re.search(RACE_NO_PATTERN, race_anchor.get("href")).group("race_no"))
     closing_time_text = tr.select_one("td:nth-child(2)").get_text(strip=True)
     closing_time = datetime.datetime.strptime(closing_time_text, "%H:%M").time()
     return SimpleRaceInfo(race_no, race_name, closing_time)

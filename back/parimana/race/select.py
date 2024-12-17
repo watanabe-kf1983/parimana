@@ -1,7 +1,7 @@
 from typing import Collection, Sequence, Type
 from parimana.race.base import Race
 from parimana.race.boatrace import BoatRace, BoatRaceCategory
-from parimana.race.fixture import Category, RaceInfo
+from parimana.race.schedule import Category, RaceInfo
 from parimana.race.netkeiba.race import NetKeibaRace
 
 _race_types: Collection[Type[Race]] = [BoatRace, NetKeibaRace]
@@ -33,8 +33,8 @@ class RaceSelector:
         raise ValueError(f"race_id: {race_id} is illegal")
 
     def race_info(race_id: str) -> RaceInfo:
-        for fixture_source in (cat.fixture_source for cat in CategorySelector.all()):
-            if found := fixture_source.find_race_info(race_id):
+        for schedule_source in (cat.schedule_source for cat in CategorySelector.all()):
+            if found := schedule_source.find_race_info(race_id):
                 return found
 
         raise ValueError(f"race_id: {race_id} is illegal")

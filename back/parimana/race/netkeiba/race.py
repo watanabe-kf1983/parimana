@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import re
 from typing import Optional
 
-from parimana.race.base import Race, RaceSource
+from parimana.race.base import Race, OddsSource
 
 
 @dataclass
@@ -14,7 +14,7 @@ class NetKeibaRace(Race):
         return f"netkeiba-{self.netkeiba_race_id}"
 
     @property
-    def source(self) -> RaceSource:
+    def odds_source(self) -> OddsSource:
         from parimana.race.netkeiba.scrape import NetKeibaSource
 
         return NetKeibaSource(self)

@@ -7,27 +7,28 @@ from parimana.race.base import (
     OddsTimeStamp,
     OddsUpdatedException,
     RaceOddsPool,
-    RaceSource,
+    OddsSource,
 )
-from parimana.race.boatrace.race import BoatRace
-from parimana.race.boatrace.data import ratio_data
-from parimana.race.boatrace.browse import (
+
+from parimana.race.boatrace.base import BoatRace
+from parimana.race.boatrace.odds.data import ratio_data
+from parimana.race.boatrace.odds.browse import (
     browse_odds_pages,
-    browse_for_odds_timestamp,
+    browse_for_timestamp,
     get_source_uri,
 )
-from parimana.race.boatrace.extract import extract_odds, extract_timestamp
+from parimana.race.boatrace.odds.extract import extract_odds, extract_timestamp
 
 
 @dataclass
-class BoatRaceSource(RaceSource):
+class BoatRaceSource(OddsSource):
     race: BoatRace
 
     def scrape_odds_pool(self) -> RaceOddsPool:
         return scrape_odds_pool(self.race)
 
-    def scrape_odds_timestamp(self) -> OddsTimeStamp:
-        return scrape_odds_timestamp(self.race)
+    def scrape_timestamp(self) -> OddsTimeStamp:
+        return scrape_timestamp(self.race)
 
     def get_uri(self) -> str:
         return get_source_uri(self.race)
@@ -43,8 +44,8 @@ def scrape_odds_pool(race: BoatRace) -> RaceOddsPool:
     )
 
 
-def scrape_odds_timestamp(race: BoatRace) -> OddsTimeStamp:
-    return extract_timestamp(browse_for_odds_timestamp(race))
+def scrape_timestamp(race: BoatRace) -> OddsTimeStamp:
+    return extract_timestamp(browse_for_timestamp(race))
 
 
 def collect_odds(race: BoatRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
@@ -60,7 +61,7 @@ def attempt_collect_odds(
     race: BoatRace, attempt: str
 ) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
     odds: dict[Eye, Odds] = {}
-    timestamp = scrape_odds_timestamp(race)
+    timestamp = scrape_timestamp(race)
 
     for content, btype in browse_odds_pages(race, attempt):
         if extract_timestamp(content) != timestamp:

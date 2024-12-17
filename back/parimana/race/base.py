@@ -15,7 +15,7 @@ class Race(ABC):
 
     @property
     @abstractmethod
-    def source(self) -> "RaceSource":
+    def odds_source(self) -> "OddsSource":
         pass
 
     @classmethod
@@ -24,13 +24,13 @@ class Race(ABC):
         pass
 
 
-class RaceSource(ABC):
+class OddsSource(ABC):
     @abstractmethod
     def scrape_odds_pool(self) -> "RaceOddsPool":
         pass
 
     @abstractmethod
-    def scrape_odds_timestamp(self) -> "OddsTimeStamp":
+    def scrape_timestamp(self) -> "OddsTimeStamp":
         pass
 
     @abstractmethod

@@ -3,7 +3,24 @@ import datetime
 import re
 from typing import Optional
 
-from parimana.race.base import Race, RaceSource
+from parimana.race.base import Race, OddsSource
+from parimana.race.schedule import Category, ScheduleSource
+
+
+class BoatRaceCategory(Category):
+    @property
+    def id(self) -> str:
+        return "bt"
+
+    @property
+    def name(self) -> str:
+        return "ボートレース"
+
+    @property
+    def schedule_source(self) -> ScheduleSource:
+        from parimana.race.boatrace.schedule.scrape import BoatScheduleSource
+
+        return BoatScheduleSource()
 
 
 RACE_ID_PATTERN: re.Pattern = re.compile(
@@ -22,8 +39,8 @@ class BoatRace(Race):
         return f"bt{self.date:%Y%m%d}{self.jo_code}{self.race_no:02}"
 
     @property
-    def source(self) -> RaceSource:
-        from parimana.race.boatrace.scrape import BoatRaceSource
+    def odds_source(self) -> OddsSource:
+        from parimana.race.boatrace.odds.scrape import BoatRaceSource
 
         return BoatRaceSource(self)
 

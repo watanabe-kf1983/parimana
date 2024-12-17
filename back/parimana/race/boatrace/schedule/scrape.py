@@ -5,20 +5,17 @@ import itertools
 from typing import Mapping, Optional, Sequence
 
 
-from parimana.race.boatrace.fixture import BoatRaceCategory, BoatRaceJo
-from parimana.race.boatrace.race import BoatRace
-from parimana.race.fixture import Fixture, FixtureSource, RaceInfo, RaceSchedule
-import parimana.race.boatrace.browse as browser
-import parimana.race.boatrace.extract_schedule as ext
+from parimana.race.schedule import Fixture, ScheduleSource, RaceInfo, RaceSchedule
+from parimana.race.boatrace.base import BoatRace, BoatRaceCategory
+from parimana.race.boatrace.schedule.base import BoatRaceJo
+import parimana.race.boatrace.schedule.browse as browser
+import parimana.race.boatrace.schedule.extract as ext
 
 
 @dataclass
-class BoatFixtureSource(FixtureSource):
+class BoatScheduleSource(ScheduleSource):
 
-
-
-
-    def scrape_calendar(
+    def scrape(
         self, date_from: Optional[date] = None, date_to: Optional[date] = None
     ) -> Mapping[date, Sequence[RaceSchedule]]:
 
@@ -32,7 +29,6 @@ class BoatFixtureSource(FixtureSource):
             )
         }
 
-
     def find_race_info(cls, race_id: str) -> Optional[RaceInfo]:
         if race := BoatRace.from_id(race_id):
             return RaceInfo(
@@ -40,7 +36,7 @@ class BoatFixtureSource(FixtureSource):
                 name=f"{race.race_no:02}R",
                 fixture=Fixture(
                     category=BoatRaceCategory(),
-                    course=_boat_jo_map[race.jo_code].to_fixture_course(),
+                    course=_boat_jo_map[race.jo_code].to_course(),
                     date=race.date,
                 ),
             )

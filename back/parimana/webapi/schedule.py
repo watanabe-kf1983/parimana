@@ -2,7 +2,7 @@ import datetime
 from typing import Mapping, Optional, Sequence
 from fastapi import APIRouter, Query
 
-import parimana.app.realtime_events as rt
+import parimana.app.realtime_schedule as rt
 
 router = APIRouter()
 
