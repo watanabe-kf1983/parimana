@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Mapping, Optional, Sequence
+from typing import Sequence
 from datetime import date
 
 
@@ -35,7 +35,6 @@ class Fixture:
     開催日
     """
 
-    category: Category
     course: Course
     date: date
 
@@ -48,19 +47,11 @@ class RaceInfo:
     fixture: Fixture
 
 
-@dataclass
-class RaceSchedule:
-    fixture: Fixture
-    races: Sequence[RaceInfo]
-
-
 class ScheduleSource(ABC):
     @abstractmethod
-    def scrape(
-        self, date_from: Optional[date] = None, date_to: Optional[date] = None
-    ) -> Mapping[date, Sequence[RaceSchedule]]:
+    def scrape_day_schedule(self, date: date) -> Sequence[RaceInfo]:
         pass
 
     @abstractmethod
-    def find_race_info(cls, race_id: str) -> Optional[RaceInfo]:
+    def scrape_calendar(self) -> Sequence[date]:
         pass

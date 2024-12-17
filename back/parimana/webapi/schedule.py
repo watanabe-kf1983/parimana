@@ -1,5 +1,4 @@
-import datetime
-from typing import Mapping, Optional, Sequence
+from typing import Optional, Sequence
 from fastapi import APIRouter, Query
 
 import parimana.app.realtime_schedule as rt
@@ -12,17 +11,9 @@ def get_categories():
     return rt.get_categories()
 
 
-@router.get("/calendars/{category_id}")
-def get_calendar(
-    category_id: str,
-) -> Mapping[datetime.date, Sequence[rt.RaceSchedule]]:
-    return rt.get_calendar(rt.get_category(category_id))
-
-
-@router.get("/races")
+@router.get("/races/")
 def get_races(
-    course_id: Optional[str] = Query(None),
-    date: Optional[datetime.date] = Query(None),
+    category_id: Optional[str] = Query(None),
     url: Optional[str] = Query(None),
 ) -> Sequence[rt.RaceInfo]:
     if url:
@@ -30,7 +21,7 @@ def get_races(
         return [race] if race else []
     else:
         try:
-            return rt.get_races_by_course(course=rt.get_course(course_id), date=date)
+            return rt.get_schedule(cat=rt.get_category(category_id))
 
         except Exception:
             return []

@@ -1,6 +1,6 @@
 from parimana.race.select import RaceSelector, CategorySelector
 from parimana.race.base import Race, RaceOddsPool, OddsTimeStamp
-from parimana.race.schedule import Category, Fixture, Course, RaceInfo, RaceSchedule
+from parimana.race.schedule import Category, Fixture, Course, RaceInfo
 
 __all__ = [
     "Race",
@@ -12,5 +12,4 @@ __all__ = [
     "Fixture",
     "Course",
     "RaceInfo",
-    "RaceSchedule",
 ]

@@ -1,6 +1,7 @@
 import datetime
-from typing import Mapping, Optional, Sequence
+from typing import Optional, Sequence
 
+from parimana.app.realtime import ResultNotExistError
 from parimana.repository.file_repository import FileRepository
 from pydantic import BaseModel
 
@@ -31,14 +32,12 @@ class Course(BaseModel):
 
 
 class Fixture(BaseModel):
-    category: Category
     course: Course
     date: datetime.date
 
     @classmethod
     def from_base(cls, fixture: rc.Fixture):
         return cls(
-            category=Category.from_base(fixture.category),
             course=Course.from_base(fixture.course),
             date=fixture.date,
         )
@@ -58,18 +57,6 @@ class RaceInfo(BaseModel):
         )
 
 
-class RaceSchedule(BaseModel):
-    course: Course
-    races: Sequence[RaceInfo]
-
-    @classmethod
-    def from_base(cls, schedule: rc.RaceSchedule):
-        return cls(
-            course=Course.from_base(schedule.fixture.course),
-            races=[RaceInfo.from_base(race) for race in schedule.races],
-        )
-
-
 def get_categories() -> Sequence[Category]:
     return [Category.from_base(cat) for cat in rc.CategorySelector.all()]
 
@@ -78,16 +65,16 @@ def get_category(category_id: str) -> Category:
     return Category.from_base(rc.CategorySelector.select(category_id))
 
 
-def get_calendar(
+def get_schedule(
     cat: Category,
-) -> Mapping[datetime.date, Sequence[RaceSchedule]]:
+) -> Sequence[RaceInfo]:
 
     rc_cat = rc.CategorySelector.select(cat.id)
-    calendar = repo.load_schedule(rc_cat)
-    return {
-        date: [RaceSchedule.from_base(sc) for sc in schedules]
-        for date, schedules in calendar.items()
-    }
+    return [
+        RaceInfo.from_base(race_info)
+        for date in (repo.load_calendar(rc_cat) or [])
+        for race_info in (repo.load_schedule(rc_cat, date) or [])
+    ]
 
 
 def find_race(url: str) -> Optional[RaceInfo]:
@@ -95,4 +82,7 @@ def find_race(url: str) -> Optional[RaceInfo]:
 
 
 def get_race(race_id: str) -> RaceInfo:
-    return RaceInfo.from_base(rc.RaceSelector.race_info(race_id))
+    if race_info := repo.load_race_info(race_id):
+        return RaceInfo.from_base(race_info)
+    else:
+        raise ResultNotExistError(f"{race_id} not found")

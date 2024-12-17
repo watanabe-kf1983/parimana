@@ -1,7 +1,6 @@
-import datetime
 from enum import Enum
 import time
-from typing import Mapping, Sequence
+from typing import Sequence
 from functools import wraps
 import traceback
 
@@ -11,7 +10,7 @@ from parimana.analyse import analysers, AnalysisResult
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
 from parimana.race import Race, RaceOddsPool, RaceSelector, CategorySelector
-from parimana.race.schedule import Category, RaceSchedule
+from parimana.race.schedule import Category, RaceInfo
 from parimana.repository import FileRepository
 import parimana.message as msg
 
@@ -73,16 +72,29 @@ def with_race_channel(func):
 
 
 @app.task
-def get_schedule(*, cat: Category) -> Mapping[datetime.date, Sequence[RaceSchedule]]:
+def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
 
-    schedule = repo.load_schedule(cat)
+    source = cat.schedule_source
 
-    if schedule and (datetime.date.today() in schedule):
-        return schedule
-    else:
-        schedule = cat.schedule_source.scrape()
-        repo.save_schedule(cat, schedule)
-        return schedule
+    calendar = repo.load_calendar(cat)
+    if not calendar:
+        calendar = source.scrape_calendar()
+        repo.save_calendar(cat=cat, calendar=calendar)
+
+    all_schedule: Sequence[RaceInfo] = []
+
+    for date in calendar:
+        day_schedule = repo.load_schedule(cat, date)
+
+        if day_schedule is None:
+            day_schedule = source.scrape_day_schedule(date)
+            repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
+            for race_info in day_schedule:
+                repo.save_race_info(race_info)
+
+        all_schedule.extend(day_schedule)
+
+    return all_schedule
 
 
 @app.task

@@ -3,13 +3,13 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 import pickle
-from typing import Mapping, Optional, Sequence
+from typing import Optional, Sequence
 
 import plotly.io as pio
 
 from parimana.message import mprint
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
-from parimana.race.schedule import Category, RaceSchedule
+from parimana.race.schedule import Category, RaceInfo
 from parimana.analyse import AnalysisCharts
 
 
@@ -71,19 +71,45 @@ class FileRepository:
         else:
             return None
 
+    def save_calendar(
+        self,
+        cat: Category,
+        calendar: Sequence[datetime.date],
+    ):
+        dir_ = self._cat_dir(cat)
+        write_as_pickle(
+            dir_ / f"calendar{datetime.date.today():%Y%m%d}.pickle", calendar
+        )
+
+    def load_calendar(self, cat: Category) -> Optional[Sequence[datetime.date]]:
+        dir_ = self._cat_dir(cat)
+        return read_pickle(dir_ / f"calendar{datetime.date.today():%Y%m%d}.pickle")
+
     def save_schedule(
         self,
         cat: Category,
-        schedule: Mapping[datetime.date, Sequence[RaceSchedule]],
+        date: datetime.date,
+        schedule: Sequence[RaceInfo],
     ):
         dir_ = self._cat_dir(cat)
-        write_as_pickle(dir_ / "schedule.pickle", schedule)
+        write_as_pickle(dir_ / f"{date:%Y%m%d}_schedule.pickle", schedule)
 
     def load_schedule(
-        self, cat: Category
-    ) -> Optional[Mapping[datetime.date, Sequence[RaceSchedule]]]:
+        self, cat: Category, date: datetime.date
+    ) -> Optional[Sequence[RaceInfo]]:
         dir_ = self._cat_dir(cat)
-        return read_pickle(dir_ / "schedule.pickle")
+        return read_pickle(dir_ / f"{date:%Y%m%d}_schedule.pickle")
+
+    def save_race_info(self, race_info: RaceInfo):
+        write_as_pickle(
+            self._schedule_race_dir() / f"{race_info.race_id}.pickle",
+            race_info,
+        )
+
+    def load_race_info(self, race_id: str) -> Optional[RaceInfo]:
+        return read_pickle(
+            self._schedule_race_dir() / f"{race_id}.pickle",
+        )
 
     def _race_dir(self, race: Race) -> Path:
         dir_ = self.root_path / race.race_id
@@ -101,7 +127,12 @@ class FileRepository:
         return dir_
 
     def _cat_dir(self, cat: Category) -> Path:
-        dir_ = self.root_path / "cat" / cat.id
+        dir_ = self.root_path / "schedule" / "cat" / cat.id
+        dir_.mkdir(exist_ok=True, parents=True)
+        return dir_
+
+    def _schedule_race_dir(self) -> Path:
+        dir_ = self.root_path / "schedule" / "races"
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_
 
