@@ -11,7 +11,7 @@ def get_categories():
     return rt.get_categories()
 
 
-@router.get("/races/")
+@router.get("/races")
 def get_races(
     category_id: Optional[str] = Query(None),
     url: Optional[str] = Query(None),

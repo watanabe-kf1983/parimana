@@ -10,13 +10,11 @@ export type Course = {
   category: Category;
 };
 export type Fixture = {
-  category: Category;
   course: Course;
   date: string;
 };
 export type RaceInfo = { id: string; name: string; fixture: Fixture };
-export type RaceSchedule = { course: Course; races: RaceInfo[] };
-export type Calendar = { [date: string]: RaceSchedule[] };
+
 
 export type CategorySelectorProps = {
   value?: string;

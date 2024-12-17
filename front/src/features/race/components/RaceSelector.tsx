@@ -1,11 +1,9 @@
+import { uniqWith, isEqual } from "lodash";
 import { useEffect, useState } from "react";
-import { TextField, Typography } from "@mui/material";
 import useSWR from "swr";
 
 import {
-  Calendar,
   Category,
-  Course,
   RaceInfo,
   RaceSelectorProps,
 } from "../types";
@@ -19,13 +17,13 @@ const fetchCategories = async (_params: any): Promise<Category[]> => {
   return await api.getCategories();
 };
 
-const fetchCalendar = async (params: {
+const fetchSchedule = async (params: {
   categoryId?: string;
-}): Promise<Calendar | undefined> => {
+}): Promise<RaceInfo[]> => {
   if (params.categoryId) {
     return await api.getCalendar(params.categoryId);
   } else {
-    return undefined;
+    return [];
   }
 };
 
@@ -36,6 +34,18 @@ const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
     return undefined;
   }
 };
+
+const appendCategory = (categories: Category[] | undefined, additional: RaceInfo | undefined) => {
+  const arrayA = categories || []
+  const arrayB = additional ? [additional.fixture.course.category] : []
+  return uniqWith([...arrayA, ...arrayB], isEqual)
+}
+
+const appendSchedule = (schedule: RaceInfo[] | undefined, additional: RaceInfo | undefined) => {
+  const arrayA = schedule || []
+  const arrayB = additional ? [additional] : []
+  return uniqWith([...arrayA, ...arrayB], isEqual)
+}
 
 export function RaceSelector(props: RaceSelectorProps) {
   const [raceId, setRaceId] = useState<string>(props.raceId);
@@ -49,7 +59,7 @@ export function RaceSelector(props: RaceSelectorProps) {
       const ri = await fetchRaceInfo(props.raceId);
       if (ri) {
         setRaceInfo(ri);
-        setCategoryId(ri.fixture.category.id);
+        setCategoryId(ri.fixture.course.category.id);
         setDate(ri.fixture.date);
         setCourseId(ri.fixture.course.id);
       }
@@ -57,76 +67,45 @@ export function RaceSelector(props: RaceSelectorProps) {
     getRI();
   }, [props.raceId]);
 
-  const categoryItems = useSWR<Category[] | undefined>(
+  const fetchedCategories = useSWR<Category[]>(
     "x",
     fetchCategories
   ).data;
 
-  const calendar = useSWR<Calendar | undefined>(
+  const fetchedSchedule = useSWR<RaceInfo[] | undefined>(
     { categoryId },
-    fetchCalendar
+    fetchSchedule
   ).data;
 
-  const collectCategoryItems = () => {
-    const items: Category[] = [];
-    if (categoryItems) {
-      categoryItems.forEach((c) => items.push(c));
-    }
-    if (raceInfo) {
-      if (!items.find((c) => c.id === raceInfo.fixture.category.id)) {
-        items.push(raceInfo);
-      }
-    }
-    return items.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  };
+  const categories = appendCategory(fetchedCategories, raceInfo)
+  const schedule = appendSchedule(fetchedSchedule, raceInfo)
 
-  const collectDateItems = () => {
-    const set = new Set<string>();
-    if (calendar) {
-      Object.keys(calendar).forEach((date) => set.add(date));
-    }
-    if (raceInfo && raceInfo.fixture.category.id === categoryId) {
-      set.add(raceInfo.fixture.date);
-    }
-    return Array.from(set).sort();
-  };
+  const categoryItems = categories.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
-  const collectCourseItems = () => {
-    const items: Course[] = [];
-    if (calendar && date) {
-      calendar[date]?.forEach((schedule) => items.push(schedule.course));
-    }
-    if (
-      raceInfo &&
-      raceInfo.fixture.category.id === categoryId &&
-      raceInfo.fixture.date === date
-    ) {
-      if (!items.find((c) => c.id === raceInfo.fixture.course.id)) {
-        items.push(raceInfo.fixture.course);
-      }
-    }
-    return items.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  };
+  const dateItems =
+    uniqWith(
+      schedule
+        .filter((r) => categoryId === r.fixture.course.category.id)
+        .map((r) => r.fixture.date),
+      isEqual
+    ).sort();
 
-  const collectRaceItems = () => {
-    const items: RaceInfo[] = [];
-    if (calendar && date && courseId) {
-      calendar[date]
-        ?.find((o) => o.course.id === courseId)
-        ?.races.forEach((r) => items.push(r));
-    }
-    if (
-      raceInfo &&
-      raceInfo.fixture.category.id === categoryId &&
-      raceInfo.fixture.date === date &&
-      raceInfo.fixture.course.id == courseId
-    ) {
-      if (!items.find((r) => r.id === raceInfo.id)) {
-        items.push(raceInfo);
-      }
-    }
-    return items.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  };
+  const courseItems =
+    uniqWith(
+      schedule
+        .filter((r) => categoryId === r.fixture.course.category.id)
+        .filter((r) => date === r.fixture.date)
+        .map((r) => r.fixture.course),
+      isEqual
+    ).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+  const raceItems =
+    schedule
+      .filter((r) => categoryId === r.fixture.course.category.id)
+      .filter((r) => date === r.fixture.date)
+      .filter((r) => courseId === r.fixture.course.id)
+      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
 
   const onChangeCategoryId = (cid: string) => {
     setCategoryId(cid);
@@ -148,38 +127,27 @@ export function RaceSelector(props: RaceSelectorProps) {
     <>
       <CategorySelector
         value={categoryId}
-        items={collectCategoryItems()}
+        items={categoryItems}
         onChange={onChangeCategoryId}
       />
       <DateSelector
         value={date}
-        items={collectDateItems()}
+        items={dateItems}
         onChange={onChangeDate}
       />
       <CourseSelector
         value={courseId}
-        items={collectCourseItems()}
+        items={courseItems}
         onChange={onChangeCourseId}
       />
       <RaceOnDaySelector
         value={raceId}
-        items={collectRaceItems()}
+        items={raceItems}
         onChange={(rid) => {
           setRaceId(rid);
           props.onSetRaceId(rid);
         }}
       />
-      {/* <TextField
-        sx={{ width: "30ch" }}
-        value={raceId}
-        onChange={(e) => setRaceId(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            props.onSetRaceId(raceId);
-          }
-        }}
-        onBlur={() => props.onSetRaceId(raceId)}
-      /> */}
     </>
   );
 }
