@@ -45,7 +45,7 @@ def with_race_channel(func):
                 p.mprint("ERROR occurred:")
                 stack_trace = traceback.format_exc()
                 p.mprint(stack_trace)
-                ProcessStatusManager(kwargs["race"]).abort_process()
+                ProcessStatusManager(repo, kwargs["race"]).abort_process()
                 raise
 
     return wrapper
@@ -130,7 +130,7 @@ def analyse(
 @app.task
 @with_race_channel
 def finish_process(results=None, /, *, race: Race):
-    ProcessStatusManager(race).finish_process()
+    ProcessStatusManager(repo, race).finish_process()
     msg.mclose()
     return results
 
@@ -138,7 +138,7 @@ def finish_process(results=None, /, *, race: Race):
 @app.task
 @with_race_channel
 def start_process(*, race: Race):
-    ProcessStatusManager(race).start_process()
+    ProcessStatusManager(repo, race).start_process()
 
 
 def get_analysis(settings: Settings):

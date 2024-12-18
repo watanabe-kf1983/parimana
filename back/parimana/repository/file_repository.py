@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 import plotly.io as pio
 
+from parimana.app.status import ProcessRepository
 from parimana.message import mprint
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
 from parimana.race.schedule import Category, RaceInfo
@@ -18,7 +19,7 @@ def repository_path() -> Path:
 
 
 @dataclass(frozen=True)
-class FileRepository:
+class FileRepository(ProcessRepository):
     root_path: Path = field(default_factory=repository_path)
 
     def save_odds_pool(self, odds_pool: RaceOddsPool):
@@ -152,6 +153,9 @@ class FileRepository:
     def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
         return read_pickle(self._race_dir(race) / "charts_ts.pickle")
 
+    #
+    # process repository
+    #
     def save_process_status(self, race: Race, status: str) -> None:
         write_text(self._race_dir(race) / "status.txt", status)
 

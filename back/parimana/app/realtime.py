@@ -124,7 +124,7 @@ def start_analyse(race_id: str) -> str:
 
 def get_status(race_id: str) -> Status:
     race = rc.RaceSelector.select(race_id)
-    is_processing = ProcessStatusManager(race).load_status().is_processing
+    is_processing = ProcessStatusManager(repo, race).load_status().is_processing
     ct = repo.load_latest_charts_time(race)
     has_analysis = ct is not None
     is_odds_confirmed = has_analysis and ct.is_confirmed

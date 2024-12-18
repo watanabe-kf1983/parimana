@@ -1,14 +1,22 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Optional
 
 from pydantic import BaseModel
 
 from parimana.race import Race
 from parimana.message import mprint, mclose, Channel
-from parimana.repository import FileRepository
 
 
-repo = FileRepository()
+class ProcessRepository(ABC):
+
+    @abstractmethod
+    def save_process_status(self, race: Race, status: str) -> None:
+        pass
+
+    @abstractmethod
+    def load_process_status(self, race: Race) -> Optional[str]:
+        pass
 
 
 class ProcessStatus(BaseModel):
@@ -27,6 +35,7 @@ class ProcessStatus(BaseModel):
 
 @dataclass
 class ProcessStatusManager:
+    repo: ProcessRepository
     race: Race
 
     def start_process(self, check_status: bool = True) -> None:
@@ -50,13 +59,13 @@ class ProcessStatusManager:
         mclose()
 
     def load_status(self) -> ProcessStatus:
-        if txt := repo.load_process_status(self.race):
+        if txt := self.repo.load_process_status(self.race):
             return ProcessStatus.from_txt(txt)
         else:
             return ProcessStatus(is_processing=False)
 
     def save_status(self, status: ProcessStatus) -> None:
-        repo.save_process_status(self.race, str(status))
+        self.repo.save_process_status(self.race, str(status))
 
     async def alisten(self) -> AsyncGenerator[str, Any]:
         status = self.load_status()
