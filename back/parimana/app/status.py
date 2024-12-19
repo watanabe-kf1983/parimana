@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, AsyncGenerator, Optional
 
-from pydantic import BaseModel
-
 from parimana.race import Race
 from parimana.message import mprint, mclose, Channel
 
@@ -19,7 +17,7 @@ class ProcessRepository(ABC):
         pass
 
 
-class ProcessStatus(BaseModel):
+class ProcessStatus():
     is_processing: bool
 
     def __str__(self):

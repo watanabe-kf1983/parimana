@@ -25,12 +25,6 @@ app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 repo = FileRepository()
 
 
-class ProcessStatus(str, Enum):
-    PROCESSING = "PROCESSING"
-    DONE = "DONE"
-    NOT_STARTED = "NOT_STARTED"
-
-
 def with_race_channel(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -50,26 +44,6 @@ def with_race_channel(func):
                 raise
 
     return wrapper
-
-
-# def with_channel(channel_id: str):
-
-#     def with_channel_w(func):
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-
-#             with msg.set_printer(channel_id) as p:
-#                 try:
-#                     return func(*args, **kwargs)
-#                 except Exception:
-#                     p.mprint("ERROR occurred:")
-#                     stack_trace = traceback.format_exc()
-#                     p.mprint(stack_trace)
-#                     raise
-
-#         return wrapper
-
-#     return with_channel_w
 
 
 @app.task
