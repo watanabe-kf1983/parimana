@@ -7,6 +7,7 @@ import traceback
 from celery import Celery, chain, group
 
 from parimana.analyse import analysers, AnalysisResult
+from parimana.app.schedule import ScheduleApp
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
 from parimana.race import Race, RaceOddsPool, RaceSelector, CategorySelector
@@ -73,28 +74,8 @@ def with_race_channel(func):
 
 @app.task
 def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
-
-    source = cat.schedule_source
-
-    calendar = repo.load_calendar(cat)
-    if not calendar:
-        calendar = source.scrape_calendar()
-        repo.save_calendar(cat=cat, calendar=calendar)
-
-    all_schedule: Sequence[RaceInfo] = []
-
-    for date in calendar:
-        day_schedule = repo.load_schedule(cat, date)
-
-        if day_schedule is None:
-            day_schedule = source.scrape_day_schedule(date)
-            repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
-            for race_info in day_schedule:
-                repo.save_race_info(race_info)
-
-        all_schedule.extend(day_schedule)
-
-    return all_schedule
+    schedule_app = ScheduleApp(repo)
+    return schedule_app.scrape_and_get_schedule(cat)
 
 
 @app.task

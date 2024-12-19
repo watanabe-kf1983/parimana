@@ -8,6 +8,7 @@ from typing import Optional, Sequence
 import plotly.io as pio
 
 from parimana.app.status import ProcessRepository
+from parimana.app.schedule import ScheduleRepository
 from parimana.message import mprint
 from parimana.race.base import Race, OddsTimeStamp, RaceOddsPool
 from parimana.race.schedule import Category, RaceInfo
@@ -19,7 +20,7 @@ def repository_path() -> Path:
 
 
 @dataclass(frozen=True)
-class FileRepository(ProcessRepository):
+class FileRepository(ProcessRepository, ScheduleRepository):
     root_path: Path = field(default_factory=repository_path)
 
     def save_odds_pool(self, odds_pool: RaceOddsPool):
@@ -72,6 +73,9 @@ class FileRepository(ProcessRepository):
         else:
             return None
 
+    #
+    # schedule repository
+    #
     def save_calendar(
         self,
         cat: Category,
@@ -116,6 +120,10 @@ class FileRepository(ProcessRepository):
             self._schedule_race_dir() / f"{race_id}.pickle",
         )
 
+    #
+    # end of schedule repository
+    #
+
     def _race_dir(self, race: Race) -> Path:
         dir_ = self.root_path / race.race_id
         dir_.mkdir(exist_ok=True, parents=True)
@@ -131,11 +139,13 @@ class FileRepository(ProcessRepository):
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_
 
+    # schedule repository
     def _cat_dir(self, cat: Category) -> Path:
         dir_ = self.root_path / "schedule" / "cat" / cat.id
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_
 
+    # schedule repository
     def _schedule_race_dir(self) -> Path:
         dir_ = self.root_path / "schedule" / "races"
         dir_.mkdir(exist_ok=True, parents=True)
