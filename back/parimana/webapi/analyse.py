@@ -119,7 +119,7 @@ def start_analyse(race_id: str):
 
 @router.get("/{race_id}/status")
 def get_status(race_id: str) -> Status:
-    race = rc.Race.from_id(race_id)
+    race = rc.RaceSelector.select(race_id)
     return Status(
         is_processing=app.is_processing(race),
         has_analysis=app.has_analysis(race),
@@ -129,13 +129,13 @@ def get_status(race_id: str) -> Status:
 
 @router.get("/{race_id}/progress", response_class=StreamingResponse)
 async def get_progress(race_id: str):
-    race = rc.Race.from_id(race_id)
+    race = rc.RaceSelector.select(race_id)
     return eventStreamResponse(app.get_progress(race))
 
 
 @router.get("/{race_id}/{analyser_name}")
 def get_analysis(race_id: str, analyser_name: str) -> Result:
-    race = rc.Race.from_id(race_id)
+    race = rc.RaceSelector.select(race_id)
     return Result.from_base(**app.get_analysis(race, analyser_name))
 
 
@@ -143,7 +143,7 @@ def get_analysis(race_id: str, analyser_name: str) -> Result:
 def get_candidates(
     race_id: str, analyser_name: str, query: Optional[str] = Query(None)
 ) -> Sequence[EyeExpectedValue]:
-    race = rc.Race.from_id(race_id)
+    race = rc.RaceSelector.select(race_id)
     charts, _, __ = app.get_analysis(race, analyser_name)
     return [
         EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2(query=query)
