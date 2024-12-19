@@ -5,12 +5,9 @@ from pydantic import BaseModel
 
 import parimana.domain.schedule as sc
 import parimana.app.schedule as ap
-from parimana.devices.file import FileRepository
 import parimana.ui.settings as settings
 
 router = APIRouter()
-
-app = ap.ScheduleApp(FileRepository())
 
 
 class Category(BaseModel):
@@ -58,6 +55,9 @@ class RaceInfo(BaseModel):
             name=race.name,
             fixture=Fixture.from_base(race.fixture),
         )
+
+
+app = ap.ScheduleApp(settings.repo.schedule)
 
 
 @router.get("/categories")

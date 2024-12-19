@@ -11,8 +11,7 @@ from parimana.domain.schedule import Category, RaceInfo
 from parimana.app.analyse import AnalyseApp
 from parimana.app.schedule import ScheduleApp
 from parimana.app.status import ProcessStatusManager
-from parimana.devices.file import FileRepository
-from parimana.ui.settings import Settings, race_selector, category_selector
+from parimana.ui.settings import Settings, category_selector, race_selector, repo
 
 app = Celery(__name__, backend=msg.uri, broker=msg.uri)
 
@@ -21,7 +20,8 @@ app.conf.task_serializer = "pickle"
 app.conf.result_serializer = "pickle"
 app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
-repo = FileRepository()
+schedule_app = ScheduleApp(repo.schedule)
+analyse_app = AnalyseApp(repo.analysis)
 
 
 def with_race_channel(func):
@@ -39,7 +39,7 @@ def with_race_channel(func):
                 p.mprint("ERROR occurred:")
                 stack_trace = traceback.format_exc()
                 p.mprint(stack_trace)
-                ProcessStatusManager(repo, kwargs["race"]).abort_process()
+                ProcessStatusManager(repo.status, kwargs["race"]).abort_process()
                 raise
 
     return wrapper
@@ -47,13 +47,13 @@ def with_race_channel(func):
 
 @app.task
 def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
-    return ScheduleApp(repo).scrape_and_get_schedule(cat)
+    return schedule_app.scrape_and_get_schedule(cat)
 
 
 @app.task
 @with_race_channel
 def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
-    return AnalyseApp(repo).get_odds_pool(race, scrape_force)
+    return analyse_app.get_odds_pool(race, scrape_force)
 
 
 @app.task
@@ -61,13 +61,13 @@ def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
 def analyse(
     odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int, *, race: Race
 ) -> AnalysisResult:
-    return AnalyseApp(repo).analyse(odds_pool, analyser_name, simulation_count)
+    return analyse_app.analyse(odds_pool, analyser_name, simulation_count)
 
 
 @app.task
 @with_race_channel
 def finish_process(results=None, /, *, race: Race):
-    ProcessStatusManager(repo, race).finish_process()
+    ProcessStatusManager(repo.status, race).finish_process()
     msg.mclose()
     return results
 
@@ -75,7 +75,7 @@ def finish_process(results=None, /, *, race: Race):
 @app.task
 @with_race_channel
 def start_process(*, race: Race):
-    ProcessStatusManager(repo, race).start_process()
+    ProcessStatusManager(repo.status, race).start_process()
 
 
 def get_analysis(settings: Settings):

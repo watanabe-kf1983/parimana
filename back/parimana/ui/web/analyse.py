@@ -7,7 +7,6 @@ import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc
 from parimana.app.analyse import AnalyseApp
-from parimana.devices.file import FileRepository
 import parimana.ui.settings as settings
 import parimana.ui.batch as batch
 
@@ -105,7 +104,7 @@ class Result(BaseModel):
         )
 
 
-app = AnalyseApp(FileRepository())
+app = AnalyseApp(settings.repo.analysis)
 
 
 @router.post("/{race_id}/start")

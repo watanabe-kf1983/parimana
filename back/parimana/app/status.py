@@ -6,7 +6,7 @@ from parimana.domain.race import Race
 from parimana.infra.message import mprint, mclose, Channel
 
 
-class ProcessRepository(ABC):
+class StatusRepository(ABC):
 
     @abstractmethod
     def save_process_status(self, race: Race, status: str) -> None:
@@ -33,7 +33,7 @@ class ProcessStatus():
 
 @dataclass
 class ProcessStatusManager:
-    repo: ProcessRepository
+    repo: StatusRepository
     race: Race
 
     def start_process(self, check_status: bool = True) -> None:
