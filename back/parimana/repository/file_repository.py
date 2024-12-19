@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 import plotly.io as pio
 
+from parimana.app.analyse import AnalysisRepository
 from parimana.app.status import ProcessRepository
 from parimana.app.schedule import ScheduleRepository
 from parimana.message import mprint
@@ -20,7 +21,7 @@ def repository_path() -> Path:
 
 
 @dataclass(frozen=True)
-class FileRepository(ProcessRepository, ScheduleRepository):
+class FileRepository(ProcessRepository, ScheduleRepository, AnalysisRepository):
     root_path: Path = field(default_factory=repository_path)
 
     def save_odds_pool(self, odds_pool: RaceOddsPool):
