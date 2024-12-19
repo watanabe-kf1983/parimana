@@ -3,6 +3,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from parimana.app.status import ProcessStatusManager
 import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc
@@ -119,8 +120,9 @@ def start_analyse(race_id: str):
 @router.get("/{race_id}/status")
 def get_status(race_id: str) -> Status:
     race = _select_race(race_id)
+    psm = ProcessStatusManager(settings.repo.status, race)
     return Status(
-        is_processing=app.is_processing(race),
+        is_processing=psm.load_status().is_processing,
         has_analysis=app.has_analysis(race),
         is_odds_confirmed=app.is_odds_confirmed(race),
     )

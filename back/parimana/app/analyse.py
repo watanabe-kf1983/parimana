@@ -10,7 +10,6 @@ from parimana.domain.analyse import (
     AnalysisResult,
 )
 from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool
-from parimana.app.status import ProcessStatusManager
 from parimana.app.exception import ResultNotExistError
 
 
@@ -66,9 +65,6 @@ class AnalysisRepository(ABC):
 class AnalyseApp:
     def __init__(self, repo: AnalysisRepository):
         self.repo: AnalysisRepository = repo
-
-    def is_processing(self, race: Race) -> bool:
-        return ProcessStatusManager(self.repo, race).load_status().is_processing
 
     def has_analysis(self, race: Race) -> bool:
         return self.repo.load_latest_charts_time(race) is not None
