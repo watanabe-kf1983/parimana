@@ -53,7 +53,7 @@ def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
 @app.task
 @with_race_channel
 def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
-    return analyse_app.get_odds_pool(race, scrape_force)
+    return analyse_app.get_odds_pool(race=race, scrape_force=scrape_force)
 
 
 @app.task

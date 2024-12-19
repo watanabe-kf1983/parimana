@@ -137,7 +137,7 @@ async def get_progress(race_id: str):
 @router.get("/{race_id}/{analyser_name}")
 def get_analysis(race_id: str, analyser_name: str) -> Result:
     race = _select_race(race_id)
-    return Result.from_base(**app.get_analysis(race, analyser_name))
+    return Result.from_base(*app.get_analysis(race, analyser_name))
 
 
 @router.get("/{race_id}/{analyser_name}/candidates")

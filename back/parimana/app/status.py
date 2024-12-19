@@ -17,7 +17,8 @@ class StatusRepository(ABC):
         pass
 
 
-class ProcessStatus():
+@dataclass
+class ProcessStatus:
     is_processing: bool
 
     def __str__(self):

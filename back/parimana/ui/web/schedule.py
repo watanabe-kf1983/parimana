@@ -62,7 +62,7 @@ app = ap.ScheduleApp(settings.repo.schedule)
 
 @router.get("/categories")
 def get_categories():
-    return Category.from_base(settings.category_selector.all())
+    return [Category.from_base(cat) for cat in settings.category_selector.all()]
 
 
 @router.get("/races")

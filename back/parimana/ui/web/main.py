@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
 
+from parimana.app.exception import ResultNotExistError
 import parimana.ui.web.analyse as analyse
 import parimana.ui.web.schedule as schedule
 
@@ -18,7 +19,7 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(analyse.rt.ResultNotExistError)
+@app.exception_handler(ResultNotExistError)
 def not_exist_handler(request, exc):
     return PlainTextResponse(str(exc), status_code=404)
 
