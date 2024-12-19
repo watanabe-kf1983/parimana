@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Sequence
 from functools import wraps
 import traceback
