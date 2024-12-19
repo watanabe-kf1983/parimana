@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, AsyncGenerator, Optional
 
-from parimana.race import Race
-from parimana.message import mprint, mclose, Channel
+from parimana.domain.race import Race
+from parimana.infra.message import mprint, mclose, Channel
 
 
 class ProcessRepository(ABC):

@@ -1,0 +1,103 @@
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime
+from functools import total_ordering
+from typing import Collection, Optional, Type
+
+from parimana.domain.base import OddsPool
+
+
+class Race(ABC):
+    @property
+    @abstractmethod
+    def race_id(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def odds_source(self) -> "OddsSource":
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_id(cls, race_id: str) -> Optional["Race"]:
+        pass
+
+
+@dataclass
+class RaceSelector:
+    race_types: Collection[Type[Race]]
+
+    def select(self, race_id: str) -> "Race":
+        for race_type in self.race_types:
+            if found := race_type.from_id(race_id):
+                return found
+
+        raise ValueError(f"race_id: {race_id} is illegal")
+
+
+class OddsSource(ABC):
+    @abstractmethod
+    def scrape_odds_pool(self) -> "RaceOddsPool":
+        pass
+
+    @abstractmethod
+    def scrape_timestamp(self) -> "OddsTimeStamp":
+        pass
+
+    @abstractmethod
+    def get_uri(self) -> str:
+        pass
+
+
+@total_ordering
+@dataclass
+class OddsTimeStamp:
+    update_time: Optional[datetime] = None
+
+    def long_str(self) -> str:
+        return (
+            "confirmed"
+            if self.update_time is None
+            else "updated at " + self.update_time.strftime("%Y-%m-%d %H:%M")
+        )
+
+    def __str__(self) -> str:
+        return (
+            "Confirmed"
+            if self.update_time is None
+            else self.update_time.strftime("%Y%m%d%H%M")
+        )
+
+    def __lt__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        if self.is_confirmed:
+            return False
+        elif other.is_confirmed:
+            return True
+        else:
+            return self.update_time < other.update_time
+
+    @property
+    def is_confirmed(self) -> bool:
+        return not bool(self.update_time)
+
+    @classmethod
+    def confirmed(cls) -> "OddsTimeStamp":
+        return OddsTimeStamp(None)
+
+
+@dataclass
+class RaceOddsPool(OddsPool):
+    race: Race
+    timestamp: OddsTimeStamp
+
+    @property
+    def key(self) -> str:
+        return f"{self.race.race_id}/{self.timestamp}"
+
+
+class OddsUpdatedException(Exception):
+    pass

@@ -2,11 +2,16 @@ from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Optional, Sequence, Tuple
 
 
-from parimana.analyse import analysers, AnalysisCharts, EyeExpectedValue, AnalysisResult
-from parimana.exception import ResultNotExistError
-from parimana.race import Race, OddsTimeStamp, RaceOddsPool
-import parimana.message as mg
+import parimana.infra.message as mg
+from parimana.domain.analyse import (
+    analysers,
+    AnalysisCharts,
+    EyeExpectedValue,
+    AnalysisResult,
+)
+from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool
 from parimana.app.status import ProcessStatusManager
+from parimana.app.exception import ResultNotExistError
 
 
 class AnalysisRepository(ABC):
