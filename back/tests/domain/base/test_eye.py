@@ -3,7 +3,7 @@ from parimana.domain.base.eye import Eye, BettingType
 
 
 def test_betting_type():
-    t = BettingType((True, 1, 1))
+    t = BettingType((1, True, 1, 1))
     assert t == BettingType.WIN
 
 
@@ -38,19 +38,19 @@ def test_trio():
 
 
 def test_place():
-    eye = Eye("P12")
+    eye = Eye("12[P]")
     assert eye.type == BettingType.PLACE
     assert eye.names == {"12"}
 
 
 def test_show():
-    eye = Eye("S12")
+    eye = Eye("12[S]")
     assert eye.type == BettingType.SHOW
     assert eye.names == {"12"}
 
 
 def test_wide():
-    eye = Eye("W12=13")
+    eye = Eye("12=13[W]")
     assert eye.type == BettingType.WIDE
     assert eye.names == {"12", "13"}
 
