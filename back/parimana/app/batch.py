@@ -1,12 +1,12 @@
 from enum import Enum
-import time
 from typing import Sequence
 from functools import wraps
 import traceback
 
 from celery import Celery, chain, group
 
-from parimana.analyse import analysers, AnalysisResult
+from parimana.analyse import AnalysisResult
+from parimana.app.analyse import AnalyseApp
 from parimana.app.schedule import ScheduleApp
 from parimana.app.status import ProcessStatusManager
 from parimana.app.settings import Settings
@@ -74,23 +74,13 @@ def with_race_channel(func):
 
 @app.task
 def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
-    schedule_app = ScheduleApp(repo)
-    return schedule_app.scrape_and_get_schedule(cat)
+    return ScheduleApp(repo).scrape_and_get_schedule(cat)
 
 
 @app.task
 @with_race_channel
 def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
-    odds_pool = repo.load_latest_odds_pool(race)
-
-    if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
-        return odds_pool
-    else:
-        timestamp = race.odds_source.scrape_timestamp()
-        if (not odds_pool) or odds_pool.timestamp < timestamp:
-            odds_pool = race.odds_source.scrape_odds_pool()
-            repo.save_odds_pool(odds_pool)
-        return odds_pool
+    return AnalyseApp(repo).get_odds_pool(race, scrape_force)
 
 
 @app.task
@@ -98,14 +88,7 @@ def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
 def analyse(
     odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int, *, race: Race
 ) -> AnalysisResult:
-    charts = repo.load_charts(odds_pool.race, odds_pool.timestamp, analyser_name)
-
-    if charts:
-        return charts.result
-    else:
-        r = analysers[analyser_name].analyse(odds_pool, simulation_count)
-        repo.save_charts(odds_pool.race, odds_pool.timestamp, r.get_charts())
-        return r
+    return AnalyseApp(repo).analyse(odds_pool, analyser_name, simulation_count)
 
 
 @app.task
@@ -135,28 +118,8 @@ def get_analysis(settings: Settings):
     )
 
 
-@app.task
-@with_race_channel
-def wait_30_seconds(data):
-    time.sleep(30)
-    result = data + ": waited_30_seconds"
-    return result
-
-
 def start_analyse(settings: Settings) -> str:
     return get_analysis(settings).delay().id
-
-
-def start_wait_30() -> str:
-    return wait_30_seconds.delay("input_data").id
-
-
-def get_wait_30_result(task_id: str):
-    task = wait_30_seconds.AsyncResult(task_id)
-    if task.state == "SUCCESS":
-        return {"status": task.state, "result": task.result}
-    else:
-        return {"status": task.state}
 
 
 def main():

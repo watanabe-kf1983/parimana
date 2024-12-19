@@ -1,0 +1,2 @@
+class ResultNotExistError(Exception):
+    pass

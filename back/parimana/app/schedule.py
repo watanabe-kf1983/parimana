@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import datetime
 from typing import Optional, Sequence
 
-from parimana.app.realtime import ResultNotExistError
+from parimana.exception import ResultNotExistError
 from parimana.race.schedule import Category, RaceInfo
 from parimana.race.select import CategorySelector
 
