@@ -3,10 +3,11 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from parimana.app.status import ProcessStatusManager
+import parimana.infra.message as msg
 import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc
+from parimana.app.status import ProcessStatusManager
 from parimana.app.analyse import AnalyseApp
 import parimana.ui.settings as settings
 import parimana.ui.batch as batch
@@ -106,6 +107,7 @@ class Result(BaseModel):
 
 
 app = AnalyseApp(settings.repo.analysis)
+psm = ProcessStatusManager(settings.repo.status)
 
 
 @router.post("/{race_id}/start")
@@ -120,9 +122,8 @@ def start_analyse(race_id: str):
 @router.get("/{race_id}/status")
 def get_status(race_id: str) -> Status:
     race = _select_race(race_id)
-    psm = ProcessStatusManager(settings.repo.status, race)
     return Status(
-        is_processing=psm.load_status().is_processing,
+        is_processing=psm.load_status(f"analyse_{race_id}").is_processing,
         has_analysis=app.has_analysis(race),
         is_odds_confirmed=app.is_odds_confirmed(race),
     )
@@ -130,8 +131,7 @@ def get_status(race_id: str) -> Status:
 
 @router.get("/{race_id}/progress", response_class=StreamingResponse)
 async def get_progress(race_id: str):
-    race = _select_race(race_id)
-    return eventStreamResponse(app.get_progress(race))
+    return _eventStreamResponse(msg.Channel(f"analyse_{race_id}").alisten())
 
 
 @router.get("/{race_id}/{analyser_name}")
@@ -151,11 +151,11 @@ def get_candidates(
     ]
 
 
-def eventStreamResponse(generator: AsyncGenerator[str, Any]):
+def _select_race(race_id: str) -> rc.Race:
+    return settings.race_selector.select(race_id)
+
+
+def _eventStreamResponse(generator: AsyncGenerator[str, Any]):
     return StreamingResponse(
         (f"data: {msg}\n\n" async for msg in generator), media_type="text/event-stream"
     )
-
-
-def _select_race(race_id: str) -> rc.Race:
-    return settings.race_selector.select(race_id)

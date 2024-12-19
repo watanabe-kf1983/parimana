@@ -1,6 +1,4 @@
 from typing import Sequence
-from functools import wraps
-import traceback
 
 from celery import Celery, chain, group
 
@@ -22,27 +20,7 @@ app.conf.accept_content = ["application/json", "application/x-python-serialize"]
 
 schedule_app = ScheduleApp(repo.schedule)
 analyse_app = AnalyseApp(repo.analysis)
-
-
-def with_race_channel(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if "race" in kwargs:
-            channel_id = kwargs["race"].race_id
-        else:
-            channel_id = None
-
-        with msg.set_printer(channel_id) as p:
-            try:
-                return func(*args, **kwargs)
-            except Exception:
-                p.mprint("ERROR occurred:")
-                stack_trace = traceback.format_exc()
-                p.mprint(stack_trace)
-                ProcessStatusManager(repo.status, kwargs["race"]).abort_process()
-                raise
-
-    return wrapper
+ps_manager = ProcessStatusManager(repo.status)
 
 
 @app.task
@@ -51,48 +29,68 @@ def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
 
 
 @app.task
-@with_race_channel
+@msg.with_channel_printer
 def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
     return analyse_app.get_odds_pool(race=race, scrape_force=scrape_force)
 
 
 @app.task
-@with_race_channel
+@msg.with_channel_printer
 def analyse(
-    odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int, *, race: Race
+    odds_pool: RaceOddsPool, analyser_name: str, simulation_count: int
 ) -> AnalysisResult:
     return analyse_app.analyse(odds_pool, analyser_name, simulation_count)
 
 
 @app.task
-@with_race_channel
-def finish_process(results=None, /, *, race: Race):
-    ProcessStatusManager(repo.status, race).finish_process()
-    msg.mclose()
+@msg.with_channel_printer
+def start_process(*, process_name: str):
+    ps_manager.start_process(process_name)
+
+
+@app.task
+@msg.with_channel_printer
+def finish_process(results=None, /, *, process_name: str):
+    ps_manager.finish_process(process_name)
     return results
 
 
 @app.task
-@with_race_channel
-def start_process(*, race: Race):
-    ProcessStatusManager(repo.status, race).start_process()
+@msg.with_channel_printer
+def handle_error(request, exc, traceback, *, process_name: str):
+    msg.mprint("ERROR occurred:")
+    msg.mprint(exc)
+    msg.mprint(traceback)
+    msg.mprint(f"Failed task info: args={request.args}, kwargs={request.kwargs}, ")
+    msg.mprint("")
+    ps_manager.abort_process(process_name)
 
 
 def get_analysis(settings: Settings):
     race = race_selector.select(settings.race_id)
+    process_name = f"analyse_{settings.race_id}"
     return chain(
-        start_process.s(race=race),
-        get_odds_pool.si(race=race, scrape_force=not settings.use_cache),
+        start_process.s(channel_id=process_name, process_name=process_name),
+        get_odds_pool.si(
+            race=race, channel_id=process_name, scrape_force=not settings.use_cache
+        ),
         group(
-            analyse.s(analyser_name, settings.simulation_count, race=race)
+            analyse.s(analyser_name, settings.simulation_count, channel_id=process_name)
             for analyser_name in settings.analyser_names
         ),
-        finish_process.s(race=race),
-    )
+        finish_process.s(channel_id=process_name, process_name=process_name),
+    ).on_error(handle_error.s(channel_id=process_name, process_name=process_name))
 
 
 def start_analyse(settings: Settings) -> str:
     return get_analysis(settings).delay().id
+
+
+def scrape_schedule() -> None:
+    for cat in category_selector.all():
+        sc = get_schedule.s(cat=cat).apply().get()
+        msg.mprint(sc)
+        msg.mclose()
 
 
 def main():
@@ -106,10 +104,8 @@ def main():
 
 
 def run_worker():
-    app.worker_main(argv=["worker", "-P", "threads", "--loglevel=info"])
+    app.worker_main(argv=["worker", "--concurrency=1", "--loglevel=info"])
 
 
 if __name__ == "__main__":
-    for cat in category_selector.all():
-        sc = get_schedule.s(cat=cat).apply().get()
-        print(sc)
+    scrape_schedule()

@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator, Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 
-import parimana.infra.message as mg
 from parimana.domain.analyse import (
     analysers,
     AnalysisCharts,
@@ -72,9 +71,6 @@ class AnalyseApp:
     def is_odds_confirmed(self, race: Race) -> bool:
         ct = self.repo.load_latest_charts_time(race)
         return (ct is not None) and ct.is_confirmed
-
-    def get_progress(self, race: Race) -> AsyncGenerator[str, Any]:
-        return mg.Channel(race.race_id).alisten()
 
     def get_analysis(
         self, race: Race, analyser_name: str

@@ -1,21 +1,21 @@
 from pathlib import Path
-from typing import Optional
 
-from parimana.domain.race import Race
-from parimana.app.status import StatusRepository
+from parimana.app.status import ProcessStatus, StatusRepository
 from parimana.devices.file.repository.base import FileRepositoryBase
 import parimana.devices.file.repository.utils as utils
 
 
 class FileStatusRepository(FileRepositoryBase, StatusRepository):
 
-    def save_process_status(self, race: Race, status: str) -> None:
-        utils.write_text(self._race_dir(race) / "status.txt", status)
+    def save_process_status(self, process_name: str, status: ProcessStatus) -> None:
+        utils.write_text(self._process_dir(process_name) / "status.txt", str(status))
 
-    def load_process_status(self, race: Race) -> Optional[str]:
-        return utils.read_text(self._race_dir(race) / "status.txt")
+    def load_process_status(self, process_name: str) -> ProcessStatus:
+        return ProcessStatus.from_txt(
+            utils.read_text(self._process_dir(process_name) / "status.txt")
+        )
 
-    def _race_dir(self, race: Race) -> Path:
-        dir_ = self.root_path / race.race_id
+    def _process_dir(self, process_name: str) -> Path:
+        dir_ = self.root_path / "process" / process_name
         dir_.mkdir(exist_ok=True, parents=True)
         return dir_

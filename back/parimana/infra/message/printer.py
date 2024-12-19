@@ -1,4 +1,7 @@
 from contextlib import contextmanager
+from functools import wraps
+import traceback
+from typing import Any
 
 from parimana.infra.message.redis import Channel
 
@@ -7,16 +10,16 @@ class Printer:
     def __init__(self, channel_id: str | None = None):
         self.channel_id = channel_id
         self.channel: Channel | None = None
-        if channel_id:
+        if self.channel_id:
             try:
-                self.channel = Channel(channel_id).pingged()
+                self.channel = Channel(self.channel_id).pingged()
             except Exception:
                 self.channel = None
 
-    def mprint(self, message: str) -> None:
+    def mprint(self, message: Any) -> None:
         print(message)
         if c := self.channel:
-            for line in message.splitlines():
+            for line in str(message).splitlines():
                 c.publish(line)
 
     def close(self) -> None:
@@ -34,6 +37,16 @@ def set_printer(channel_id: str):
         yield p
     finally:
         _global_printer = before
+
+
+def with_channel_printer(func):
+    @wraps(func)
+    def wrapper(*args, channel_id: str, **kwargs):
+
+        with set_printer(channel_id) as _:
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 _global_printer = Printer()
