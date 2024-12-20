@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, Typography } from '@mui/material';
+import { Box, Link, Typography } from '@mui/material';
 import { AnalysisProps, AnalysisData } from '../types';
 import { Competences } from './Competences';
 import { Simulation } from './Simulation';
@@ -20,25 +20,25 @@ export function Analysis(props: AnalysisProps) {
 
   return (
     <>
-      <br />
-      <br />
-      {analysis
-        ? <>
-          <Typography variant="body1">
-            Analysis of odds {analysis.odds_update_time}, <br />
-            sourced from <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
+      <Box sx={{ m: 2 }}>
+        {analysis
+          ? <>
+            <Typography variant="body1">
+              Analysis of odds {analysis.odds_update_time}, <br />
+              sourced from <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
+            </Typography>
+            <hr />
+            <Typography variant="h5">
+              In '{props.modelName}' model:
+            </Typography>
+            <Competences competences={analysis.competences} chart={analysis.model_box} />
+            <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />
+          </>
+          : <Typography variant="body1">
+            Loading...
           </Typography>
-          <hr />
-          <Typography variant="h5">
-            In '{props.modelName}' model:
-          </Typography>
-          <Competences competences={analysis.competences} chart={analysis.model_box} />
-          <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />
-        </>
-        : <Typography variant="body1">
-          Loading...
-        </Typography>
-      }
+        }
+      </Box>
     </>
   );
 }

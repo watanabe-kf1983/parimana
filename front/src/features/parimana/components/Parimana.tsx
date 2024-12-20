@@ -41,13 +41,19 @@ function ParimanaLayout(props: { content: React.ReactNode }) {
           maxWidth: '1030px'
         }}
       >
-        <Typography variant="h3">
-          parimana
-        </Typography>
-        <Typography variant="body1">
-          PARI-Mutuel odds ANAlyser
-        </Typography>
-
+        <Box
+          sx={{
+            m: 2,
+            maxWidth: '1030px'
+          }}
+        >
+          <Typography variant="h3">
+            parimana
+          </Typography>
+          <Typography variant="body1">
+            PARI-Mutuel odds ANAlyser
+          </Typography>
+        </Box>
         {props.content}
 
       </Box>
@@ -64,8 +70,13 @@ function ParimanaContent() {
 
   return (
     <MathJaxContext src={mathJaxURL}>
-      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
-      <Race raceId={raceId} showControl={false} />
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
+        <Race raceId={raceId} showControl={false} />
+      </Box>
     </MathJaxContext>
   )
 }

@@ -1,4 +1,4 @@
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { CourseSelectorProps } from "../types";
 
 export function CourseSelector(props: CourseSelectorProps) {
@@ -8,11 +8,17 @@ export function CourseSelector(props: CourseSelectorProps) {
 
   return (
     <>
-      <Select value={props.value} key={props.value} onChange={handleChange}>
-        {props.items?.map((item) => (
-          <MenuItem value={item.id}>{item.name}</MenuItem>
-        ))}
-      </Select>
+      <FormControl size="small" sx={{
+        minWidth: 100
+      }} >
+        <InputLabel id="course-selector-label">開催場</InputLabel>
+        <Select value={props.value} key={props.value} onChange={handleChange}
+          label="開催場" labelId="course-selector-label">
+          {props.items?.map((item) => (
+            <MenuItem value={item.id}>{item.name}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </>
   );
 }

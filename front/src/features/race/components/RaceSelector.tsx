@@ -1,6 +1,7 @@
 import { uniqWith, isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import { Box } from "@mui/material";
 
 import {
   Category,
@@ -12,6 +13,7 @@ import { DateSelector } from "./DateSelector";
 import { RaceOnDaySelector } from "./RaceOnDaySelector";
 import { CourseSelector } from "./CourseSelector";
 import * as api from "../api";
+
 
 const fetchCategories = async (_params: any): Promise<Category[]> => {
   return await api.getCategories();
@@ -125,30 +127,34 @@ export function RaceSelector(props: RaceSelectorProps) {
 
   return (
     <>
-      <CategorySelector
-        value={categoryId}
-        items={categoryItems}
-        onChange={onChangeCategoryId}
-      />
-      <DateSelector
-        value={date}
-        items={dateItems}
-        onChange={onChangeDate}
-      />
-      <CourseSelector
-        value={courseId}
-        items={courseItems}
-        onChange={onChangeCourseId}
-      />
-      <RaceOnDaySelector
-        value={raceId}
-        items={raceItems}
-        onChange={(rid) => {
-          setRaceId(rid);
-          props.onSetRaceId(rid);
-        }}
-      />
-      <br />
+      <Box sx={{
+        m: 2,
+        flexDirection: 'row'
+      }} >
+        <CategorySelector
+          value={categoryId}
+          items={categoryItems}
+          onChange={onChangeCategoryId}
+        />
+        <DateSelector
+          value={date}
+          items={dateItems}
+          onChange={onChangeDate}
+        />
+        <CourseSelector
+          value={courseId}
+          items={courseItems}
+          onChange={onChangeCourseId}
+        />
+        <RaceOnDaySelector
+          value={raceId}
+          items={raceItems}
+          onChange={(rid) => {
+            setRaceId(rid);
+            props.onSetRaceId(rid);
+          }}
+        />
+      </Box>
     </>
   );
 }

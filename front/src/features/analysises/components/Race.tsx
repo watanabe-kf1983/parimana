@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { AnalysisStatus, RaceControlProps } from "../types";
 import { useState, useEffect } from "react";
 import api from "../api";
@@ -26,24 +26,29 @@ export function Race(props: RaceControlProps) {
 
   return (
     <>
-      {!status.is_odds_confirmed ? (
-        <Button onClick={reload}> Reload </Button>
-      ) : null}
-      {props.showControl ? (
-        <>
-          <AnalyseControl
-            raceId={props.raceId}
-            status={status}
-            onReload={reload}
-          />
-          {status.is_processing ? (
-            <AnalysisProgress
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'row',
+      }}>
+        {!status.is_odds_confirmed ? (
+          <Button onClick={reload}> Reload </Button>
+        ) : null}
+        {props.showControl ? (
+          <>
+            <AnalyseControl
               raceId={props.raceId}
-              onComplete={reload}
-              onAbort={() => { }}
+              status={status}
+              onReload={reload}
             />
-          ) : null}
-        </>
+          </>
+        ) : null}
+      </Box>
+      {props.showControl && status.is_processing ? (
+        <AnalysisProgress
+          raceId={props.raceId}
+          onComplete={reload}
+          onAbort={() => { }}
+        />
       ) : null}
       {status.has_analysis && (!status.is_processing || !props.showControl) ? (
         <RaceAnalysises raceId={props.raceId} />

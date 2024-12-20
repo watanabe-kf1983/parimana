@@ -1,4 +1,4 @@
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { RaceOnDaySelectorProps } from "../types";
 
 export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
@@ -8,11 +8,17 @@ export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
 
   return (
     <>
-      <Select value={props.value} key={props.value} onChange={handleChange}>
-        {props.items?.map((race) => (
-          <MenuItem value={race.id}>{race.name}</MenuItem>
-        ))}
-      </Select>
+      <FormControl size="small" sx={{
+        minWidth: 80
+      }}>
+        <InputLabel id="race-selector-label">レース</InputLabel>
+        <Select value={props.value} key={props.value} onChange={handleChange}
+          label="レース" labelId="race-selector-label">
+          {props.items?.map((race) => (
+            <MenuItem value={race.id}>{race.name}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </>
   );
 }
