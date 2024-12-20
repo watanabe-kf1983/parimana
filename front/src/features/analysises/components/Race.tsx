@@ -1,11 +1,12 @@
 import { Button } from "@mui/material";
-import { AnalysisStatus, RaceProps } from "../types";
+import { AnalysisStatus, RaceControlProps } from "../types";
 import { useState, useEffect } from "react";
-import api from "../api/";
+import api from "../api";
 import { RaceAnalysises } from "./RaceAnalysises";
+import { AnalyseControl } from "./AnalyseControl";
 import { AnalysisProgress } from "./AnalysisProgress";
 
-export function Race(props: RaceProps) {
+export function Race(props: RaceControlProps) {
   const initialStatus: AnalysisStatus = {
     is_processing: false,
     has_analysis: false,
@@ -15,16 +16,6 @@ export function Race(props: RaceProps) {
   const [time, setTime] = useState<Date>(new Date());
   const reload = () => setTime(new Date());
 
-  const requestAnalyse = async () => {
-    setStatus({
-      is_processing: true,
-      has_analysis: status.has_analysis,
-      is_odds_confirmed: status.is_odds_confirmed,
-    });
-    await api.requestAnalyse(props.raceId);
-    reload();
-  };
-
   useEffect(() => {
     const getStatus = async () => {
       const s = await api.getAnalysisStatus(props.raceId);
@@ -33,46 +24,30 @@ export function Race(props: RaceProps) {
     getStatus();
   }, [props.raceId, time]);
 
-  const requestButtonText = status.is_processing
-    ? "Processing..."
-    : status.has_analysis
-    ? "Request update odds & re-analyse"
-    : "Request analyse";
-
   return (
     <>
-      {!status.is_odds_confirmed ? <br></br> : <></>}
-      {!status.is_odds_confirmed || status.is_processing ? (
-        <>
-          <Button onClick={reload}> Reload </Button>
-        </>
-      ) : (
-        <></>
-      )}
       {!status.is_odds_confirmed ? (
-        <Button
-          variant="outlined"
-          onClick={requestAnalyse}
-          disabled={status.is_processing}
-        >
-          {requestButtonText}
-        </Button>
-      ) : (
-        <></>
-      )}
-      {status.is_processing ? (
+        <Button onClick={reload}> Reload </Button>
+      ) : null}
+      {props.showControl ? (
         <>
-          <AnalysisProgress
+          <AnalyseControl
             raceId={props.raceId}
-            onComplete={reload}
-            onAbort={() => {}}
+            status={status}
+            onReload={reload}
           />
+          {status.is_processing ? (
+            <AnalysisProgress
+              raceId={props.raceId}
+              onComplete={reload}
+              onAbort={() => { }}
+            />
+          ) : null}
         </>
-      ) : status.has_analysis ? (
+      ) : null}
+      {status.has_analysis && (!status.is_processing || !props.showControl) ? (
         <RaceAnalysises raceId={props.raceId} />
-      ) : (
-        <></>
-      )}
+      ) : null}
     </>
   );
 }

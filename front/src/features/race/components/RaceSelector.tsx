@@ -148,6 +148,7 @@ export function RaceSelector(props: RaceSelectorProps) {
           props.onSetRaceId(rid);
         }}
       />
+      <br />
     </>
   );
 }

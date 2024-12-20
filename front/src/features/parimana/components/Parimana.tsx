@@ -65,7 +65,7 @@ function ParimanaContent() {
   return (
     <MathJaxContext src={mathJaxURL}>
       <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
-      <Race raceId={raceId} />
+      <Race raceId={raceId} showControl={false} />
     </MathJaxContext>
   )
 }

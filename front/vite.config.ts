@@ -6,9 +6,15 @@ export default ({ mode }) => {
   const port = process.env.API_PORT || 5000;
 
   return defineConfig({
-    plugins: [react()], 
+    plugins: [react()],
     define: {
       'API_PORT': JSON.stringify(port),
+    },
+    server: {
+      watch: {
+        usePolling: true, // To work HMR with VSCode Remote Container on WSL2 Docker Devcontainer
+        interval: 500,    
+      },
     },
   })
 }
