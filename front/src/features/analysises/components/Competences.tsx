@@ -39,13 +39,14 @@ export function Competences(props: CompetenceProps) {
     return (
         <>
             <Typography variant="h6">
-                Estimated competence of contestants
+                予想走破時計
             </Typography>
             <Typography variant="h6">
             </Typography>
             <DataGrid rows={rows} columns={columns} density='compact'
                 autoHeight disableColumnMenu hideFooter />
             <PlotlyChart chartJSON={props.chart} />
+            <br></br>
         </>
     );
 }

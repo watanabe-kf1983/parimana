@@ -10,7 +10,7 @@ export function Simulation(props: SimulationProps) {
     return (
         <>
             <Typography variant="h6">
-                Expected dividends by simulation
+                的中確率と払戻期待値
             </Typography>
             <Betting raceId={props.raceId} modelName={props.modelName} />
             <PlotlyChart chartJSON={props.chart} />
