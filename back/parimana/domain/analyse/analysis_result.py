@@ -4,7 +4,7 @@ from typing import Mapping, Optional, Sequence
 
 import pandas as pd
 
-from parimana.infra.message import mprint
+from parimana.utils.message import mprint
 from parimana.domain.base import Eye, OddsPool, Contestant
 from parimana.domain.analyse.mvn_model import MvnModel
 from parimana.domain.analyse.expected import EyeExpectedValue, EyeExpectedValues

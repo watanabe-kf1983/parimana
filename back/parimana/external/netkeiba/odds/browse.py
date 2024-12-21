@@ -7,7 +7,7 @@ from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
-from parimana.infra.message import mprint
+from parimana.utils.message import mprint
 from parimana.domain.base import BettingType
 from parimana.external.netkeiba.base import NetKeibaRace
 from parimana.external.netkeiba.odds.btype import btype_to_code, supported_types

@@ -7,7 +7,7 @@ import redis
 import redis.asyncio as aioredis
 import async_timeout
 
-from parimana.infra.message.channel import Channel, PublishCenter
+from parimana.utils.message import Channel, PublishCenter
 
 
 _MSG_CLOSE = "*&*&*&*&finished*&*&*&*&"

@@ -3,8 +3,8 @@ from datetime import timedelta
 
 import requests
 
-from parimana.infra.message import mprint
-from parimana.infra.browser.modest import ModestFunction
+from parimana.utils.message import mprint
+from parimana.external.scraping_utils.modest import ModestFunction
 
 
 modestly = ModestFunction(interval=timedelta(seconds=1.5))

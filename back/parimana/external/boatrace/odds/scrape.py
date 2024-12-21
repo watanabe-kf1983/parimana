@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Mapping, Tuple
 
-from parimana.infra.message import mprint
+from parimana.utils.message import mprint
 from parimana.domain.base import Eye, Odds
 from parimana.domain.race import (
     OddsTimeStamp,

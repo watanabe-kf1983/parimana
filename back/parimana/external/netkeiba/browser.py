@@ -2,9 +2,9 @@ from datetime import timedelta
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from parimana.infra.message import mprint
-from parimana.infra.browser.modest import ModestFunction
-from parimana.devices.driver.chrome import headless_chrome
+from parimana.utils.message import mprint
+from parimana.external.scraping_utils.modest import ModestFunction
+from parimana.devices.chrome import headless_chrome
 
 
 modestly = ModestFunction(interval=timedelta(seconds=1.5))

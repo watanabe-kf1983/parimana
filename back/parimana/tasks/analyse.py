@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Sequence
 from celery import chain, group
 
-from parimana.infra.message import mprint, mclose
+from parimana.utils.message import mprint, mclose
 from parimana.domain.analyse import AnalysisResult, default_analyser_names
 from parimana.domain.race import Race, RaceOddsPool
 from parimana.app.analyse import AnalyseApp

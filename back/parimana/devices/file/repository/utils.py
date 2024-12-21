@@ -4,7 +4,7 @@ from typing import Optional
 
 import plotly.io as pio
 
-from parimana.infra.message import mprint
+from parimana.utils.message import mprint
 
 
 def read_text(file_path: Path) -> Optional[str]:

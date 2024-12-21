@@ -1,8 +1,8 @@
 from typing import Collection, Iterator, Mapping, Tuple
 from datetime import timedelta, datetime
 
-from parimana.infra.browser.modest import ModestFunction
 from parimana.domain.base import BettingType
+from parimana.external.scraping_utils.modest import ModestFunction
 from parimana.external.boatrace.base import BoatRace
 import parimana.external.boatrace.browser as browser
 
