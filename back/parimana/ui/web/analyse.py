@@ -3,15 +3,13 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-import parimana.infra.message as msg
 import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc
 from parimana.app.status import ProcessStatusManager
 from parimana.app.analyse import AnalyseApp
-import parimana.ui.settings as settings
-import parimana.ui.batch as batch
-
+import parimana.ui.batch.batch as batch
+import parimana.settings as settings
 
 router = APIRouter()
 
@@ -106,22 +104,23 @@ class Result(BaseModel):
         )
 
 
-app = AnalyseApp(settings.repo.analysis)
-psm = ProcessStatusManager(settings.repo.status)
+app = AnalyseApp(race_types=settings.race_types, repo=settings.analysis_repository)
+psm = ProcessStatusManager(settings.status_repository)
+pub_center = settings.publish_center
 
 
 @router.post("/{race_id}/start")
 def start_analyse(race_id: str):
     return {
         "task_id": batch.start_analyse(
-            settings=settings.Settings(race_id, analyser_names=["no_cor"])
+            options=batch.CuiOptions(race_id, analyser_names=["no_cor"])
         )
     }
 
 
 @router.get("/{race_id}/status")
 def get_status(race_id: str) -> Status:
-    race = _select_race(race_id)
+    race = app.select_race(race_id)
     return Status(
         is_processing=psm.load_status(f"analyse_{race_id}").is_processing,
         has_analysis=app.has_analysis(race),
@@ -131,12 +130,12 @@ def get_status(race_id: str) -> Status:
 
 @router.get("/{race_id}/progress", response_class=StreamingResponse)
 async def get_progress(race_id: str):
-    return _eventStreamResponse(msg.Channel(f"analyse_{race_id}").alisten())
+    return _eventStreamResponse(pub_center.get_channel(f"analyse_{race_id}").alisten())
 
 
 @router.get("/{race_id}/{analyser_name}")
 def get_analysis(race_id: str, analyser_name: str) -> Result:
-    race = _select_race(race_id)
+    race = app.select_race(race_id)
     return Result.from_base(*app.get_analysis(race, analyser_name))
 
 
@@ -144,15 +143,11 @@ def get_analysis(race_id: str, analyser_name: str) -> Result:
 def get_candidates(
     race_id: str, analyser_name: str, query: Optional[str] = Query(None)
 ) -> Sequence[EyeExpectedValue]:
-    race = _select_race(race_id)
+    race = app.select_race(race_id)
     charts, _, __ = app.get_analysis(race, analyser_name)
     return [
         EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2(query=query)
     ]
-
-
-def _select_race(race_id: str) -> rc.Race:
-    return settings.race_selector.select(race_id)
 
 
 def _eventStreamResponse(generator: AsyncGenerator[str, Any]):

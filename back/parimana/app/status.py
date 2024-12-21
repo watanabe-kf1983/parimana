@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, AsyncGenerator
 
-from parimana.infra.message import mprint, mclose, Channel
+from parimana.infra.message import mprint, mclose, PublishCenter
 
 
 @dataclass
@@ -34,6 +34,7 @@ class StatusRepository(ABC):
 @dataclass
 class ProcessStatusManager:
     repo: StatusRepository
+    center: PublishCenter
 
     def start_process(self, process_name: str, check_status: bool = True) -> None:
         status = self.load_status(process_name)
@@ -64,6 +65,6 @@ class ProcessStatusManager:
     async def alisten(self, process_name: str) -> AsyncGenerator[str, Any]:
         status = self.load_status(process_name)
         if status.is_processing:
-            return Channel(process_name).alisten()
+            return self.center.get_channel(process_name).alisten()
         else:
             raise ValueError(f"Not processing, {status=}")

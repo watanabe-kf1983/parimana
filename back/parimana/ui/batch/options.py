@@ -11,7 +11,7 @@ from parimana.domain.analyse import (
 
 
 @dataclass(frozen=True)
-class Settings:
+class CuiOptions:
     race_id: str
     use_cache: bool = False
     simulation_count: int = 10_000_000
@@ -20,13 +20,13 @@ class Settings:
     recommend_size: int = 20
 
     @classmethod
-    def from_cli_args(cls) -> "Settings":
+    def from_cli_args(cls) -> "CuiOptions":
         args = vars(_arg_parser().parse_args())
-        return Settings(**args)
+        return CuiOptions(**args)
 
 
 def _arg_parser() -> argparse.ArgumentParser:
-    default_settings = Settings("")
+    default_options = CuiOptions("")
     parser = argparse.ArgumentParser(
         prog="parimana", description="Analyse pari-mutuel betting odds"
     )
@@ -41,7 +41,7 @@ def _arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--use-cache",
         action="store_true",
-        default=default_settings.use_cache,
+        default=default_options.use_cache,
         help="use odds cache once scraped",
     )
     parser.add_argument(
@@ -49,20 +49,20 @@ def _arg_parser() -> argparse.ArgumentParser:
         "--analyser-names",
         choices=analyser_names,
         nargs="*",
-        default=default_settings.analyser_names,
+        default=default_options.analyser_names,
         help="using analyser",
     )
     parser.add_argument(
         "--simulation-count",
         type=int,
-        default=default_settings.simulation_count,
+        default=default_options.simulation_count,
         help="simulation sample number",
     )
     parser.add_argument(
         "-q",
         "--recommend-query",
         type=str,
-        default=default_settings.recommend_query,
+        default=default_options.recommend_query,
         help=(
             "query string to filter recommendation. \n"
             " (ex: \"type == 'TRIFECTA' and expected >= 120\")"
@@ -72,7 +72,7 @@ def _arg_parser() -> argparse.ArgumentParser:
         "-s",
         "--recommend-size",
         type=int,
-        default=default_settings.recommend_size,
+        default=default_options.recommend_size,
         help=("maximum number of candidates to recommend."),
     )
     return parser

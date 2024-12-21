@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-import os
+from dataclasses import dataclass
 from typing import AsyncGenerator
 import asyncio
 
@@ -7,40 +7,33 @@ import redis
 import redis.asyncio as aioredis
 import async_timeout
 
-REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-REDIS_DB_ID = 0
-
-uri: str = f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/{REDIS_DB_ID}"
+from parimana.infra.message.channel import Channel, PublishCenter
 
 
 _MSG_CLOSE = "*&*&*&*&finished*&*&*&*&"
 
 
-class Channel:
-    def __init__(self, name: str):
-        self.name: str = name
-        self.client: redis.Redis = redis.from_url(uri)
-        self.aioclient: aioredis.Redis = aioredis.from_url(uri)
-
-    def pingged(self) -> "Channel":
+class RedisChannel(Channel):
+    def __init__(self, db_uri, channel_id: str):
+        self.channel_id: str = channel_id
+        self.client: redis.Redis = redis.from_url(db_uri)
+        self.aioclient: aioredis.Redis = aioredis.from_url(db_uri)
         self.client.ping()
-        return self
+
+    def publish(self, message: str) -> None:
+        self.client.publish(f"channel-{self.channel_id}", message)
 
     def close(self) -> None:
         self.publish(_MSG_CLOSE)
-
-    def publish(self, message: str) -> None:
-        self.client.publish(f"channel-{self.name}", message)
 
     @asynccontextmanager
     async def _asubcribe(self) -> aioredis.client.PubSub:
         async with self.aioclient.pubsub() as p:
             try:
-                await p.subscribe(f"channel-{self.name}")
+                await p.subscribe(f"channel-{self.channel_id}")
                 yield p
             finally:
-                await p.unsubscribe(f"channel-{self.name}")
+                await p.unsubscribe(f"channel-{self.channel_id}")
                 await p.aclose()
 
     async def alisten(self) -> AsyncGenerator[str, None]:
@@ -55,3 +48,15 @@ class Channel:
                         else:
                             yield msg
                     await asyncio.sleep(0.01)
+
+
+@dataclass
+class RedisChannelFactory:
+    db_uri: str
+
+    @property
+    def publish_center(self):
+        return PublishCenter(self.get_channel)
+
+    def get_channel(self, channel_id) -> Channel:
+        return RedisChannel(self.db_uri, channel_id)

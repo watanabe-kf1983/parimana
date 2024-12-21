@@ -6,8 +6,8 @@ authors = ["Baya Minami <baya.f.minami@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-parimana = "parimana.ui.batch:main"
-parimana-worker = "parimana.ui.batch:run_worker"
+parimana = "parimana.ui.batch.batch:main"
+parimana-worker = "parimana.ui.batch.batch:run_worker"
 parimana-web = "parimana.ui.web.main:start"
 
 [tool.poetry.dependencies]

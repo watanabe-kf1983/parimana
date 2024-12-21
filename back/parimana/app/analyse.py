@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Sequence, Tuple
+from typing import Collection, Optional, Sequence, Tuple, Type
 
 
 from parimana.domain.analyse import (
@@ -8,7 +8,7 @@ from parimana.domain.analyse import (
     EyeExpectedValue,
     AnalysisResult,
 )
-from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool
+from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool, RaceSelector
 from parimana.app.exception import ResultNotExistError
 
 
@@ -62,8 +62,12 @@ class AnalysisRepository(ABC):
 
 
 class AnalyseApp:
-    def __init__(self, repo: AnalysisRepository):
+    def __init__(self, race_types: Collection[Type[Race]], repo: AnalysisRepository):
         self.repo: AnalysisRepository = repo
+        self.selector: RaceSelector = RaceSelector(race_types)
+
+    def select_race(self, race_id: str) -> Race:
+        return self.selector.select(race_id)
 
     def has_analysis(self, race: Race) -> bool:
         return self.repo.load_latest_charts_time(race) is not None

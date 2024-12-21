@@ -4,8 +4,8 @@ from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 import parimana.domain.schedule as sc
-import parimana.app.schedule as ap
-import parimana.ui.settings as settings
+from parimana.app.schedule import ScheduleApp
+import parimana.settings as settings
 
 router = APIRouter()
 
@@ -57,12 +57,14 @@ class RaceInfo(BaseModel):
         )
 
 
-app = ap.ScheduleApp(settings.repo.schedule)
+app = ScheduleApp(
+    categories=settings.categories, repository=settings.schedule_repository
+)
 
 
 @router.get("/categories")
 def get_categories():
-    return [Category.from_base(cat) for cat in settings.category_selector.all()]
+    return [Category.from_base(cat) for cat in settings.categories]
 
 
 @router.get("/races")
@@ -90,4 +92,4 @@ def get_race(race_id: str) -> RaceInfo:
 
 
 def _select_cat(category_id: str) -> sc.Category:
-    return settings.category_selector.select(category_id)
+    return app.select_category(category_id)

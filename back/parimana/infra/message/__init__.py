@@ -1,14 +1,8 @@
-from parimana.infra.message.redis import uri, Channel
-from parimana.infra.message.printer import (
-    mprint,
-    mclose,
-    with_channel_printer,
-)
+from parimana.infra.message.channel import mprint, mclose, Channel, PublishCenter
 
 __all__ = [
-    "uri",
+    "PublishCenter",
     "Channel",
     "mprint",
     "mclose",
-    "with_channel_printer",
 ]

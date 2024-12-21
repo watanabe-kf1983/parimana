@@ -3,7 +3,7 @@ import datetime
 from typing import Optional, Sequence
 
 from parimana.app.exception import ResultNotExistError
-from parimana.domain.schedule import Category, RaceInfo
+from parimana.domain.schedule import Category, CategorySelector, RaceInfo
 
 
 class ScheduleRepository(ABC):
@@ -45,8 +45,12 @@ class ScheduleRepository(ABC):
 
 
 class ScheduleApp:
-    def __init__(self, repo: ScheduleRepository):
+    def __init__(self, categories: Sequence[Category], repo: ScheduleRepository):
+        self.category_selector = CategorySelector(categories)
         self.repo: ScheduleRepository = repo
+
+    def select_category(self, category_id: str):
+        return self.category_selector.select(category_id)
 
     def get_schedule(
         self,
