@@ -8,7 +8,7 @@ import parimana.domain.analyse as an
 import parimana.domain.race as rc
 from parimana.app.status import ProcessStatusManager
 from parimana.app.analyse import AnalyseApp
-import parimana.ui.batch.batch as batch
+import parimana.tasks as tasks
 import parimana.settings as settings
 
 router = APIRouter()
@@ -104,18 +104,16 @@ class Result(BaseModel):
         )
 
 
-app = AnalyseApp(race_types=settings.race_types, repo=settings.analysis_repository)
-psm = ProcessStatusManager(settings.status_repository)
 pub_center = settings.publish_center
+app = AnalyseApp(race_types=settings.race_types, repo=settings.analysis_repository)
+psm = ProcessStatusManager(repo=settings.status_repository, center=pub_center)
 
 
 @router.post("/{race_id}/start")
 def start_analyse(race_id: str):
-    return {
-        "task_id": batch.start_analyse(
-            options=batch.CuiOptions(race_id, analyser_names=["no_cor"])
-        )
-    }
+    options = tasks.AnalyseTaskOptions(race_id, analyser_names=["no_cor"])
+    task_id = tasks.scrape_and_analyse(options).delay().id
+    return {"task_id": task_id}
 
 
 @router.get("/{race_id}/status")

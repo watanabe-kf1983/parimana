@@ -1,32 +1,18 @@
-# https://www.jra.go.jp/keiba/overseas/yougo/c10080_list.html
-
 import argparse
-from dataclasses import dataclass, field
-from typing import Sequence
 
 from parimana.domain.analyse import (
     analyser_names,
-    default_analyser_names,
 )
+from parimana.tasks.analyse import AnalyseTaskOptions
 
 
-@dataclass(frozen=True)
-class CuiOptions:
-    race_id: str
-    use_cache: bool = False
-    simulation_count: int = 10_000_000
-    analyser_names: Sequence[str] = field(default_factory=default_analyser_names)
-    recommend_query: str = ""
-    recommend_size: int = 20
-
-    @classmethod
-    def from_cli_args(cls) -> "CuiOptions":
-        args = vars(_arg_parser().parse_args())
-        return CuiOptions(**args)
+def parse_analyse_options() -> AnalyseTaskOptions:
+    args = vars(_arg_parser().parse_args())
+    return AnalyseTaskOptions(**args)
 
 
 def _arg_parser() -> argparse.ArgumentParser:
-    default_options = CuiOptions("")
+    default_options = AnalyseTaskOptions("")
     parser = argparse.ArgumentParser(
         prog="parimana", description="Analyse pari-mutuel betting odds"
     )

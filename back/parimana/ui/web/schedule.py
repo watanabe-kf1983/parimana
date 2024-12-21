@@ -57,9 +57,7 @@ class RaceInfo(BaseModel):
         )
 
 
-app = ScheduleApp(
-    categories=settings.categories, repository=settings.schedule_repository
-)
+app = ScheduleApp(categories=settings.categories, repo=settings.schedule_repository)
 
 
 @router.get("/categories")
