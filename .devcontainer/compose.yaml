@@ -9,6 +9,7 @@ services:
     volumes:
       - file-repo:/var/parimana/repo
       - ..:/workspace:cached
+      - ~/.ssh:/home/vscode/.ssh:cached
     environment:
       REDIS_HOSTNAME: task-db
       REDIS_PORT: 6379
@@ -23,6 +24,7 @@ services:
       target: vscode-devcontainer
     volumes:
       - ..:/workspace:cached
+      - ~/.ssh:/home/node/.ssh:cached
     command: ["tail", "-f", "/dev/null"]
     restart: always
 
