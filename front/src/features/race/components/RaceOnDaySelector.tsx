@@ -2,6 +2,10 @@ import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@m
 import { RaceOnDaySelectorProps } from "../types";
 
 export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
+
+  // To avoid "Consider providing a value that matches one of the available options or ''""
+  const value = props.items?.find((race) => race.id == props.value) ? props.value : ""
+
   const handleChange = (event: SelectChangeEvent) => {
     props.onChange(event.target.value);
   };
@@ -12,10 +16,10 @@ export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
         minWidth: 80
       }}>
         <InputLabel id="race-selector-label">レース</InputLabel>
-        <Select value={props.value} key={props.value} onChange={handleChange}
+        <Select value={value} onChange={handleChange}
           label="レース" labelId="race-selector-label">
           {props.items?.map((race) => (
-            <MenuItem value={race.id}>{race.name}</MenuItem>
+            <MenuItem value={race.id} key={"rc_item_" + race.id}>{race.name}</MenuItem>
           ))}
         </Select>
       </FormControl>

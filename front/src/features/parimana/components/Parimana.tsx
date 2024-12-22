@@ -3,7 +3,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MathJaxContext } from "better-react-mathjax"
 
-import { Link, Box, Typography } from "@mui/material"
+import { Box, Typography } from "@mui/material"
 
 import { Race } from "../../analysises/components/Race"
 import { RaceSelector } from "../../race/components/RaceSelector"
@@ -17,16 +17,17 @@ export function Parimana() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<ParimanaPage />} />
+        <Route path="/" element={<ParimanaPage showControl={false} />} />
         <Route path="/about" element={<HelpPage />} />
-        <Route path="/analysis/:raceId" element={<ParimanaPage />} />
+        <Route path="/analysis/:raceId" element={<ParimanaPage showControl={false} />} />
+        <Route path="/analysis/:raceId/sctl" element={<ParimanaPage showControl={true} />} />
       </Routes>
     </BrowserRouter>
   )
 }
 
-function ParimanaPage() {
-  return <ParimanaLayout content={<ParimanaContent />} />
+function ParimanaPage(props: { showControl: boolean }) {
+  return <ParimanaLayout content={<ParimanaContent showControl={props.showControl} />} />
 }
 
 function HelpPage() {
@@ -34,67 +35,68 @@ function HelpPage() {
 }
 
 function ParimanaLayout(props: { content: React.ReactNode }) {
-
   return (
-    <Box
-      sx={{
+    <MathJaxContext src={mathJaxURL}>
+      <Box sx={{
         display: 'flex',
         justifyContent: 'center',
         padding: '10px',
         minHeight: '100vh',
         // minWidth: '1000px', // 最小幅をコンテンツの幅に合わせる
       }}
-    >
-      <Box
-        sx={{
+      >
+        <Box sx={{
           maxWidth: '1030px'
         }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            m: 2
-          }}
         >
-          {/* <Link href="/" variant="h3"> */}
-          <Typography component={RouterLink} to="/" variant="h3" sx={{
-            color: "inherit",
-            textDecoration: "none",
-          }}>
-            parimana
-          </Typography>
-          <Typography variant="body1" sx={{ m: 1 }}>
-            PARI-Mutuel odds ANAlyser
-          </Typography>
-          <HelpIcon />
+          <ParimanaHeader />
+          {props.content}
         </Box>
-        {props.content}
-
       </Box>
-    </Box >
+    </MathJaxContext>
   )
 }
 
-function ParimanaContent() {
+
+function ParimanaHeader() {
+  return (
+    <>
+      <Box sx={{ display: 'flex', flexDirection: 'row', m: 2 }}>
+        <Typography
+          component={RouterLink} to="/"
+          variant="h3"
+          sx={{
+            color: "inherit",
+            textDecoration: "none",
+          }}>
+          parimana
+        </Typography>
+        <Typography variant="body1" sx={{ m: 1 }}>
+          PARI-Mutuel odds ANAlyser
+        </Typography>
+        <HelpIcon />
+      </Box>
+    </>
+  )
+}
+
+
+function ParimanaContent(props: { showControl: boolean }) {
   const raceId = useParams().raceId || '';
   const navigate = useNavigate();
   const setRaceId = (raceId: string) => {
-    navigate(`/analysis/${raceId}`);
+    navigate(props.showControl ? `/analysis/${raceId}/sctl` : `/analysis/${raceId}`);
   };
 
-
   return (
-    <MathJaxContext src={mathJaxURL}>
-      <Box sx={{
+    <Box key={`parimana-content-${raceId}-${props.showControl}`}
+      sx={{
         display: 'flex',
         flexDirection: 'column',
       }}>
-        <div key={`parimana-content-${raceId}`}>
-          <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
-          <Race raceId={raceId} showControl={false} />
-        </div>
-      </Box>
-    </MathJaxContext>
+      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
+      {raceId ?
+        <Race raceId={raceId} showControl={props.showControl} /> : null}
+    </Box>
   )
 }
