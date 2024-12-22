@@ -58,7 +58,7 @@ def _item_to_race(item: RaceListItem, date: datetime.date) -> RaceInfo:
     print(item)
     return RaceInfo(
         race_id=NetKeibaRace(item.netkeiba_race_id).race_id,
-        name=f"{item.race_num_text} {item.title}",
+        name=f"{item.race_num_text}",
         fixture=Fixture(
             course=JraCourse.from_code(code=item.keibajo_code).to_course(), date=date
         ),
