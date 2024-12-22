@@ -1,6 +1,4 @@
-from abc import ABC, abstractmethod
-from typing import Collection, Optional, Sequence, Tuple, Type
-
+from typing import Sequence, Tuple
 
 from parimana.domain.analyse import (
     analysers,
@@ -8,66 +6,15 @@ from parimana.domain.analyse import (
     EyeExpectedValue,
     AnalysisResult,
 )
-from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool, RaceSelector
+from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool
+from parimana.io.kvs import Storage
+from parimana.repository.analysis import AnalysisRepository, AnalysisRepositoryImpl
 from parimana.app.exception import ResultNotExistError
 
 
-class AnalysisRepository(ABC):
-
-    @abstractmethod
-    def save_odds_pool(self, odds_pool: RaceOddsPool):
-        pass
-
-    @abstractmethod
-    def load_odds_pool(self, race: Race, ts: OddsTimeStamp) -> Optional[RaceOddsPool]:
-        pass
-
-    @abstractmethod
-    def load_latest_odds_pool(self, race: Race) -> Optional[RaceOddsPool]:
-        pass
-
-    @abstractmethod
-    def odds_pool_exists(self, race: Race) -> bool:
-        pass
-
-    @abstractmethod
-    def save_charts(self, race: Race, timestamp: OddsTimeStamp, charts: AnalysisCharts):
-        pass
-
-    @abstractmethod
-    def load_charts(self, race: Race, ts: OddsTimeStamp, model: str) -> AnalysisCharts:
-        pass
-
-    @abstractmethod
-    def load_latest_charts(
-        self, race: Race, model: str
-    ) -> Optional[tuple[AnalysisCharts, OddsTimeStamp]]:
-        pass
-
-    @abstractmethod
-    def save_latest_odds_time(self, race: Race, ts: OddsTimeStamp) -> None:
-        pass
-
-    @abstractmethod
-    def load_latest_odds_time(self, race: Race) -> Optional[OddsTimeStamp]:
-        pass
-
-    @abstractmethod
-    def save_latest_charts_time(self, race: Race, ts: OddsTimeStamp) -> None:
-        pass
-
-    @abstractmethod
-    def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
-        pass
-
-
 class AnalyseApp:
-    def __init__(self, race_types: Collection[Type[Race]], repo: AnalysisRepository):
-        self.repo: AnalysisRepository = repo
-        self.selector: RaceSelector = RaceSelector(race_types)
-
-    def select_race(self, race_id: str) -> Race:
-        return self.selector.select(race_id)
+    def __init__(self, store: Storage):
+        self.repo: AnalysisRepository = AnalysisRepositoryImpl(store)
 
     def has_analysis(self, race: Race) -> bool:
         return self.repo.load_latest_charts_time(race) is not None
@@ -97,18 +44,6 @@ class AnalyseApp:
             raise ResultNotExistError(
                 f"{race.race_id}-{analyser_name} 's result not exists"
             )
-
-    def get_odds_pool(self, *, race: Race, scrape_force: bool = False) -> RaceOddsPool:
-        odds_pool = self.repo.load_latest_odds_pool(race)
-
-        if odds_pool and (odds_pool.timestamp.is_confirmed or not scrape_force):
-            return odds_pool
-        else:
-            timestamp = race.odds_source.scrape_timestamp()
-            if (not odds_pool) or odds_pool.timestamp < timestamp:
-                odds_pool = race.odds_source.scrape_odds_pool()
-                self.repo.save_odds_pool(odds_pool)
-            return odds_pool
 
     def analyse(
         self,

@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import requests
 
-from parimana.utils.message import mprint
+from parimana.io.message import mprint
 from parimana.external.scraping_utils.modest import ModestFunction
 
 

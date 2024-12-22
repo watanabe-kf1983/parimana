@@ -1,53 +1,15 @@
-from abc import ABC, abstractmethod
-import datetime
 from typing import Optional, Sequence
 
-from parimana.app.exception import ResultNotExistError
 from parimana.domain.schedule import Category, CategorySelector, RaceInfo
-
-
-class ScheduleRepository(ABC):
-
-    @abstractmethod
-    def save_calendar(
-        self,
-        cat: Category,
-        calendar: Sequence[datetime.date],
-    ):
-        pass
-
-    @abstractmethod
-    def load_calendar(self, cat: Category) -> Optional[Sequence[datetime.date]]:
-        pass
-
-    @abstractmethod
-    def save_schedule(
-        self,
-        cat: Category,
-        date: datetime.date,
-        schedule: Sequence[RaceInfo],
-    ):
-        pass
-
-    @abstractmethod
-    def load_schedule(
-        self, cat: Category, date: datetime.date
-    ) -> Optional[Sequence[RaceInfo]]:
-        pass
-
-    @abstractmethod
-    def save_race_info(self, race_info: RaceInfo):
-        pass
-
-    @abstractmethod
-    def load_race_info(self, race_id: str) -> Optional[RaceInfo]:
-        pass
+from parimana.io.kvs import Storage
+from parimana.repository.schedule import ScheduleRepository, ScheduleRepositoryImpl
+from parimana.app.exception import ResultNotExistError
 
 
 class ScheduleApp:
-    def __init__(self, categories: Sequence[Category], repo: ScheduleRepository):
+    def __init__(self, categories: Sequence[Category], store: Storage):
         self.category_selector = CategorySelector(categories)
-        self.repo: ScheduleRepository = repo
+        self.repo: ScheduleRepository = ScheduleRepositoryImpl(store)
 
     def select_category(self, category_id: str):
         return self.category_selector.select(category_id)

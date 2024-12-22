@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence, Tuple
 
-from parimana.utils.message import mprint
+from parimana.io.message import mprint
 from parimana.domain.base import BettingType, Distribution, OddsPool, Contestant
 from parimana.domain.analyse.analysis_result import AnalysisResult
 from parimana.domain.analyse.regression import RegressionModel

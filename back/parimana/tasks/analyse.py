@@ -2,20 +2,21 @@ from dataclasses import dataclass, field
 from typing import Sequence
 from celery import chain, group
 
-from parimana.utils.message import mprint, mclose
+from parimana.io.message import mprint, mclose
 from parimana.domain.analyse import AnalysisResult, default_analyser_names
-from parimana.domain.race import Race, RaceOddsPool
+from parimana.domain.race import Race, RaceOddsPool, RaceSelector
 from parimana.app.analyse import AnalyseApp
+from parimana.app.collect_odds import OddsCollectorApp
 from parimana.app.status import ProcessStatusManager
-import parimana.settings as settings
 from parimana.tasks.celery import app
+import parimana.settings as settings
 
-analyse_app = AnalyseApp(
-    race_types=settings.race_types, repo=settings.analysis_repository
-)
+analyse_app = AnalyseApp(store=settings.analysis_storage)
+odds_app = OddsCollectorApp(store=settings.odds_storage)
 ps_manager = ProcessStatusManager(
-    repo=settings.status_repository, center=settings.publish_center
+    store=settings.status_storage, center=settings.publish_center
 )
+race_selector = RaceSelector(settings.race_types)
 
 with_channel_printer = settings.publish_center.with_channel_printer
 
@@ -23,7 +24,7 @@ with_channel_printer = settings.publish_center.with_channel_printer
 @app.task
 @with_channel_printer
 def get_odds_pool(*, race: Race, scrape_force: bool = False) -> RaceOddsPool:
-    return analyse_app.get_odds_pool(race=race, scrape_force=scrape_force)
+    return odds_app.get_odds_pool(race=race, scrape_force=scrape_force)
 
 
 @app.task
@@ -70,7 +71,7 @@ class AnalyseTaskOptions:
 
 
 def scrape_and_analyse(options: AnalyseTaskOptions):
-    race = analyse_app.select_race(options.race_id)
+    race = race_selector.select(options.race_id)
     process_name = f"analyse_{options.race_id}"
     return chain(
         start_process.s(channel_id=process_name, process_name=process_name),

@@ -7,8 +7,6 @@ import parimana.domain.schedule as sc
 from parimana.app.schedule import ScheduleApp
 import parimana.settings as settings
 
-router = APIRouter()
-
 
 class Category(BaseModel):
     id: str
@@ -57,7 +55,9 @@ class RaceInfo(BaseModel):
         )
 
 
-app = ScheduleApp(categories=settings.categories, repo=settings.schedule_repository)
+router = APIRouter()
+
+app = ScheduleApp(categories=settings.categories, store=settings.schedule_storage)
 
 
 @router.get("/categories")

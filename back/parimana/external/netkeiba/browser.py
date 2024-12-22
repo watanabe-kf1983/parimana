@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from parimana.utils.message import mprint
+from parimana.io.message import mprint
 from parimana.external.scraping_utils.modest import ModestFunction
 from parimana.devices.chrome import headless_chrome
 

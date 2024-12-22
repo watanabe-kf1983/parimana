@@ -3,6 +3,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from parimana.app.collect_odds import OddsCollectorApp
 import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc
@@ -10,8 +11,6 @@ from parimana.app.status import ProcessStatusManager
 from parimana.app.analyse import AnalyseApp
 import parimana.tasks as tasks
 import parimana.settings as settings
-
-router = APIRouter()
 
 
 class Eye(BaseModel):
@@ -105,8 +104,12 @@ class Result(BaseModel):
 
 
 pub_center = settings.publish_center
-app = AnalyseApp(race_types=settings.race_types, repo=settings.analysis_repository)
-psm = ProcessStatusManager(repo=settings.status_repository, center=pub_center)
+app = AnalyseApp(store=settings.analysis_storage)
+psm = ProcessStatusManager(store=settings.status_storage, center=pub_center)
+race_selector = rc.RaceSelector(settings.race_types)
+
+
+router = APIRouter()
 
 
 @router.post("/{race_id}/start")
@@ -118,7 +121,7 @@ def start_analyse(race_id: str):
 
 @router.get("/{race_id}/status")
 def get_status(race_id: str) -> Status:
-    race = app.select_race(race_id)
+    race = race_selector.select(race_id)
     return Status(
         is_processing=psm.load_status(f"analyse_{race_id}").is_processing,
         has_analysis=app.has_analysis(race),
@@ -133,7 +136,7 @@ async def get_progress(race_id: str):
 
 @router.get("/{race_id}/{analyser_name}")
 def get_analysis(race_id: str, analyser_name: str) -> Result:
-    race = app.select_race(race_id)
+    race = race_selector.select(race_id)
     return Result.from_base(*app.get_analysis(race, analyser_name))
 
 
@@ -141,7 +144,7 @@ def get_analysis(race_id: str, analyser_name: str) -> Result:
 def get_candidates(
     race_id: str, analyser_name: str, query: Optional[str] = Query(None)
 ) -> Sequence[EyeExpectedValue]:
-    race = app.select_race(race_id)
+    race = race_selector.select(race_id)
     charts, _, __ = app.get_analysis(race, analyser_name)
     return [
         EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2(query=query)

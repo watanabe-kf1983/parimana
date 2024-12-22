@@ -6,7 +6,7 @@ import parimana.settings as settings
 from parimana.tasks.celery import app
 
 schedule_app = ScheduleApp(
-    categories=settings.categories, repo=settings.schedule_repository
+    categories=settings.categories, store=settings.schedule_storage
 )
 
 
