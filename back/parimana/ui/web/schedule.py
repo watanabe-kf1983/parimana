@@ -91,7 +91,7 @@ def get_race(race_id: str) -> RaceInfo:
 
 
 @router.post("/update")
-def update_schedule(race_id: str):
+def update_schedule():
     task_id = tasks.update_schedule_all().delay().id
     return {"task_id": task_id}
 
