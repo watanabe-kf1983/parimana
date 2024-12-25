@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.scripts]
 parimana = "parimana.ui.cui.main:main"
-parimana-schedule = "parimana.ui.cui.main:scrape_schedule"
+parimana-schedule = "parimana.ui.cui.main:update_schedule"
 parimana-worker = "parimana.tasks:run_worker"
 parimana-web = "parimana.ui.web.main:start"
 

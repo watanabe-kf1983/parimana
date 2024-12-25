@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional, Sequence
 
 from parimana.domain.schedule import Category, CategorySelector, RaceInfo
@@ -21,9 +22,18 @@ class ScheduleApp:
 
         return [
             race_info
-            for date in (self.repo.load_calendar(cat) or [])
+            for date in self.get_recent_calendar(cat)
             for race_info in (self.repo.load_schedule(cat, date) or [])
         ]
+
+    def get_recent_calendar(
+        self,
+        cat: Category,
+    ) -> Sequence[datetime.date]:
+
+        calendar = self.repo.load_calendar(cat) or []
+        today = datetime.datetime.now(cat.timezone).date()
+        return [date for date in calendar if date <= today][-4:]
 
     def find_race(self, url: str) -> Optional[RaceInfo]:
         return None
@@ -34,27 +44,26 @@ class ScheduleApp:
         else:
             raise ResultNotExistError(f"{race_id} not found")
 
-    def scrape_and_get_schedule(self, cat: Category) -> Sequence[RaceInfo]:
+    def update_calendar(self, cat: Category) -> None:
 
-        source = cat.schedule_source
-        repo = self.repo
+        today = datetime.datetime.now(cat.timezone).date()
+        this_month = (today.year, today.month)
 
-        calendar = repo.load_calendar(cat)
-        if not calendar:
-            calendar = source.scrape_calendar()
-            repo.save_calendar(cat=cat, calendar=calendar)
+        calendar = self.repo.load_calendar(cat) or []
+        if (not calendar) or this_month != (calendar[-1].year, calendar[-1].month):
+            scraped = cat.schedule_source.scrape_calendar(*this_month)
+            calendar = sorted(set(calendar + scraped))
+            self.repo.save_calendar(cat, calendar)
 
-        all_schedule: Sequence[RaceInfo] = []
+    def update_schedule(self, cat: Category) -> None:
 
-        for date in calendar:
-            day_schedule = repo.load_schedule(cat, date)
+        self.update_calendar(cat)
+
+        for date in self.get_recent_calendar(cat):
+            day_schedule = self.repo.load_schedule(cat, date)
 
             if day_schedule is None:
-                day_schedule = source.scrape_day_schedule(date)
-                repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
+                day_schedule = cat.schedule_source.scrape_day_schedule(date)
+                self.repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
                 for race_info in day_schedule:
-                    repo.save_race_info(race_info)
-
-            all_schedule.extend(day_schedule)
-
-        return all_schedule
+                    self.repo.save_race_info(race_info)

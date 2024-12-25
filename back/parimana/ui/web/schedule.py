@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 import parimana.domain.schedule as sc
 from parimana.app.schedule import ScheduleApp
+import parimana.tasks as tasks
 import parimana.settings as settings
 
 
@@ -87,6 +88,12 @@ def get_races(
 @router.get("/races/{race_id}")
 def get_race(race_id: str) -> RaceInfo:
     return RaceInfo.from_base(app.get_race(race_id))
+
+
+@router.post("/update")
+def start_analyse(race_id: str):
+    task_id = tasks.update_schedule_all().delay().id
+    return {"task_id": task_id}
 
 
 def _select_cat(category_id: str) -> sc.Category:

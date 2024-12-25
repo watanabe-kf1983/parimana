@@ -1,10 +1,10 @@
-from datetime import date
+import calendar
 import datetime
 from typing import Sequence
 
 
 from parimana.domain.schedule import Fixture, ScheduleSource, RaceInfo
-from parimana.external.boatrace.base import BoatRace, category_boat
+from parimana.external.boatrace.base import BoatRace
 from parimana.external.boatrace.schedule.base import BoatRaceJo
 import parimana.external.boatrace.schedule.browse as browser
 import parimana.external.boatrace.schedule.extract as ext
@@ -12,14 +12,14 @@ import parimana.external.boatrace.schedule.extract as ext
 
 class _BoatScheduleSource(ScheduleSource):
 
-    def scrape_day_schedule(self, date: date) -> Sequence[RaceInfo]:
+    def scrape_day_schedule(self, date: datetime.date) -> Sequence[RaceInfo]:
         return [
             race for jo in _scrape_joes(date) for race in _scrape_schedule(date, jo)
         ]
 
-    def scrape_calendar(self) -> Sequence[date]:
-        today = datetime.datetime.now(category_boat.timezone).date()
-        return [today + datetime.timedelta(days=n) for n in range(0, -2, -1)]
+    def scrape_calendar(self, year: int, month: int) -> Sequence[datetime.date]:
+        _, last_day = calendar.monthrange(year, month)
+        return [datetime.date(year, month, day) for day in range(1, last_day + 1)]
 
 
 schedule_source = _BoatScheduleSource()

@@ -3,7 +3,6 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from parimana.app.collect_odds import OddsCollectorApp
 import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc

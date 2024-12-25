@@ -53,15 +53,11 @@ class ScheduleRepositoryImpl(ScheduleRepository):
         self,
         cat: Category,
         calendar: Sequence[datetime.date],
-    ):
-        today = datetime.datetime.now(cat.timezone).strftime("%Y%m%d")
-        self.store.write_object(
-            f"schedule/cat/{cat.id}/calendar{today}_.pickle", calendar
-        )
+    ) -> None:
+        self.store.write_object(f"schedule/cat/{cat.id}/calendar.pickle", calendar)
 
     def load_calendar(self, cat: Category) -> Optional[Sequence[datetime.date]]:
-        today = datetime.datetime.now(cat.timezone).strftime("%Y%m%d")
-        return self.store.read_object(f"schedule/cat/{cat.id}/calendar{today}_.pickle")
+        return self.store.read_object(f"schedule/cat/{cat.id}/calendar.pickle")
 
     def save_schedule(
         self,

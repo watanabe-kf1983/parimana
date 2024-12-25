@@ -74,5 +74,5 @@ class ScheduleSource(ABC):
         pass
 
     @abstractmethod
-    def scrape_calendar(self) -> Sequence[date]:
+    def scrape_calendar(self, year: int, month: int) -> Sequence[date]:
         pass

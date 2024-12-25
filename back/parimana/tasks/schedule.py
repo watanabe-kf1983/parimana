@@ -1,5 +1,7 @@
 from typing import Sequence
 
+from celery import group
+
 from parimana.app.schedule import ScheduleApp
 from parimana.domain.schedule import Category, RaceInfo
 import parimana.settings as settings
@@ -11,5 +13,9 @@ schedule_app = ScheduleApp(
 
 
 @app.task
-def get_schedule(*, cat: Category) -> Sequence[RaceInfo]:
-    return schedule_app.scrape_and_get_schedule(cat)
+def update_schedule(*, cat: Category) -> Sequence[RaceInfo]:
+    return schedule_app.update_schedule(cat)
+
+
+def update_schedule_all():
+    return group(update_schedule.s(cat=cat) for cat in settings.categories)
