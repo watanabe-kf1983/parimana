@@ -4,7 +4,7 @@ from typing import Sequence
 
 
 from parimana.domain.schedule import ScheduleSource, RaceInfo, Fixture
-from parimana.external.netkeiba.base import NetKeibaRace
+from parimana.external.netkeiba.base import NetKeibaRace, category_keiba
 from parimana.external.netkeiba.schedule.base import JraCourse
 from parimana.external.netkeiba.schedule.browse import (
     browse_monthly_calendar,
@@ -48,8 +48,12 @@ def _item_to_race(item: RaceListItem, date: datetime.date) -> RaceInfo:
         fixture=Fixture(
             course=JraCourse.from_code(code=item.keibajo_code).to_course(), date=date
         ),
-        # closing_time=(
-        #     datetime.datetime.strptime(item.start_time_text, "%H:%M")
-        #     + datetime.timedelta(minutes=-1)
-        # ).time(),
+        poll_closing_time=datetime.datetime.combine(
+            date,
+            (
+                datetime.datetime.strptime(item.start_time_text, "%H:%M")
+                + datetime.timedelta(minutes=-1)
+            ).time(),
+            category_keiba.timezone,
+        ),
     )

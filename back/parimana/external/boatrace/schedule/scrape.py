@@ -4,7 +4,7 @@ from typing import Sequence
 
 
 from parimana.domain.schedule import Fixture, ScheduleSource, RaceInfo
-from parimana.external.boatrace.base import BoatRace
+from parimana.external.boatrace.base import BoatRace, category_boat
 from parimana.external.boatrace.schedule.base import BoatRaceJo
 import parimana.external.boatrace.schedule.browse as browser
 import parimana.external.boatrace.schedule.extract as ext
@@ -41,6 +41,9 @@ def _scrape_schedule(date: datetime.date, boat_jo: BoatRaceJo) -> Sequence[RaceI
             ).race_id,
             name=sr.name,
             fixture=fixture,
+            poll_closing_time=datetime.datetime.combine(
+                date, sr.poll_closing_time, category_boat.timezone
+            ),
         )
         for sr in s_races
     ]

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import datetime
 from typing import Sequence
 from datetime import date
 from zoneinfo import ZoneInfo
@@ -64,8 +65,8 @@ class Fixture:
 class RaceInfo:
     race_id: str
     name: str
-    # poll_closing_time: datetime
     fixture: Fixture
+    poll_closing_time: datetime.datetime
 
 
 class ScheduleSource(ABC):
