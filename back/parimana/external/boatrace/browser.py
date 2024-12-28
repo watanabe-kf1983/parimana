@@ -14,7 +14,13 @@ modestly = ModestFunction(interval=timedelta(seconds=1.5))
 @modestly
 def get(uri: str, attempt: str):
     mprint(f"opening {uri} ...")
-    res = requests.get(uri)
+    res = requests.get(
+        uri,
+        headers={
+            # デフォルト（gzip, deflate だけ）だと boatrace.jpからのレスが遅くなる
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+        },
+    )
     res.raise_for_status()
     text = res.text
     return text
