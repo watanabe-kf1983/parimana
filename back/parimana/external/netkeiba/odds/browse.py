@@ -20,10 +20,9 @@ def get_source_uri(race: NetKeibaRace) -> str:
 
 def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
 
+    driver.delete_all_cookies()
+    driver.refresh()
     _get_page(driver, race, BettingType.WIN)
-    update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
-    if update_button.is_displayed():
-        _update_odds(driver)
     return driver.page_source
 
 
@@ -33,21 +32,6 @@ def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
 
         for page_content in pages:
             yield (page_content, btype)
-
-
-@modestly
-def _update_odds(driver: WebDriver):
-    mprint("updating odds ...")
-    driver.delete_all_cookies()
-    driver.refresh()
-    update_button = driver.find_element(By.CSS_SELECTOR, "#act-manual_update")
-    limit = _get_update_limit(driver)
-    update_button.click()
-    WebDriverWait(driver, timeout=10).until(lambda d: limit != _get_update_limit(d))
-
-
-def _get_update_limit(driver: WebDriver):
-    return driver.find_element(By.CSS_SELECTOR, "#OddsUpLimitCount").text
 
 
 def _browse_odds_by_btype(
