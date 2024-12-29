@@ -3,12 +3,13 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from parimana.app.collect_odds import OddsCollectorApp
 import parimana.domain.base as bs
 import parimana.domain.analyse as an
 import parimana.domain.race as rc
 from parimana.app.status import ProcessStatusManager
 from parimana.app.analyse import AnalyseApp
-import parimana.tasks as tasks
+from parimana.tasks import AnalyseTasks, AnalyseTaskOptions
 import parimana.settings as settings
 
 
@@ -106,14 +107,21 @@ pub_center = settings.publish_center
 app = AnalyseApp(store=settings.analysis_storage)
 psm = ProcessStatusManager(store=settings.status_storage, center=pub_center)
 race_selector = rc.RaceSelector(settings.race_types)
+odds_app = OddsCollectorApp(store=settings.odds_storage)
 
+tasks = AnalyseTasks(
+    analyse_app=app,
+    odds_app=odds_app,
+    ps_manager=psm,
+    race_selector=race_selector,
+)
 
 router = APIRouter()
 
 
 @router.post("/{race_id}/start")
 def start_analyse(race_id: str):
-    options = tasks.AnalyseTaskOptions(race_id, analyser_names=["no_cor"])
+    options = AnalyseTaskOptions(race_id, analyser_names=["no_cor"])
     task_id = tasks.scrape_and_analyse(options).delay().id
     return {"task_id": task_id}
 

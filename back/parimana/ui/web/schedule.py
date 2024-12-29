@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 import parimana.domain.schedule as sc
 from parimana.app.schedule import ScheduleApp
-import parimana.tasks as tasks
+from parimana.tasks import ScheduleTasks
 import parimana.settings as settings
 
 
@@ -59,6 +59,8 @@ class RaceInfo(BaseModel):
 router = APIRouter()
 
 app = ScheduleApp(categories=settings.categories, store=settings.schedule_storage)
+
+tasks = ScheduleTasks(schedule_app=app)
 
 
 @router.get("/categories")

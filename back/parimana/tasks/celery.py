@@ -1,15 +1,14 @@
 from celery import Celery
-
 import parimana.settings as settings
 
-app = Celery(
-    __name__, backend=settings.task_backend_uri, broker=settings.task_broker_uri
-)
 
-app.conf.event_serializer = "pickle"
-app.conf.task_serializer = "pickle"
-app.conf.result_serializer = "pickle"
-app.conf.accept_content = ["application/json", "application/x-python-serialize"]
+app = Celery(__name__, config_source="parimana.tasks.celeryconfig")
+
+_publisher = settings.publish_center
+
+
+def task(func):
+    return app.task(_publisher.with_channel_printer(func))
 
 
 def run_worker():
