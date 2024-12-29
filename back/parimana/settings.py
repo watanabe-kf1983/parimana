@@ -1,11 +1,17 @@
-import os
-from pathlib import Path
+from pydantic import DirectoryPath
+from pydantic_settings import BaseSettings
 
 
-FILE_STORAGE_ROOT_PATH = Path(os.getenv("FILE_REPO_PATH", ".output"))
+class Settings(BaseSettings):
+    file_storage_root_path: DirectoryPath = ".output"
+    redis_hostname: str = "localhost"
+    redis_port: int = 6379
+    redis_db_id: int = 0
+    redis_db_uri: str = ""
 
-REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-REDIS_DB_ID = 0
-
-REDIS_DB_URI = f"redis://{REDIS_HOSTNAME}:{REDIS_PORT}/{REDIS_DB_ID}"
+    @property
+    def redis_uri(self):
+        return (
+            self.redis_db_uri
+            or f"redis://{self.redis_hostname}:{self.redis_port}/{self.redis_db_id}"
+        )

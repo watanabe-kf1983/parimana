@@ -79,6 +79,6 @@ RUN apt-get update \
 # install parimana
 ENV APP_PATH="/app" \
     PATH="/app/.venv/bin:$PATH" \
-    FILE_REPO_PATH="/var/parimana/repo"
+    FILE_STORAGE_ROOT_PATH="/var/parimana/repo"
 
 COPY --from=prod-build ${APP_PATH} ${APP_PATH}

@@ -7,14 +7,15 @@ from parimana.io.kvs import FileStorage
 from parimana.domain.race import RaceSelector
 from parimana.app import AnalyseApp, OddsCollectorApp, ProcessStatusManager, ScheduleApp
 from parimana.tasks import AnalyseTasks, ScheduleTasks, Worker
-import parimana.settings as settings
+from parimana.settings import Settings
 
 race_types = [BoatRace, NetKeibaRace]
 categories = [category_boat, category_keiba]
 
+settings = Settings()
 
-storage = FileStorage(settings.FILE_STORAGE_ROOT_PATH)
-publish_center = RedisChannelFactory(settings.REDIS_DB_URI).publish_center
+storage = FileStorage(settings.file_storage_root_path)
+publish_center = RedisChannelFactory(settings.redis_uri).publish_center
 
 
 analyse_app = AnalyseApp(store=storage)
