@@ -1,14 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Sequence
-from celery import chain, group
 
-from parimana.io.message import mprint, mclose
+from celery import Celery, chain, group
+
+from parimana.io.message import PublishCenter, mprint, mclose
 from parimana.domain.analyse import AnalysisResult, default_analyser_names
 from parimana.domain.race import Race, RaceOddsPool, RaceSelector
-from parimana.app.analyse import AnalyseApp
-from parimana.app.collect_odds import OddsCollectorApp
-from parimana.app.status import ProcessStatusManager
-from parimana.tasks.celery import task
+from parimana.app import AnalyseApp, OddsCollectorApp, ProcessStatusManager
+from parimana.tasks.base import task, CeleryTasks
 
 
 @dataclass(frozen=True)
@@ -21,12 +20,22 @@ class AnalyseTaskOptions:
     recommend_size: int = 20
 
 
-@dataclass(frozen=True)
-class AnalyseTasks:
-    analyse_app: AnalyseApp
-    odds_app: OddsCollectorApp
-    ps_manager: ProcessStatusManager
-    race_selector: RaceSelector
+class AnalyseTasks(CeleryTasks):
+
+    def __init__(
+        self,
+        analyse_app: AnalyseApp,
+        odds_app: OddsCollectorApp,
+        ps_manager: ProcessStatusManager,
+        race_selector: RaceSelector,
+        celery: Celery,
+        publish_center: PublishCenter,
+    ):
+        super().__init__(celery=celery, publish_center=publish_center)
+        self.analyse_app = analyse_app
+        self.odds_app = odds_app
+        self.ps_manager = ps_manager
+        self.race_selector = race_selector
 
     @task
     def get_odds_pool(self, *, race: Race, scrape_force: bool = False) -> RaceOddsPool:

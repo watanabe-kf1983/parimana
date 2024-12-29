@@ -4,8 +4,8 @@ from fastapi.responses import PlainTextResponse
 import uvicorn
 
 from parimana.app.exception import ResultNotExistError
-import parimana.ui.web.analyse as analyse
-import parimana.ui.web.schedule as schedule
+import parimana.ui.web.router.analyse as analyse
+import parimana.ui.web.router.schedule as schedule
 
 app = FastAPI()
 

@@ -1,16 +1,22 @@
-from dataclasses import dataclass
 from typing import Sequence
 
-from celery import group
+from celery import Celery, group
 
-from parimana.app.schedule import ScheduleApp
+from parimana.io.message import PublishCenter
+from parimana.app import ScheduleApp
 from parimana.domain.schedule import Category, RaceInfo
-from parimana.tasks.celery import task
+from parimana.tasks.base import CeleryTasks, task
 
 
-@dataclass
-class ScheduleTasks:
-    schedule_app: ScheduleApp
+class ScheduleTasks(CeleryTasks):
+    def __init__(
+        self,
+        schedule_app: ScheduleApp,
+        celery: Celery,
+        publish_center: PublishCenter,
+    ):
+        super().__init__(celery=celery, publish_center=publish_center)
+        self.schedule_app = schedule_app
 
     @task
     def update_schedule(self, *, cat: Category) -> Sequence[RaceInfo]:
