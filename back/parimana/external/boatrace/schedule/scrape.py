@@ -21,6 +21,9 @@ class _BoatScheduleSource(ScheduleSource):
         _, last_day = calendar.monthrange(year, month)
         return [datetime.date(year, month, day) for day in range(1, last_day + 1)]
 
+    def site_name(self):
+        return "boatrace.jp"
+
 
 schedule_source = _BoatScheduleSource()
 

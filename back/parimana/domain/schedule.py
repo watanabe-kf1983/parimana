@@ -43,6 +43,9 @@ class CategorySelector:
 
         raise ValueError(f"category_id: {category_id} is illegal")
 
+    def source_sites(self) -> Sequence[str]:
+        return [category.schedule_source.site_name() for category in self.categories]
+
 
 @dataclass
 class Course:
@@ -76,4 +79,8 @@ class ScheduleSource(ABC):
 
     @abstractmethod
     def scrape_calendar(self, year: int, month: int) -> Sequence[date]:
+        pass
+
+    @abstractmethod
+    def site_name(self) -> str:
         pass

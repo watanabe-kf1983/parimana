@@ -8,8 +8,8 @@ from parimana.app.exception import ResultNotExistError
 
 
 class ScheduleApp:
-    def __init__(self, categories: Sequence[Category], store: Storage):
-        self.category_selector = CategorySelector(categories)
+    def __init__(self, category_selector: CategorySelector, store: Storage):
+        self.category_selector = category_selector
         self.repo: ScheduleRepository = ScheduleRepositoryImpl(store)
 
     def select_category(self, category_id: str):

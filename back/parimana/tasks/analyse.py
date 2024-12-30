@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Sequence
+from typing import Collection, Sequence
 
 from celery import Celery, chain, group
 
@@ -69,10 +69,14 @@ class AnalyseTasks(CeleryTasks):
     def scrape_and_analyse(self, options: AnalyseTaskOptions):
         race = self.race_selector.select(options.race_id)
         process_name = f"analyse_{options.race_id}"
+        queue = f"scrape_{race.odds_source.__class__.site_name()}"
         return chain(
             self.start_process.s(channel_id=process_name, process_name=process_name),
             self.get_odds_pool.si(
-                race=race, channel_id=process_name, scrape_force=not options.use_cache
+                race=race,
+                scrape_force=not options.use_cache,
+                queue=queue,
+                channel_id=process_name,
             ),
             group(
                 self.analyse.s(
@@ -84,3 +88,7 @@ class AnalyseTasks(CeleryTasks):
         ).on_error(
             self.handle_error.s(channel_id=process_name, process_name=process_name)
         )
+
+    def queues(self) -> Collection[str]:
+        sites = self.race_selector.odds_source_sites()
+        return [f"scrape_{site}" for site in sites] + ["default"]

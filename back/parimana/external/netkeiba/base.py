@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import re
-from typing import Optional
+from typing import Optional, Type
 from zoneinfo import ZoneInfo
 
 from parimana.domain.race import Race, OddsSource
@@ -43,9 +43,13 @@ class NetKeibaRace(Race):
 
     @property
     def odds_source(self) -> OddsSource:
+        return self.__class__.odds_source_type()(self)
+
+    @classmethod
+    def odds_source_type(cls) -> Type[OddsSource]:
         from parimana.external.netkeiba.odds.scrape import NetKeibaSource
 
-        return NetKeibaSource(self)
+        return NetKeibaSource
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional[Race]:

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from functools import total_ordering
-from typing import Collection, Optional, Type
+from typing import Collection, Optional, Sequence, Type
 
 from parimana.domain.base import OddsPool
 
@@ -23,6 +23,11 @@ class Race(ABC):
     def from_id(cls, race_id: str) -> Optional["Race"]:
         pass
 
+    @classmethod
+    @abstractmethod
+    def odds_source_type(cls) -> Type["OddsSource"]:
+        pass
+
 
 @dataclass
 class RaceSelector:
@@ -34,6 +39,11 @@ class RaceSelector:
                 return found
 
         raise ValueError(f"race_id: {race_id} is illegal")
+
+    def odds_source_sites(self) -> Sequence[str]:
+        return [
+            race_type.odds_source_type().site_name() for race_type in self.race_types
+        ]
 
 
 class OddsSource(ABC):
@@ -47,6 +57,11 @@ class OddsSource(ABC):
 
     @abstractmethod
     def get_uri(self) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def site_name(cls) -> str:
         pass
 
 

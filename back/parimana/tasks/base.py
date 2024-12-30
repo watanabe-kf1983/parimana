@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+from functools import wraps
+from typing import Collection
 from celery import Celery
 from parimana.io.message import PublishCenter
 
@@ -10,24 +13,30 @@ def task(func):
     return func
 
 
-class CeleryTasks:
+def add_queue(func):
+    @wraps(func)
+    def wrapper(*args, queue: str = "default", **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def route_task(name, args, kwargs, options, task=None, **kw):
+    return {"queue": kwargs.get("queue")}
+
+
+class CeleryTasks(ABC):
 
     def __init__(self, celery: Celery, publish_center: PublishCenter, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.celery = celery
         for attr_name in dir(self):
             if not attr_name.startswith("__"):
                 attr = getattr(self, attr_name)
                 if callable(attr) and getattr(attr, _TASK_FUNC_ATTR, False):
-                    setattr(
-                        self,
-                        attr_name,
-                        celery.task(publish_center.with_channel_printer(attr)),
-                    )
+                    task_func = publish_center.with_channel_printer(add_queue(attr))
+                    setattr(self, attr_name, celery.task(task_func))
 
-
-class Worker:
-    def __init__(self, celery: Celery):
-        self.celery = celery
-
-    def start(self):
-        self.celery.worker_main(argv=["worker", "--concurrency=1", "--loglevel=info"])
+    @abstractmethod
+    def queues(self) -> Collection[str]:
+        pass

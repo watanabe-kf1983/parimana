@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import datetime
 import re
-from typing import Optional
+from typing import Optional, Type
 from zoneinfo import ZoneInfo
 
 from parimana.domain.race import Race, OddsSource
@@ -49,9 +49,13 @@ class BoatRace(Race):
 
     @property
     def odds_source(self) -> OddsSource:
+        return self.__class__.odds_source_type()(self)
+
+    @classmethod
+    def odds_source_type(cls) -> Type[OddsSource]:
         from parimana.external.boatrace.odds.scrape import BoatRaceSource
 
-        return BoatRaceSource(self)
+        return BoatRaceSource
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["BoatRace"]:

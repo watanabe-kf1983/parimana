@@ -33,6 +33,10 @@ class BoatRaceSource(OddsSource):
     def get_uri(self) -> str:
         return get_source_uri(self.race)
 
+    @classmethod
+    def site_name(cls):
+        return "boatrace.jp"
+
 
 def scrape_odds_pool(race: BoatRace) -> RaceOddsPool:
     odds, timestamp = collect_odds(race)

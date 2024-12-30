@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Collection, Sequence
 
 from celery import Celery, group
 
@@ -24,6 +24,12 @@ class ScheduleTasks(CeleryTasks):
 
     def update_schedule_all(self):
         return group(
-            self.update_schedule.s(cat=cat)
+            self.update_schedule.s(
+                cat=cat, queue=f"scrape_{cat.schedule_source.site_name()}"
+            )
             for cat in self.schedule_app.category_selector.all()
         )
+
+    def queues(self) -> Collection[str]:
+        sites = self.schedule_app.category_selector.source_sites()
+        return [f"scrape_{site}" for site in sites] + ["default"]

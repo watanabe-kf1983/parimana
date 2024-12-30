@@ -32,6 +32,10 @@ class NetKeibaSource(OddsSource):
     def get_uri(self) -> str:
         return get_source_uri(self.race)
 
+    @classmethod
+    def site_name(cls):
+        return "netkeiba"
+
 
 def scrape_odds_pool(race: NetKeibaRace) -> RaceOddsPool:
     odds, timestamp = collect_odds(race)

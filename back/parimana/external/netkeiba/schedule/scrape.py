@@ -26,6 +26,9 @@ class _KeibaScheduleSource(ScheduleSource):
     def scrape_calendar(self, year: int, month: int) -> Sequence[datetime.date]:
         return _scrape_calendar(year, month)
 
+    def site_name(self):
+        return "netkeiba"
+
 
 schedule_source = _KeibaScheduleSource()
 

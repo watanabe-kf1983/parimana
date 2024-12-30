@@ -30,6 +30,7 @@ kaleido = "0.2.1"
 statsmodels = "^0.14.1"
 async-timeout = "^4.0.3"
 pydantic-settings = "^2.7.0"
+flower = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
