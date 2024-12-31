@@ -30,7 +30,7 @@ services:
     command: [ "parimana-web" ]
     restart: always
 
-  batch:
+  worker:
     build:
       context: ./back
     environment:
@@ -50,6 +50,20 @@ services:
       ]
     command: [ "parimana-worker" ]
     restart: always
+
+  worker-monitor:
+    build:
+      context: ./back
+    environment:
+      REDIS_HOSTNAME: task-db
+      REDIS_PORT: 6379
+      FLOWER_PURGE_OFFLINE_WORKERS: 60
+    depends_on:
+      - task-db
+    command: [ "parimana-monitor" ]
+    ports:
+      - "5555:5555"
+
 
   task-db:
     image: redis

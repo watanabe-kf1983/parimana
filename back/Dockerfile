@@ -1,4 +1,4 @@
-FROM python:3.11-slim as python-base
+FROM python:3.11-slim AS python-base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -14,7 +14,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/
 
 
-FROM python-base as poetry
+FROM python-base AS poetry
 
 # install curl
 RUN apt-get update \
@@ -33,7 +33,7 @@ RUN curl -sSL https://install.python-poetry.org | python -
 ENV PATH="${POETRY_HOME}/bin:$PATH"
 
 
-FROM poetry as vscode-devcontainer
+FROM poetry AS vscode-devcontainer
 
 # install git sudo
 RUN apt-get update \
@@ -55,7 +55,7 @@ USER $USERNAME
 WORKDIR /home/$USERNAME/
 
 
-FROM poetry as prod-build
+FROM poetry AS prod-build
 
 # poetry install
 WORKDIR /app
@@ -67,7 +67,7 @@ COPY parimana ./parimana
 RUN poetry install --without dev
 
 
-FROM python-base as prod
+FROM python-base AS prod
 
 # install dockerize
 ENV DOCKERIZE_VERSION v0.7.0

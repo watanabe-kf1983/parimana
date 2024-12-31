@@ -1,9 +1,8 @@
-from pydantic import DirectoryPath
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    file_storage_root_path: DirectoryPath = ".output"
+    file_storage_root_path: str = ".output"
     redis_hostname: str = "localhost"
     redis_port: int = 6379
     redis_db_id: int = 0

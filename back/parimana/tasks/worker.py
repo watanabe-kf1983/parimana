@@ -36,3 +36,8 @@ class Worker:
 
         for worker in workers:
             worker.join()
+
+    def start_monitor(self):
+
+        argv = ["flower", "--address=0.0.0.0"]
+        self.celery.start(argv)

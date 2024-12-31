@@ -17,5 +17,9 @@ def main():
         result.print_recommendation(options.recommend_query, options.recommend_size)
 
 
-def run_worker():
+def start_worker():
     cx.worker.start()
+
+
+def start_monitor():
+    cx.worker.start_monitor()
