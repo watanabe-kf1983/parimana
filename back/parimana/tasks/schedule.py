@@ -2,21 +2,16 @@ from typing import Collection, Sequence
 
 from celery import Celery, group
 
-from parimana.io.message import PublishCenter
 from parimana.app import ScheduleApp
 from parimana.domain.schedule import Category, RaceInfo
 from parimana.tasks.base import CeleryTasks, task
 
 
 class ScheduleTasks(CeleryTasks):
-    def __init__(
-        self,
-        schedule_app: ScheduleApp,
-        celery: Celery,
-        publish_center: PublishCenter,
-    ):
-        super().__init__(celery=celery, publish_center=publish_center)
+    def __init__(self, schedule_app: ScheduleApp, celery: Celery):
+        super().__init__(celery=celery)
         self.schedule_app = schedule_app
+        self.prepare_task()
 
     @task
     def update_schedule(self, *, cat: Category, **kwargs) -> Sequence[RaceInfo]:

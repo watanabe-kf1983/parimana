@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Collection, Sequence
+from typing import Callable, Collection, Sequence
 
 from celery import Celery, chain, group
 
@@ -31,11 +31,13 @@ class AnalyseTasks(CeleryTasks):
         celery: Celery,
         publish_center: PublishCenter,
     ):
-        super().__init__(celery=celery, publish_center=publish_center)
+        super().__init__(celery=celery)
         self.analyse_app = analyse_app
         self.odds_app = odds_app
         self.ps_manager = ps_manager
         self.race_selector = race_selector
+        self.publish_center = publish_center
+        self.prepare_task()
 
     @task
     def get_odds_pool(
@@ -95,6 +97,12 @@ class AnalyseTasks(CeleryTasks):
             ),
             self.finish_process.s(process_name=process_name),
         ).on_error(self.handle_error.s(process_name=process_name))
+
+    @property
+    def task_method_decorators(self) -> Sequence[Callable[[Callable], Callable]]:
+        return [
+            self.publish_center.with_channel_printer(self.channel_broker),
+        ] + super().task_method_decorators
 
     def channel_broker(self, *args, **kwargs) -> str:
         return kwargs.get("process_name")

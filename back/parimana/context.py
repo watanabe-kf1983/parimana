@@ -43,8 +43,6 @@ analyse_tasks = AnalyseTasks(
     publish_center=publish_center,
 )
 
-schedule_tasks = ScheduleTasks(
-    schedule_app=schedule_app, celery=celery, publish_center=publish_center
-)
+schedule_tasks = ScheduleTasks(schedule_app=schedule_app, celery=celery)
 
 worker = Worker(tasks_list=[analyse_tasks, schedule_tasks])

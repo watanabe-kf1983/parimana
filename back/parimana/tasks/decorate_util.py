@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import Callable, Sequence
 
 from toolz import compose
@@ -26,3 +27,12 @@ def compose_decorator(
 ) -> Callable[[Callable], Callable]:
 
     return compose(*decorators)
+
+
+def blank_decorator(func):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
