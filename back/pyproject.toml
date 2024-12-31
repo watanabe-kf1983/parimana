@@ -7,10 +7,6 @@ readme = "README.md"
 
 [tool.poetry.scripts]
 parimana = "parimana.ui.cui.main:main"
-parimana-schedule = "parimana.ui.cui.main:update_schedule"
-parimana-worker = "parimana.ui.cui.main:start_worker"
-parimana-monitor = "parimana.ui.cui.main:start_monitor"
-parimana-web = "parimana.ui.web.main:start"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"

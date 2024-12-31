@@ -1,13 +1,13 @@
 Odds Analyser
 
 ```
-parimana
+parimana analyse
 ```
 
 or
 
 ```
 docker run -p 6379:6379 -d redis
-parimana-worker
-parimana-web
+parimana worker
+parimana web
 ```

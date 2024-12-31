@@ -27,7 +27,7 @@ services:
         "-timeout",
         "30s"
       ]
-    command: [ "parimana-web" ]
+    command: [ "parimana", "web" ]
     restart: always
 
   worker:
@@ -48,7 +48,7 @@ services:
         "-timeout",
         "30s"
       ]
-    command: [ "parimana-worker" ]
+    command: [ "parimana", "worker" ]
     restart: always
 
   worker-monitor:
@@ -60,7 +60,7 @@ services:
       FLOWER_PURGE_OFFLINE_WORKERS: 60
     depends_on:
       - task-db
-    command: [ "parimana-monitor" ]
+    command: [ "parimana", "monitor" ]
     ports:
       - "5555:5555"
 

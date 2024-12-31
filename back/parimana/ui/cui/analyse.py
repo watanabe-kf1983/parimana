@@ -1,21 +1,27 @@
 import argparse
+from typing import Sequence
 
-from parimana.domain.analyse import (
-    analyser_names,
-)
 from parimana.tasks.analyse import AnalyseTaskOptions
+from parimana.domain.analyse import analyser_names
+import parimana.context as cx
 
 
-def parse_analyse_options() -> AnalyseTaskOptions:
-    args = vars(_arg_parser().parse_args())
-    return AnalyseTaskOptions(**args)
+def analyse(args):
+    options = AnalyseTaskOptions(**args)
+    results = cx.analyse_tasks.scrape_and_analyse(options).apply().get()
+
+    results = results if isinstance(results, Sequence) else [results]
+    for result in results:
+        result.print_recommendation(options.recommend_query, options.recommend_size)
 
 
-def _arg_parser() -> argparse.ArgumentParser:
+def add_sub_parser(subparsers):
     default_options = AnalyseTaskOptions("")
-    parser = argparse.ArgumentParser(
-        prog="parimana", description="Analyse pari-mutuel betting odds"
+
+    parser: argparse.ArgumentParser = subparsers.add_parser(
+        "analyse", help="analyse odds"
     )
+    parser.set_defaults(func=analyse)
     parser.add_argument(
         "race_id",
         type=str,
@@ -61,4 +67,5 @@ def _arg_parser() -> argparse.ArgumentParser:
         default=default_options.recommend_size,
         help=("maximum number of candidates to recommend."),
     )
+
     return parser
