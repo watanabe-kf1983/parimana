@@ -39,5 +39,5 @@ class Worker:
 
     def start_monitor(self):
 
-        argv = ["flower", "--address=0.0.0.0"]
+        argv = ["flower"]
         self.celery.start(argv)
