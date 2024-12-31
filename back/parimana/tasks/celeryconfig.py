@@ -10,3 +10,5 @@ accept_content = ["application/json", "application/x-python-serialize"]
 
 task_routes = (route_task,)
 task_default_queue = "default"
+
+broker_transport_options = {"visibility_timeout": 72000}  # 20 hours

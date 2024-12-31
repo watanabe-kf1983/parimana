@@ -3,6 +3,7 @@ import datetime
 from datetime import timedelta
 
 from celery import Celery, Task, chain, group
+import redis
 
 from parimana.io.message import mprint
 from parimana.app import ScheduleApp
@@ -16,11 +17,13 @@ class ScheduleTasks(CeleryTasks):
         self,
         schedule_app: ScheduleApp,
         analyse_task_provider: Callable[[AnalyseTaskOptions], Task],
+        redis_client: redis.StrictRedis,
         celery: Celery,
     ):
         super().__init__(celery=celery)
         self.schedule_app = schedule_app
         self.analyse_task_provider = analyse_task_provider
+        self.redis_client = redis_client
         self.prepare_task()
 
     @task
@@ -31,14 +34,6 @@ class ScheduleTasks(CeleryTasks):
     def schedule_analyse(self, **kwargs) -> None:
         for race in self.schedule_app.get_today_schedule():
             now = datetime.datetime.now(tz=race.fixture.course.category.timezone)
-            mprint(race)
-            mprint(now)
-            mprint(race.poll_start_time)
-            mprint(race.poll_closing_time + timedelta(minutes=5))
-            mprint(race.poll_closing_time + timedelta(minutes=-7))
-            mprint(race.poll_closing_time + timedelta(minutes=-20))
-            mprint(race.poll_closing_time + timedelta(minutes=-60))
-            mprint(race.poll_closing_time + timedelta(minutes=-180))
             analyse_schedule = set(
                 max(
                     now,
@@ -47,11 +42,16 @@ class ScheduleTasks(CeleryTasks):
                 )
                 for delta_min in [5, -7, -20, -60, -180]
             )
-            mprint(analyse_schedule)
             for eta in analyse_schedule:
                 options = AnalyseTaskOptions(race.race_id, analyser_names=["no_cor"])
-                self.analyse_task_provider(options=options).apply_async(eta=eta)
-                mprint(f"Analyse of {race.race_id} scheduled at {eta}")
+                task_key = f"parimana:task:analyse:{race.race_id}:{eta.timestamp()}"
+                if self.redis_client.set(task_key, 1, nx=True, ex=72000):
+                    self.analyse_task_provider(options=options).apply_async(
+                        eta=eta, expires=(eta + timedelta(minutes=10))
+                    )
+                    mprint(f"Analyse of {race.race_id} at {eta} scheduled.")
+                else:
+                    mprint(f"Analyse of {race.race_id} at {eta} skipped.")
 
     def start_periodic_analyse(self):
         return chain(

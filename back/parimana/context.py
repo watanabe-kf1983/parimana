@@ -1,5 +1,7 @@
 from pathlib import Path
+
 from celery import Celery
+import redis
 
 from parimana.devices.redis.redis_channel import RedisChannelFactory
 from parimana.external.boatrace import BoatRace, category_boat
@@ -22,7 +24,6 @@ settings = Settings()
 storage = FileStorage(Path(settings.file_storage_root_path))
 publish_center = RedisChannelFactory(settings.redis_uri).publish_center
 
-
 analyse_app = AnalyseApp(store=storage)
 odds_app = OddsCollectorApp(store=storage)
 schedule_app = ScheduleApp(category_selector=category_selector, store=storage)
@@ -33,6 +34,10 @@ celery = Celery(
     broker=settings.redis_uri,
     backend=settings.redis_uri,
     config_source="parimana.tasks.celeryconfig",
+)
+
+redis_client = redis.StrictRedis(
+    host=settings.redis_hostname, port=settings.redis_port, db=settings.redis_db_id + 1
 )
 
 analyse_tasks = AnalyseTasks(
@@ -47,6 +52,7 @@ analyse_tasks = AnalyseTasks(
 schedule_tasks = ScheduleTasks(
     schedule_app=schedule_app,
     analyse_task_provider=analyse_tasks.scrape_and_analyse,
+    redis_client=redis_client,
     celery=celery,
 )
 
