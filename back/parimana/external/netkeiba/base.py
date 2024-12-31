@@ -43,7 +43,7 @@ class NetKeibaRace(Race):
 
     @property
     def odds_source(self) -> OddsSource:
-        return self.__class__.odds_source_type()(self)
+        return self.odds_source_type()(self)
 
     @classmethod
     def odds_source_type(cls) -> Type[OddsSource]:
