@@ -78,7 +78,6 @@ class AnalyseTasks(CeleryTasks):
     def scrape_and_analyse(self, options: AnalyseTaskOptions):
         race = self.race_selector.select(options.race_id)
         process_name = f"analyse_{options.race_id}"
-        queue_name = f"scrape_{race.odds_source.site_name()}"
         return chain(
             self.start_process.s(process_name=process_name),
             self.get_odds_pool.si(
@@ -91,7 +90,6 @@ class AnalyseTasks(CeleryTasks):
                     analyser_name=analyser_name,
                     simulation_count=options.simulation_count,
                     process_name=process_name,
-                    queue=queue_name,
                 )
                 for analyser_name in options.analyser_names
             ),
@@ -106,6 +104,12 @@ class AnalyseTasks(CeleryTasks):
 
     def channel_broker(self, *args, **kwargs) -> str:
         return kwargs.get("process_name")
+
+    def queue_broker(self, *args, **kwargs) -> str:
+        if race := kwargs.get("race"):
+            if isinstance(race, Race):
+                return f"scrape_{race.odds_source.site_name()}"
+        return super().queue_broker(*args, **kwargs)
 
     def queues(self) -> Collection[str]:
         sites = self.race_selector.odds_source_sites()

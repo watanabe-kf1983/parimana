@@ -19,11 +19,16 @@ class ScheduleTasks(CeleryTasks):
 
     def update_schedule_all(self):
         return group(
-            self.update_schedule.s(
-                cat=cat, queue=f"scrape_{cat.schedule_source.site_name()}"
-            )
+            self.update_schedule.s(cat=cat)
             for cat in self.schedule_app.category_selector.all()
         )
+
+    def queue_broker(self, *args, **kwargs) -> str:
+        if cat := kwargs.get("cat"):
+            if isinstance(cat, Category):
+                return f"scrape_{cat.schedule_source.site_name()}"
+
+        return super().queue_broker(*args, **kwargs)
 
     def queues(self) -> Collection[str]:
         sites = self.schedule_app.category_selector.source_sites()

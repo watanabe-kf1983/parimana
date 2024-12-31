@@ -1,5 +1,5 @@
-from functools import wraps
-from typing import Callable, Sequence
+import functools
+from typing import Callable, Generic, Optional, Sequence, TypeVar
 
 from toolz import compose
 
@@ -15,7 +15,7 @@ def _is_to_be_decorated(func):
     return callable(func) and getattr(func, _DECO_FUNC_ATTR, False)
 
 
-def decorate(obj: object, decorator: Callable[[Callable], Callable]):
+def decorate_methods(obj: object, decorator: Callable[[Callable], Callable]):
     for attr_name in dir(obj):
         attr = getattr(obj, attr_name)
         if _is_to_be_decorated(attr):
@@ -31,8 +31,49 @@ def compose_decorator(
 
 def blank_decorator(func):
 
-    @wraps(func)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+T = TypeVar("T")
+
+
+class Proxy(Generic[T]):
+    def __init__(self, target: T, *, intercept: Sequence[str], filter: Callable):
+        self._target = target
+        self._filter = filter
+        self._intercept = intercept
+
+    def __getattr__(self, name: str):
+        attr = getattr(self._target, name)
+        if name in self._intercept:
+            return filter_func_decorator(self._filter)(attr)
+        else:
+            return attr
+
+
+def filter_decorator(filter: Callable, *, methods: Optional[Sequence[str]] = None):
+    if methods:
+
+        def deco(obj):
+            return Proxy(obj, intercept=methods, filter=filter)
+
+        return deco
+    else:
+        return filter_func_decorator(filter)
+
+
+def filter_func_decorator(filter: Callable):
+
+    def deco(func):
+
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            return filter(func, *args, **kwargs)
+
+        return wrapped
+
+    return deco
