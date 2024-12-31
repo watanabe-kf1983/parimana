@@ -62,7 +62,7 @@ class ScheduleTasks(CeleryTasks):
         mprint(f"Failed task info: args={request.args}, kwargs={request.kwargs}, ")
         mprint("")
 
-    def start_periodic_analyse(self):
+    def init_today(self):
         return chain(
             self.update_schedule_all(),
             self.schedule_analyse.si(),

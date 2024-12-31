@@ -42,7 +42,7 @@ def get_race(race_id: str) -> RaceInfo:
     return RaceInfo.from_base(app.get_race(race_id))
 
 
-@router.post("/update")
-def update_schedule():
-    task_id = tasks.update_schedule_all().delay().id
+@router.post("/init-today")
+def init_today():
+    task_id = tasks.init_today().delay().id
     return {"task_id": task_id}
