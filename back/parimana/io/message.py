@@ -57,18 +57,24 @@ class PublishCenter:
         finally:
             _global_printer = before
 
-    def with_channel_printer(self, func):
+    def with_channel_printer(self, channel_broker=None):
 
-        @wraps(func)
-        def wrapper(*args, channel_id: str = "", **kwargs):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
 
-            if channel_id:
-                with self._set_global_printer(channel_id) as _:
+                if channel_broker:
+                    channel_id = channel_broker(*args, **kwargs)
+
+                if channel_id:
+                    with self._set_global_printer(channel_id) as _:
+                        return func(*args, **kwargs)
+                else:
                     return func(*args, **kwargs)
-            else:
-                return func(*args, **kwargs)
 
-        return wrapper
+            return wrapper
+
+        return decorator
 
 
 _global_printer = Printer()

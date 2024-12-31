@@ -19,7 +19,7 @@ class ScheduleTasks(CeleryTasks):
         self.schedule_app = schedule_app
 
     @task
-    def update_schedule(self, *, cat: Category) -> Sequence[RaceInfo]:
+    def update_schedule(self, *, cat: Category, **kwargs) -> Sequence[RaceInfo]:
         return self.schedule_app.update_schedule(cat)
 
     def update_schedule_all(self):

@@ -1,42 +1,40 @@
 from abc import ABC, abstractmethod
-from functools import wraps
-from typing import Collection
+from typing import Callable, Collection, Optional, Sequence
+
 from celery import Celery
+
 from parimana.io.message import PublishCenter
+import parimana.tasks.decorate_util as utils
 
-
-_TASK_FUNC_ATTR = "_is_celery_task"
-
-
-def task(func):
-    setattr(func, _TASK_FUNC_ATTR, True)
-    return func
-
-
-def add_queue(func):
-    @wraps(func)
-    def wrapper(*args, queue: str = "default", **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-def route_task(name, args, kwargs, options, task=None, **kw):
-    return {"queue": kwargs.get("queue")}
+task = utils.to_be_decorated
 
 
 class CeleryTasks(ABC):
 
-    def __init__(self, celery: Celery, publish_center: PublishCenter, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, celery: Celery, publish_center: PublishCenter):
         self.celery = celery
-        for attr_name in dir(self):
-            if not attr_name.startswith("__"):
-                attr = getattr(self, attr_name)
-                if callable(attr) and getattr(attr, _TASK_FUNC_ATTR, False):
-                    task_func = publish_center.with_channel_printer(add_queue(attr))
-                    setattr(self, attr_name, celery.task(task_func))
+        self.publish_center = publish_center
+
+        utils.decorate(self, self.task_decorator)
 
     @abstractmethod
     def queues(self) -> Collection[str]:
         pass
+
+    @property
+    def task_decorator(self) -> Callable[[Callable], Callable]:
+        return utils.compose_decorator(self.task_decorators)
+
+    @property
+    def task_decorators(self) -> Sequence[Callable[[Callable], Callable]]:
+        return [
+            self.celery.task,
+            self.publish_center.with_channel_printer(self.channel_broker),
+        ]
+
+    def channel_broker(self, *args, **kwargs) -> Optional[str]:
+        return kwargs.get("channel_id")
+
+
+def route_task(name, args, kwargs, options, task=None, **kw):
+    return {"queue": kwargs.get("queue")}
