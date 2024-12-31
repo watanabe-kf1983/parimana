@@ -28,6 +28,11 @@ class Category(ABC):
     def timezone(self) -> ZoneInfo:
         pass
 
+    @property
+    @abstractmethod
+    def poll_start_time(self) -> datetime.time:
+        pass
+
 
 @dataclass
 class CategorySelector:
@@ -70,6 +75,14 @@ class RaceInfo:
     name: str
     fixture: Fixture
     poll_closing_time: datetime.datetime
+
+    @property
+    def poll_start_time(self) -> datetime.datetime:
+        return datetime.datetime.combine(
+            self.poll_closing_time.date(),
+            self.fixture.course.category.poll_start_time,
+            self.fixture.course.category.timezone,
+        )
 
 
 class ScheduleSource(ABC):

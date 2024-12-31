@@ -1,3 +1,4 @@
+from pathlib import Path
 from celery import Celery
 
 from parimana.devices.redis.redis_channel import RedisChannelFactory
@@ -18,7 +19,7 @@ category_selector = CategorySelector(categories)
 
 settings = Settings()
 
-storage = FileStorage(settings.file_storage_root_path)
+storage = FileStorage(Path(settings.file_storage_root_path))
 publish_center = RedisChannelFactory(settings.redis_uri).publish_center
 
 
@@ -43,6 +44,10 @@ analyse_tasks = AnalyseTasks(
     publish_center=publish_center,
 )
 
-schedule_tasks = ScheduleTasks(schedule_app=schedule_app, celery=celery)
+schedule_tasks = ScheduleTasks(
+    schedule_app=schedule_app,
+    analyse_task_provider=analyse_tasks.scrape_and_analyse,
+    celery=celery,
+)
 
 worker = Worker(tasks_list=[analyse_tasks, schedule_tasks])

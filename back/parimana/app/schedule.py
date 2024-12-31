@@ -15,6 +15,18 @@ class ScheduleApp:
     def select_category(self, category_id: str):
         return self.category_selector.select(category_id)
 
+    def get_today_schedule(
+        self,
+    ) -> Sequence[RaceInfo]:
+        return [
+            race_info
+            for cat in self.category_selector.all()
+            for race_info in (
+                self.repo.load_schedule(cat, datetime.datetime.now(cat.timezone).date())
+                or []
+            )
+        ]
+
     def get_schedule(
         self,
         cat: Category,

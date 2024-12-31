@@ -29,6 +29,10 @@ class _CategoryBoatRace(Category):
     def timezone(self) -> ZoneInfo:
         return _boat_timezone
 
+    @property
+    def poll_start_time(self) -> datetime.time:
+        return datetime.time(hour=8, minute=30)
+
 
 category_boat = _CategoryBoatRace()
 

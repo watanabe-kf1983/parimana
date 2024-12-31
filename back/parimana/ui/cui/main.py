@@ -5,8 +5,8 @@ import parimana.ui.web as web
 import parimana.context as cx
 
 
-def update_schedule(args) -> None:
-    cx.schedule_tasks.update_schedule_all().apply()
+def start_periodic(args) -> None:
+    cx.schedule_tasks.start_periodic_analyse().apply()
 
 
 def start_web(args):
@@ -43,8 +43,8 @@ def create_parser() -> argparse.ArgumentParser:
     analyse_cui.add_sub_parser(subparsers)
 
     subparsers.add_parser("web", help="start web").set_defaults(func=start_web)
-    subparsers.add_parser("schuedule", help="update schedule").set_defaults(
-        func=update_schedule
+    subparsers.add_parser("periodic", help="start periodic analysis").set_defaults(
+        func=start_periodic
     )
     subparsers.add_parser("worker", help="start worker").set_defaults(func=worker)
     subparsers.add_parser("monitor", help="start worker-monitor").set_defaults(

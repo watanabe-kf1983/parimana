@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import datetime
 import re
 from typing import Optional, Type
 from zoneinfo import ZoneInfo
@@ -28,6 +29,10 @@ class _CategoryNetKeiba(Category):
     @property
     def timezone(self) -> ZoneInfo:
         return _keiba_timezone
+
+    @property
+    def poll_start_time(self) -> datetime.time:
+        return datetime.time(hour=8, minute=30)
 
 
 category_keiba = _CategoryNetKeiba()
