@@ -18,6 +18,7 @@ def get_categories():
 @router.get("/races")
 def get_races(
     category_id: Optional[str] = Query(None),
+    scraped_only: bool = Query(True),
     url: Optional[str] = Query(None),
 ) -> Sequence[RaceInfo]:
     if url:
@@ -27,7 +28,9 @@ def get_races(
         try:
             return [
                 RaceInfo.from_base(race)
-                for race in app.get_schedule(cat=app.select_category(category_id))
+                for race in app.get_schedule(
+                    cat=app.select_category(category_id), scraped_only=scraped_only
+                )
             ]
 
         except Exception:

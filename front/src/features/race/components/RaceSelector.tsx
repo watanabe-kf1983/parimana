@@ -21,9 +21,10 @@ const fetchCategories = async (_params: any): Promise<Category[]> => {
 
 const fetchSchedule = async (params: {
   categoryId?: string;
+  scrapedOnly?: boolean;
 }): Promise<RaceInfo[]> => {
   if (params.categoryId) {
-    return await api.getCalendar(params.categoryId);
+    return await api.getCalendar(params.categoryId, params.scrapedOnly || false);
   } else {
     return [];
   }
@@ -75,7 +76,7 @@ export function RaceSelector(props: RaceSelectorProps) {
   ).data;
 
   const fetchedSchedule = useSWR<RaceInfo[] | undefined>(
-    { categoryId },
+    { categoryId: categoryId, scrapedOnly: !props.showControl },
     fetchSchedule
   ).data;
 

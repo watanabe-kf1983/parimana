@@ -1,5 +1,6 @@
 export type RaceSelectorProps = {
   raceId: string;
+  showControl: boolean;
   onSetRaceId: (input: string) => void;
 };
 

@@ -18,6 +18,7 @@ export function Parimana() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<ParimanaPage showControl={false} />} />
+        <Route path="/sctl" element={<ParimanaPage showControl={true} />} />
         <Route path="/about" element={<HelpPage />} />
         <Route path="/analysis/:raceId" element={<ParimanaPage showControl={false} />} />
         <Route path="/analysis/:raceId/sctl" element={<ParimanaPage showControl={true} />} />
@@ -94,7 +95,7 @@ function ParimanaContent(props: { showControl: boolean }) {
         display: 'flex',
         flexDirection: 'column',
       }}>
-      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} />
+      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} showControl={props.showControl} />
       {raceId ?
         <Race raceId={raceId} showControl={props.showControl} /> : null}
     </Box>
