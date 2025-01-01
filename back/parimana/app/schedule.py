@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 
 from parimana.domain.schedule import Category, CategorySelector, RaceInfo
 from parimana.io.kvs import Storage
-from parimana.repository.odds import OddsRepository, OddsRepositoryImpl
+from parimana.repository.analysis import AnalysisRepository, AnalysisRepositoryImpl
 from parimana.repository.schedule import ScheduleRepository, ScheduleRepositoryImpl
 from parimana.app.exception import ResultNotExistError
 
@@ -12,7 +12,7 @@ class ScheduleApp:
     def __init__(self, category_selector: CategorySelector, store: Storage):
         self.category_selector = category_selector
         self.repo: ScheduleRepository = ScheduleRepositoryImpl(store)
-        self.odds_repo: OddsRepository = OddsRepositoryImpl(store)
+        self.an_repo: AnalysisRepository = AnalysisRepositoryImpl(store)
 
     def select_category(self, category_id: str):
         return self.category_selector.select(category_id)
@@ -36,7 +36,7 @@ class ScheduleApp:
             race_info
             for date in self.get_recent_calendar(cat)
             for race_info in (self.repo.load_schedule(cat, date) or [])
-            if (not scraped_only) or self.odds_repo.odds_pool_exists(race_info)
+            if (not scraped_only) or self.an_repo.charts_exists_one(race_info, "no_cor")
         ]
 
     def get_recent_calendar(

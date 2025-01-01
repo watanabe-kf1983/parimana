@@ -33,6 +33,10 @@ class AnalysisRepository(ABC):
     def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
         pass
 
+    @abstractmethod
+    def charts_exists_one(self, race: Race, model: str) -> bool:
+        pass
+
 
 @dataclass
 class AnalysisRepositoryImpl(AnalysisRepository):
@@ -58,6 +62,17 @@ class AnalysisRepositoryImpl(AnalysisRepository):
     def load_charts(self, race: Race, ts: OddsTimeStamp, model: str) -> AnalysisCharts:
         prefix = f"analysis/{race.race_id}/{ts}/{model}"
         return self.store.read_object(f"{prefix}/charts.pickle")
+
+    def charts_exists_one(self, race: Race, model: str) -> bool:
+        ts = self.load_latest_charts_time(race)
+        if ts:
+            return self.charts_exists(race, ts, model), ts
+        else:
+            return False
+
+    def charts_exists(self, race: Race, ts: OddsTimeStamp, model: str) -> bool:
+        prefix = f"analysis/{race.race_id}/{ts}/{model}"
+        return self.store.exists(f"{prefix}/charts.pickle")
 
     def load_latest_charts(
         self, race: Race, model: str
