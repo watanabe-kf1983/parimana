@@ -28,7 +28,7 @@ export function Analysis(props: AnalysisProps) {
             </Typography>
             <Typography variant="body1">
               <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>  
-              （{analysis.odds_update_time === "confirmed" ? "締切時オッズ" : analysis.odds_update_time.replace("updated at ", "") + " 更新時オッズ"}）
+              （{analysis.odds_update_time === "confirmed" ? "締切オッズ" : analysis.odds_update_time.replace("updated at ", "") + " 更新オッズ"}）
               <br />
               <br />
             </Typography>

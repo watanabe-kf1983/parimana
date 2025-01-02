@@ -36,7 +36,7 @@ def main():
 def create_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
-        prog="parimana", description="pari-mutuel betting odds Analyser"
+        prog="parimana", description="PARI-Mutuel betting odds ANAlyser"
     )
     subparsers = parser.add_subparsers(dest="command", help="sub commands")
 
