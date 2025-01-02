@@ -2,6 +2,9 @@ services:
   command:
     build:
       context: ./back
+    environment:
+      REDIS_HOSTNAME: task-db
+      REDIS_PORT: 6379
     volumes:
       - file-repo:/var/parimana/repo
     entrypoint: ["tail", "-f", "/dev/null"]
