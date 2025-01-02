@@ -63,7 +63,7 @@ services:
     command: [ "parimana", "monitor" ]
     ports:
       - "5555:5555"
-
+    restart: always
 
   task-db:
     image: redis
