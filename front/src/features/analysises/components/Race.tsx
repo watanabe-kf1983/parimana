@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import { AnalysisStatus, RaceControlProps } from "../types";
 import { useState, useEffect } from "react";
 import api from "../api";
@@ -30,9 +30,6 @@ export function Race(props: RaceControlProps) {
         display: 'flex',
         flexDirection: 'row',
       }}>
-        {!status.is_odds_confirmed ? (
-          <Button onClick={reload}> Reload </Button>
-        ) : null}
         {props.showControl ? (
           <>
             <AnalyseControl
