@@ -4,18 +4,19 @@
 
 ```bash
 
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' env/.env | xargs)
 
 echo $AWS_REGION 
 echo $PROJECT_NAME
 
-export TFSTATE_BUCKET_NAME="${PROJECT_NAME}-resources-tfstate"
+export TFSTATE_BUCKET_NAME="${PROJECT_NAME}-infra-resources-tfstate"
 echo $TFSTATE_BUCKET_NAME
 
 # set up tfstate bucket
-./setup_tfstate_bucket.sh
+setup/setup_tfstate_bucket.sh
 
 # set up terraform 
+cd terraform
 terraform init \
   -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
   -backend-config="region=${AWS_REGION}"
