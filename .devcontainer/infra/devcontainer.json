@@ -15,6 +15,7 @@
 		]
 	},
 	"mounts": [
-		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+		"source=${env:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached"
 	]
 }
