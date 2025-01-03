@@ -1,0 +1,20 @@
+{
+	"name": "Terraform Container",
+	"build": {
+		"dockerfile": "./Dockerfile",
+		"context": "."
+	},
+	"customizations": {
+		"settings": {
+			"terminal.integrated.defaultProfile.linux": "bash"
+		},
+		"extensions": [
+			"hashicorp.terraform",
+			"ms-azuretools.vscode-docker",
+			"AmazonWebServices.aws-toolkit-vscode"
+		]
+	},
+	"mounts": [
+		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+	]
+}
