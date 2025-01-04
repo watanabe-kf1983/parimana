@@ -10,6 +10,7 @@ phases:
 
   pre_build:
     commands:
+      - cd infra
       - echo "Initializing Terraform"
       - |
         terraform init
