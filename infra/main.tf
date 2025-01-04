@@ -16,9 +16,10 @@ provider "aws" {
   region = var.aws_region
 }
 
+
 locals {
   common_tags = {
-    Environment = "ci-cd"
+    Environment = var.env
     Project     = var.project_name
     ManagedBy   = "Terraform"
   }

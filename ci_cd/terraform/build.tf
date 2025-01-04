@@ -12,12 +12,34 @@ resource "aws_codebuild_project" "infra" {
     compute_type = "BUILD_GENERAL1_SMALL"
     image        = "aws/codebuild/standard:6.0"
     type         = "LINUX_CONTAINER"
+
     environment_variable {
-      name  = "ENV"
+      name  = "AWS_REGION"
+      value = var.aws_region
+    }
+
+    environment_variable {
+      name  = "TFSTATE_BUCKET"
+      value = aws_s3_bucket.infra_tfstate.bucket
+    }
+
+    environment_variable {
+      name  = "TF_VAR_aws_region"
+      value = var.aws_region
+    }
+
+    environment_variable {
+      name  = "TF_VAR_project_name"
+      value = var.target_project_name
+    }
+
+    environment_variable {
+      name  = "TF_VAR_env"
       value = "production"
     }
 
   }
+
 
   source {
     type      = "CODEPIPELINE"

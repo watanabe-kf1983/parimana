@@ -11,7 +11,10 @@ phases:
   pre_build:
     commands:
       - echo "Initializing Terraform"
-      - terraform init
+      - |
+        terraform init
+          -backend-config="bucket=${TFSTATE_BUCKET}"
+          -backend-config="region=${AWS_REGION}"
 
   build:
     commands:
