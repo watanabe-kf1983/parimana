@@ -10,3 +10,11 @@ terraform {
     encrypt = true
   }
 }
+
+locals {
+  common_tags = {
+    Environment = "ci-cd"
+    Project     = var.project_name
+    ManagedBy   = "Terraform"
+  }
+}

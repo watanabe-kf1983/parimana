@@ -2,10 +2,7 @@
 resource "aws_s3_bucket" "artifacts" {
   bucket = "${var.target_project_name}-artifacts"
 
-  tags = {
-    Environment = "ci-cd"
-    Project     = var.project_name
-  }
+  tags = local.common_tags
 }
 
 resource "aws_s3_bucket_versioning" "artifacts_bucket_versioning" {
@@ -14,6 +11,7 @@ resource "aws_s3_bucket_versioning" "artifacts_bucket_versioning" {
   versioning_configuration {
     status = "Enabled"
   }
+
 }
 
 
@@ -25,8 +23,5 @@ resource "aws_ecr_repository" "backend" {
     scan_on_push = true
   }
 
-  tags = {
-    Environment = "ci-cd"
-    Project     = var.project_name
-  }
+  tags = local.common_tags
 }
