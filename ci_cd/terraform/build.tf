@@ -10,7 +10,7 @@ resource "aws_codebuild_project" "infra" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "aws/codebuild/standard:6.0"
+    image        = "public.ecr.aws/hashicorp/terraform:1.10.3"
     type         = "LINUX_CONTAINER"
 
     environment_variable {
