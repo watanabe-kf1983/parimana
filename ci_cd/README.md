@@ -16,7 +16,7 @@ echo $TFSTATE_BUCKET_NAME
 setup/setup_tfstate_bucket.sh
 
 # set up terraform 
-cd terraform
+cd iac
 terraform init \
   -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
   -backend-config="region=${AWS_REGION}"

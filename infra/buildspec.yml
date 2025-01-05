@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - cd infra
+      - cd infra/iac
       - echo "Initializing Terraform"
       - |
         terraform init \
