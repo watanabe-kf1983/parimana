@@ -22,8 +22,8 @@ export function AnalyseControl(props: AnalyseControlProps) {
           disabled={false}
         >
           {status.has_analysis
-            ? "Request update odds & re-analyse"
-            : "Request analyse"}
+            ? "オッズ更新＆再計算"
+            : "オッズ取得＆計算"}
         </Button>
       ) : null
       }
@@ -34,7 +34,7 @@ export function AnalyseControl(props: AnalyseControlProps) {
             onClick={() => { }}
             disabled={true}
           >
-            Processing...
+            処理中...
           </Button>
         </>
       ) : null}
