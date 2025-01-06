@@ -3,17 +3,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - cd infra/iac
-      - echo "Initializing Terraform"
-      - |
-        terraform init \
-          -backend-config="bucket=${TFSTATE_BUCKET}" \
-          -backend-config="region=${AWS_REGION}"
+      - infra/script/pre_build.sh
 
   build:
     commands:
-      - echo "Applying Terraform"
-      - terraform apply -auto-approve
+      - infra/script/build.sh
 
 artifacts:
   files:

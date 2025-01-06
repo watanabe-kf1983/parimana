@@ -19,25 +19,19 @@ resource "aws_codebuild_project" "infra" {
     }
 
     environment_variable {
+      name  = "PROJECT_NAME"
+      value = var.target_project_name
+    }
+
+    environment_variable {
       name  = "TFSTATE_BUCKET"
       value = aws_s3_bucket.infra_tfstate.bucket
     }
 
     environment_variable {
-      name  = "TF_VAR_aws_region"
-      value = var.aws_region
+      name  = "ENV"
+      value = "prod"
     }
-
-    environment_variable {
-      name  = "TF_VAR_project_name"
-      value = var.target_project_name
-    }
-
-    environment_variable {
-      name  = "TF_VAR_env"
-      value = "production"
-    }
-
   }
 
 
