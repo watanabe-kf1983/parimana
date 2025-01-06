@@ -71,7 +71,7 @@ resource "aws_iam_policy" "build_front_policy" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = "s3:*"
+        Action   = "*"
         Resource = "*"
       }
     ]
