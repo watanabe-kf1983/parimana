@@ -3,15 +3,12 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - pwd
-      - ls -la
-      - echo ${CODEBUILD_SRC_DIR}
-      - ls -la ${CODEBUILD_SRC_DIR}
-      - ${CODEBUILD_SRC_DIR}/infra/script/pre_build.sh
+    　- ls -la infra/script/pre_build.sh
+      - infra/script/pre_build.sh
 
   build:
     commands:
-      - ${CODEBUILD_SRC_DIR}/infra/script/build.sh
+      - infra/script/build.sh
 
 artifacts:
   files:
