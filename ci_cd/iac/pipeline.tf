@@ -32,7 +32,7 @@ resource "aws_codepipeline" "main_pipeline" {
 
 
   stage {
-    name = "Build_Infra"
+    name = "Build"
 
     action {
       name             = "Build_Infra"
@@ -47,10 +47,6 @@ resource "aws_codepipeline" "main_pipeline" {
         ProjectName = aws_codebuild_project.infra.name
       }
     }
-  }
-
-  stage {
-    name = "Build_Front"
 
     action {
       name             = "Build_Front"
