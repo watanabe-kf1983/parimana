@@ -32,6 +32,9 @@ module "app" {
   project_name = var.project_name
   env          = var.env
   common_tags  = local.common_tags
+  vpc_id = module.net.vpc_id
+  private_subnet_ids = module.net.private_subnet_ids
+  private_subnet_cidrs = module.net.private_subnet_cidrs
 }
 
 module "web" {
