@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - front/script/build.sh
+
+artifacts:
+  files:
+    - 'front/dist/**/*'
