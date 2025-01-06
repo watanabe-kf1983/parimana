@@ -2,7 +2,7 @@
 aws_region = "ap-northeast-1"
 
 # Project settings
-project_name = "xxxxxxx-cicd"
+cicd_project_name = "xxxxxxx-cicd"
 target_project_name = "xxxxxxx"
 source_repository = {
   # AWSマネジメントコンソール > デベロッパーツール > 設定 > 接続 で作成したコード接続のARN

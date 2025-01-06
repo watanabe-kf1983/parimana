@@ -48,7 +48,7 @@ resource "aws_codebuild_project" "infra" {
   logs_config {
     cloudwatch_logs {
       status      = "ENABLED"
-      group_name  = "/aws/codebuild/${var.project_name}"
+      group_name  = "/aws/codebuild/${var.cicd_project_name}"
       stream_name = "infra"
     }
   }
@@ -57,7 +57,7 @@ resource "aws_codebuild_project" "infra" {
 }
 
 resource "aws_iam_role" "build_infra_role" {
-  name = "${var.project_name}-build-infra-role"
+  name = "${var.cicd_project_name}-build-infra-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -95,6 +95,6 @@ resource "aws_iam_policy" "build_infra_policy" {
 }
 
 resource "aws_cloudwatch_log_group" "codebuild_logs" {
-  name              = "/aws/codebuild/${var.project_name}"
+  name              = "/aws/codebuild/${var.cicd_project_name}"
   retention_in_days = 7
 }

@@ -4,7 +4,7 @@ variable "aws_region" {
   default     = "ap-northeast-1"
 }
 
-variable "project_name" {
+variable "cicd_project_name" {
   description = "The CI/CD project name (e.g., myproject-cicd)"
   type        = string
 }

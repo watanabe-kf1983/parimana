@@ -19,7 +19,7 @@ provider "aws" {
 locals {
   common_tags = {
     Environment = "ci-cd"
-    Project     = var.project_name
+    Project     = var.cicd_project_name
     ManagedBy   = "Terraform"
   }
 }

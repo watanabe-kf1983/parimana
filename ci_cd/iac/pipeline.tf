@@ -54,7 +54,7 @@ resource "aws_codepipeline" "main_pipeline" {
 
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.project_name}-codepipeline-role"
+  name = "${var.cicd_project_name}-codepipeline-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -73,14 +73,14 @@ resource "aws_iam_role" "codepipeline_role" {
 
 
 resource "aws_iam_policy_attachment" "codepipeline_policy" {
-  name       = "${var.project_name}-codepipeline-policy-attachment"
+  name       = "${var.cicd_project_name}-codepipeline-policy-attachment"
   roles      = [aws_iam_role.codepipeline_role.name]
   policy_arn = aws_iam_policy.codepipeline_policy.arn
 }
 
 
 resource "aws_iam_policy" "codepipeline_policy" {
-  name        = "${var.project_name}-codepipeline-policy"
+  name        = "${var.cicd_project_name}-codepipeline-policy"
   description = "Minimal IAM policy for CodePipeline"
   policy = jsonencode({
     Version = "2012-10-17"

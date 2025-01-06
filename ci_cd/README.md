@@ -7,10 +7,10 @@
 export $(grep -v '^#' env/.env | xargs)
 
 echo $AWS_REGION 
-echo $PROJECT_NAME
+echo $CICD_PROJECT_NAME
 
-export TFSTATE_BUCKET_NAME="${PROJECT_NAME}-infra-resources-tfstate"
-echo $TFSTATE_BUCKET_NAME
+export CICD_TFSTATE_BUCKET_NAME="${CICD_PROJECT_NAME}-infra-resources-tfstate"
+echo $CICD_TFSTATE_BUCKET_NAME
 
 # set up tfstate bucket
 setup/setup_tfstate_bucket.sh
@@ -18,7 +18,7 @@ setup/setup_tfstate_bucket.sh
 # set up terraform 
 cd iac
 terraform init \
-  -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
+  -backend-config="bucket=${CICD_TFSTATE_BUCKET_NAME}" \
   -backend-config="region=${AWS_REGION}"
 
 ```
