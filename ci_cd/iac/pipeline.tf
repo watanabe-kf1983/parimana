@@ -63,6 +63,25 @@ resource "aws_codepipeline" "main_pipeline" {
     }
   }
 
+  stage {
+    name = "Deploy"
+
+    action {
+      name            = "Deploy_Front"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "S3"
+      version         = "1"
+      input_artifacts = ["build_front_output"]
+
+      configuration = {
+        BucketName = "${var.target_project_name}-prod-web"
+        Extract    = "true"
+      }
+    }
+
+  }
+
   tags = local.common_tags
 }
 
