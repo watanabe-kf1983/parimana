@@ -15,7 +15,7 @@ resource "aws_codebuild_project" "front" {
 
     environment_variable {
       name  = "ENV"
-      value = "prod"
+      value = var.env
     }
   }
 
@@ -33,15 +33,15 @@ resource "aws_codebuild_project" "front" {
     cloudwatch_logs {
       status      = "ENABLED"
       group_name  = "/aws/codebuild/${var.cicd_project_name}"
-      stream_name = "front"
+      stream_name = "${var.env}.front"
     }
   }
 
-  tags = local.common_tags
+  tags = var.common_tags
 }
 
 resource "aws_iam_role" "build_front_role" {
-  name = "${var.cicd_project_name}-build-front-role"
+  name = "${var.cicd_project_name}-build-${var.env}-front-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -55,7 +55,7 @@ resource "aws_iam_role" "build_front_role" {
       }
     ]
   })
-  tags = local.common_tags
+  tags = var.common_tags
 }
 
 resource "aws_iam_role_policy_attachment" "build_front_policy" {
@@ -64,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "build_front_policy" {
 }
 
 resource "aws_iam_policy" "build_front_policy" {
-  name        = "BuildfrontPolicyAccess"
+  name        = "BuildfrontPolicyAccess-${var.env}"
   description = "Custom policy for build front of ${var.target_project_name}"
   policy = jsonencode({
     Version = "2012-10-17"

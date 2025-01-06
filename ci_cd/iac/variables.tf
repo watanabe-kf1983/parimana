@@ -14,11 +14,12 @@ variable "target_project_name" {
   type        = string
 }
 
-variable "source_repository" {
-  description = "Source repository for CodePipeline"
-  type = object({
-    connection_arn     = string
-    full_repository_id = string
-    branch_name        = string
-  })
+variable "source_repository_connection_arn" {
+  description = "Source repository connection arn for CodePipeline"
+  type = string
+}
+
+variable "source_repository_full_repository_id" {
+  description = "Source repository full repository id for CodePipeline"
+  type = string
 }

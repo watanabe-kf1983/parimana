@@ -1,14 +1,13 @@
 
 resource "aws_codepipeline" "main_pipeline" {
-  name          = "${var.target_project_name}-pipeline"
+  name          = "${var.target_project_name}-${var.env}-pipeline"
   role_arn      = aws_iam_role.codepipeline_role.arn
   pipeline_type = "V2"
 
   artifact_store {
     type     = "S3"
-    location = aws_s3_bucket.artifacts.bucket
+    location = var.s3_artifact_store
   }
-
 
   stage {
     name = "Source"
@@ -29,7 +28,6 @@ resource "aws_codepipeline" "main_pipeline" {
       }
     }
   }
-
 
   stage {
     name = "Build"
@@ -75,14 +73,14 @@ resource "aws_codepipeline" "main_pipeline" {
       input_artifacts = ["build_front_output"]
 
       configuration = {
-        BucketName = "${var.target_project_name}-prod-web"
+        BucketName = "${var.target_project_name}-${var.env}-web"
         Extract    = "true"
       }
     }
 
   }
 
-  tags = local.common_tags
+  tags = var.common_tags
 }
 
 
@@ -101,7 +99,7 @@ resource "aws_iam_role" "codepipeline_role" {
       }
     ]
   })
-  tags = local.common_tags
+  tags = var.common_tags
 }
 
 
@@ -148,4 +146,9 @@ resource "aws_iam_policy" "codepipeline_policy" {
       },
     ]
   })
+}
+
+resource "aws_cloudwatch_log_group" "codebuild_logs" {
+  name              = "/aws/codebuild/${var.cicd_project_name}"
+  retention_in_days = 7
 }

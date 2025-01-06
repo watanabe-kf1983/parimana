@@ -1,7 +1,7 @@
 
 resource "aws_codebuild_project" "infra" {
-  name         = "${var.target_project_name}-infra"
-  description  = "CodeBuild project for building infra of ${var.target_project_name}"
+  name         = "${var.target_project_name}-${var.env}-infra"
+  description  = "CodeBuild project for building infra of ${var.target_project_name}-${var.env}"
   service_role = aws_iam_role.build_infra_role.arn
 
   artifacts {
@@ -25,12 +25,12 @@ resource "aws_codebuild_project" "infra" {
 
     environment_variable {
       name  = "TFSTATE_BUCKET"
-      value = aws_s3_bucket.infra_tfstate.bucket
+      value = var.s3_tfstate_store
     }
 
     environment_variable {
       name  = "ENV"
-      value = "prod"
+      value = var.env
     }
   }
 
@@ -49,15 +49,15 @@ resource "aws_codebuild_project" "infra" {
     cloudwatch_logs {
       status      = "ENABLED"
       group_name  = "/aws/codebuild/${var.cicd_project_name}"
-      stream_name = "infra"
+      stream_name = "${var.env}.infra"
     }
   }
 
-  tags = local.common_tags
+  tags = var.common_tags
 }
 
 resource "aws_iam_role" "build_infra_role" {
-  name = "${var.cicd_project_name}-build-infra-role"
+  name = "${var.cicd_project_name}-build-${var.env}-infra-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -71,7 +71,7 @@ resource "aws_iam_role" "build_infra_role" {
       }
     ]
   })
-  tags = local.common_tags
+  tags = var.common_tags
 }
 
 resource "aws_iam_role_policy_attachment" "build_infra_policy" {
@@ -80,7 +80,7 @@ resource "aws_iam_role_policy_attachment" "build_infra_policy" {
 }
 
 resource "aws_iam_policy" "build_infra_policy" {
-  name        = "BuildInfraPolicyAccess"
+  name        = "BuildInfraPolicyAccess-${var.env}"
   description = "Custom policy for build infra of ${var.target_project_name}"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -94,7 +94,4 @@ resource "aws_iam_policy" "build_infra_policy" {
   })
 }
 
-resource "aws_cloudwatch_log_group" "codebuild_logs" {
-  name              = "/aws/codebuild/${var.cicd_project_name}"
-  retention_in_days = 7
-}
+
