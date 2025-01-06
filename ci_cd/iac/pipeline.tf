@@ -49,6 +49,24 @@ resource "aws_codepipeline" "main_pipeline" {
     }
   }
 
+  stage {
+    name = "Build_Front"
+
+    action {
+      name             = "Build_Front"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["build_front_output"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.front.name
+      }
+    }
+  }
+
   tags = local.common_tags
 }
 
