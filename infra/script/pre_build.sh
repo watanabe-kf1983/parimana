@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -eux
 
 cd ${CODEBUILD_SRC_DIR}/infra/iac/env/${ENV}
 echo "Initializing Terraform"

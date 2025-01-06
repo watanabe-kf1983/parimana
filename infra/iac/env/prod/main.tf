@@ -7,13 +7,35 @@ terraform {
     }
   }
   backend "s3" {
-    key     = "terraform.tfstate"
+    key     = "dev/terraform.tfstate"
     encrypt = true
   }
 }
 
 provider "aws" {
   region = var.aws_region
+}
+
+
+module "net" {
+  source       = "../../modules/net"
+  project_name = var.project_name
+  env          = var.env
+  common_tags  = local.common_tags
+}
+
+module "app" {
+  source       = "../../modules/app"
+  project_name = var.project_name
+  env          = var.env
+  common_tags  = local.common_tags
+}
+
+module "web" {
+  source       = "../../modules/web"
+  project_name = var.project_name
+  env          = var.env
+  common_tags  = local.common_tags
 }
 
 
