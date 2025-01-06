@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-cd infra/iac/${ENV}
+cd ${CODEBUILD_SRC_DIR}/infra/iac/env/${ENV}
 echo "Initializing Terraform"
 terraform init \
     -backend-config="bucket=${TFSTATE_BUCKET}" \
