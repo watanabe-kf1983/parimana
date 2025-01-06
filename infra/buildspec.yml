@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-    　- ls -la infra/script/pre_build.sh
+      - ls -la infra/script/pre_build.sh
       - infra/script/pre_build.sh
 
   build:
