@@ -31,14 +31,8 @@ class Settings(BaseSettings):
 
     @property
     def redis_q_uri(self):
-        return (
-            self.redis_uri_for_q
-            or f"redis://{self.redis_endpoint}/{self.redis_id_for_q}"
-        )
+        return f"redis://{self.redis_endpoint}/{self.redis_id_for_q}"
 
     @property
     def redis_ap_uri(self):
-        return (
-            self.redis_uri_for_ap
-            or f"redis://{self.redis_endpoint}/{self.redis_id_for_ap}"
-        )
+        return f"redis://{self.redis_endpoint}/{self.redis_id_for_ap}"
