@@ -1,8 +1,10 @@
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal, Optional, Union
+from urllib.parse import urlparse
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from parimana.devices.s3.s3_kvs import S3Storage
 from parimana.io.kvs import FileStorage, Storage
 
 
@@ -16,10 +18,24 @@ class FileStorageSettings(BaseModel):
 
 class S3StorageSettings(BaseModel):
     type: Literal["s3"] = "s3"
-    prefix_uri: str
+    uri: Optional[str] = None
+    bucket: Optional[str] = None
+    prefix: Optional[str] = ""
+
+    @property
+    def bucket_and_prefix(self):
+        if self.uri:
+            parsed = urlparse(self.uri)
+            bucket_name = parsed.netloc
+            prefix = parsed.path.lstrip("/")
+            return bucket_name, prefix
+        elif self.bucket:
+            return self.bucket, self.prefix
+        else:
+            raise ValueError("Either URI or BUCKET must be provided.")
 
     def get(self) -> Storage:
-        return FileStorage(self.prefix_uri)
+        return S3Storage(*self.bucket_and_prefix)
 
 
 class Settings(BaseSettings):

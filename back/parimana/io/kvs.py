@@ -60,7 +60,7 @@ class FileStorage(Storage):
         file_path = self._get_file_path(key)
         if self.exists(key):
             with open(file_path, "rb") as f:
-                mprint(f"reading {file_path}...")
+                mprint(f"reading {file_path} ...")
                 return f.read()
         else:
             return None
@@ -69,7 +69,7 @@ class FileStorage(Storage):
         file_path = self._get_file_path(key)
         file_path.parent.mkdir(exist_ok=True, parents=True)
         with open(file_path, "wb") as f:
-            mprint(f"writing {file_path}...")
+            mprint(f"writing {file_path} ...")
             f.write(binary)
 
     def _get_file_path(self, key: str) -> Path:

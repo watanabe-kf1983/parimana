@@ -9,6 +9,7 @@ services:
     volumes:
       - ..:/workspace:cached
       - ~/.ssh:/home/vscode/.ssh:cached
+      - ~/.aws:/home/vscode/.aws:cached
     environment:
       REDIS_ENDPOINT: "task-db:6379"
     command: ["tail", "-f", "/dev/null"]
@@ -29,4 +30,3 @@ services:
   task-db:
     image: redis
     restart: always
-    
