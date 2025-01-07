@@ -9,6 +9,11 @@ variable "env" {
   default     = "dev"
 }
 
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+}
+
 variable "vpc_id" {
   description = "Vpc id"
   type        = string
