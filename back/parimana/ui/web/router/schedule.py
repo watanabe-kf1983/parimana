@@ -42,7 +42,13 @@ def get_race(race_id: str) -> RaceInfo:
     return RaceInfo.from_base(app.get_race(race_id))
 
 
-@router.post("/init-today")
+@router.post("/scrape/start")
+def scrape_schedule():
+    task_id = tasks.update_schedule_all().delay().id
+    return {"task_id": task_id}
+
+
+@router.post("/init-today/start")
 def init_today():
     task_id = tasks.init_today().delay().id
     return {"task_id": task_id}

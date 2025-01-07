@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal, Union
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,7 +11,7 @@ class FileStorageSettings(BaseModel):
     root_dir: str = ".storage"
 
     def get(self) -> Storage:
-        return FileStorage(self.root_dir)
+        return FileStorage(Path(self.root_dir))
 
 
 class S3StorageSettings(BaseModel):

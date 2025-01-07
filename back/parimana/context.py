@@ -1,12 +1,9 @@
-from pathlib import Path
-
 from celery import Celery
 
 from parimana.devices.redis.redis_channel import RedisChannelFactory
 from parimana.devices.redis.redis_kvs import RedisStorage
 from parimana.external.boatrace import BoatRace, category_boat
 from parimana.external.netkeiba import NetKeibaRace, category_keiba
-from parimana.io.kvs import FileStorage
 from parimana.domain.race import RaceSelector
 from parimana.domain.schedule import CategorySelector
 from parimana.app import AnalyseApp, OddsCollectorApp, ProcessStatusManager, ScheduleApp
