@@ -3,10 +3,11 @@ services:
     build:
       context: ./back
     environment:
-      REDIS_HOSTNAME: task-db
-      REDIS_PORT: 6379
+      STORAGE__TYPE: "file"
+      STORAGE__ROOT_DIR: "/var/parimana/.storage"
+      REDIS_ENDPOINT: "task-db:6379"
     volumes:
-      - file-repo:/var/parimana/repo
+      - storage:/var/parimana/.storage
     entrypoint: ["tail", "-f", "/dev/null"]
     restart: always
 
@@ -16,10 +17,11 @@ services:
     ports:
       - "5000:5000"
     environment:
-      REDIS_HOSTNAME: task-db
-      REDIS_PORT: 6379
+      STORAGE__TYPE: "file"
+      STORAGE__ROOT_DIR: "/var/parimana/.storage"
+      REDIS_ENDPOINT: "task-db:6379"
     volumes:
-      - file-repo:/var/parimana/repo
+      - storage:/var/parimana/.storage
     depends_on:
       - task-db
     entrypoint:
@@ -37,10 +39,11 @@ services:
     build:
       context: ./back
     environment:
-      REDIS_HOSTNAME: task-db
-      REDIS_PORT: 6379
+      STORAGE__TYPE: "file"
+      STORAGE__ROOT_DIR: "/var/parimana/.storage"
+      REDIS_ENDPOINT: "task-db:6379"
     volumes:
-      - file-repo:/var/parimana/repo
+      - storage:/var/parimana/.storage
     depends_on:
       - task-db
     entrypoint:
@@ -58,8 +61,7 @@ services:
     build:
       context: ./back
     environment:
-      REDIS_HOSTNAME: task-db
-      REDIS_PORT: 6379
+      REDIS_ENDPOINT: "task-db:6379"
       FLOWER_PURGE_OFFLINE_WORKERS: 60
     depends_on:
       - task-db
@@ -82,4 +84,4 @@ services:
     restart: always
 
 volumes:
-  file-repo:
+  storage:

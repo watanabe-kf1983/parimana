@@ -21,7 +21,7 @@ category_selector = CategorySelector(categories)
 
 settings = Settings()
 
-storage = FileStorage(Path(settings.file_storage_root_path))
+storage = settings.storage.get()
 publish_center = RedisChannelFactory(settings.redis_ap_uri).publish_center
 
 analyse_app = AnalyseApp(store=storage)

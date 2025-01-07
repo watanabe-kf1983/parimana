@@ -5,15 +5,16 @@ import parimana.ui.web as web
 import parimana.context as cx
 
 
-def init_today(args) -> None:
-    cx.schedule_tasks.init_today().apply()
-
-
 def start_web(args):
     web.start()
 
 
-def worker(args):
+def start_worker(args) -> None:
+    cx.worker.start()
+
+
+def start_service(args) -> None:
+    cx.schedule_tasks.init_today().apply_async()
     cx.worker.start()
 
 
@@ -43,8 +44,10 @@ def create_parser() -> argparse.ArgumentParser:
     analyse_cui.add_sub_parser(subparsers)
 
     subparsers.add_parser("web", help="start web").set_defaults(func=start_web)
-    subparsers.add_parser("init", help="init today").set_defaults(func=init_today)
-    subparsers.add_parser("worker", help="start worker").set_defaults(func=worker)
+    subparsers.add_parser("worker", help="start worker").set_defaults(func=start_worker)
+    subparsers.add_parser("service", help="start service").set_defaults(
+        func=start_service
+    )
     subparsers.add_parser("monitor", help="start worker-monitor").set_defaults(
         func=monitor
     )

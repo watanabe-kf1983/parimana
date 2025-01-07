@@ -7,12 +7,10 @@ services:
           - USER_ID=1000
           - GROUP_ID=1000
     volumes:
-      - file-repo:/var/parimana/repo
       - ..:/workspace:cached
       - ~/.ssh:/home/vscode/.ssh:cached
     environment:
-      REDIS_HOSTNAME: task-db
-      REDIS_PORT: 6379
+      REDIS_ENDPOINT: "task-db:6379"
     command: ["tail", "-f", "/dev/null"]
     restart: always
     depends_on:
@@ -31,6 +29,4 @@ services:
   task-db:
     image: redis
     restart: always
-
-volumes:
-  file-repo:
+    
