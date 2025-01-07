@@ -70,7 +70,7 @@ RUN poetry install --without dev
 FROM python-base AS prod
 
 # install dockerize
-ENV DOCKERIZE_VERSION v0.7.0
+ENV DOCKERIZE_VERSION=v0.7.0
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget \
     && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \

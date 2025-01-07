@@ -59,6 +59,21 @@ resource "aws_codepipeline" "main_pipeline" {
         ProjectName = aws_codebuild_project.front.name
       }
     }
+
+    action {
+      name             = "Build_Back"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["build_back_output"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.back.name
+      }
+    }
+
   }
 
   stage {

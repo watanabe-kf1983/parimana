@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - COMMIT_ID_SHORT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - export IMAGE_REPO_NAME=${PROJECT_NAME}-backend
+      - export IMAGE_TAG=${ENV}-${COMMIT_ID_SHORT}
+      
+  build:
+    commands:
+      - back/script/build.sh
+
+  post_build:
+    commands:
+      - back/script/push_ecr.sh
+
+artifacts:
+  files:
+    - back/imagedefinitions.json
