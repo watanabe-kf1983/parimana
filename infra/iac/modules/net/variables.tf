@@ -6,7 +6,11 @@ variable "project_name" {
 variable "env" {
   description = "Enviroment name"
   type        = string
-  default     = "dev"
+}
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
 }
 
 variable "vpc_cidr" {

@@ -18,22 +18,23 @@ provider "aws" {
 
 
 module "net" {
-  source              = "../../modules/net"
-  project_name        = var.project_name
-  env                 = var.env
-  public_az           = "${var.aws_region}a"
-  private_az          = "${var.aws_region}a"
-  common_tags         = local.common_tags
+  source       = "../../modules/net"
+  project_name = var.project_name
+  env          = var.env
+  aws_region   = var.aws_region
+  public_az    = "${var.aws_region}a"
+  private_az   = "${var.aws_region}a"
+  common_tags  = local.common_tags
 }
 
 
 module "app" {
-  source       = "../../modules/app"
-  project_name = var.project_name
-  env          = var.env
-  common_tags  = local.common_tags
-  vpc_id = module.net.vpc_id
-  private_subnet_ids = module.net.private_subnet_ids
+  source               = "../../modules/app"
+  project_name         = var.project_name
+  env                  = var.env
+  common_tags          = local.common_tags
+  vpc_id               = module.net.vpc_id
+  private_subnet_ids   = module.net.private_subnet_ids
   private_subnet_cidrs = module.net.private_subnet_cidrs
 }
 
