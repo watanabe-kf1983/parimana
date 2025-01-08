@@ -100,12 +100,12 @@ resource "aws_ecs_task_definition" "app_task" {
 
   container_definitions = jsonencode([
     {
-      name      = "app-container"
+      name      = "${var.project_name}-backend"
       image     = "hello-world"
       cpu       = 1024
       memory    = 2048
       essential = true
-      command   = ["patimana", "service"]
+      command   = ["parimana", "service"]
       environment = [
         {
           name  = "REDIS_ENDPOINT"
@@ -144,6 +144,13 @@ resource "aws_ecs_service" "app_service" {
     subnets          = var.private_subnet_ids
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = false
+  }
+
+  lifecycle {
+    ignore_changes = [
+      task_definition,
+      desired_count
+    ]
   }
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-service" })
