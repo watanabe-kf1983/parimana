@@ -123,9 +123,9 @@ resource "aws_ecs_task_definition" "app_task" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "${var.project_name}-${var.env}-logs"
+          awslogs-group         = "${aws_cloudwatch_log_group.app_logs.name}"
           awslogs-region        = "${var.aws_region}"
-          awslogs-stream-prefix = "ecs"
+          awslogs-stream-prefix = "ecs/app_task"
         }
       }
     }
@@ -137,7 +137,7 @@ resource "aws_ecs_service" "app_service" {
   name            = "${var.project_name}-${var.env}-service"
   cluster         = aws_ecs_cluster.app_cluster.id
   task_definition = aws_ecs_task_definition.app_task.arn
-  desired_count   = 1
+  desired_count   = 0
   launch_type     = "FARGATE"
 
   network_configuration {
