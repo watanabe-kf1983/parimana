@@ -93,6 +93,20 @@ resource "aws_codepipeline" "main_pipeline" {
       }
     }
 
+    action {
+      name            = "Deploy_Worker"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      version         = "1"
+      input_artifacts = ["build_back_output"]
+
+      configuration = {
+        ClusterName = "${var.target_project_name}-${var.env}-cluster"
+        ServiceName = "${var.target_project_name}-${var.env}-service"
+      }
+    }
+
   }
 
   tags = var.common_tags
