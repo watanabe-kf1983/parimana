@@ -173,6 +173,27 @@ resource "aws_iam_policy" "codepipeline_policy" {
         ],
         "Resource" : "*"
       },
+      # ECS Deploy
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecs:*",
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Action" : "iam:PassRole",
+        "Effect" : "Allow",
+        "Resource" : ["arn:aws:iam::${var.aws_account_id}:role/${var.target_project_name}-${var.env}-ecs-task-role",
+                      "arn:aws:iam::${var.aws_account_id}:role/${var.target_project_name}-${var.env}-ecs-task-execution-role"],
+        "Condition" : {
+          "StringEqualsIfExists" : {
+            "iam:PassedToService" : [
+              "ecs-tasks.amazonaws.com"
+            ]
+          }
+        }
+      }
     ]
   })
 }
