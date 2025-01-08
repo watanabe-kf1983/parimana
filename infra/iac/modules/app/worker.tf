@@ -74,6 +74,7 @@ resource "aws_iam_role_policy" "ecs_task_policy" {
       {
         Effect = "Allow",
         Action = [
+          "s3:HeadObject",
           "s3:GetObject",
           "s3:PutObject"
         ],
