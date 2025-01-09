@@ -32,6 +32,7 @@ module "app" {
   source               = "../../modules/app"
   project_name         = var.project_name
   env                  = var.env
+  aws_account_id       = var.aws_account_id
   aws_region           = var.aws_region
   vpc_id               = module.net.vpc_id
   private_subnet_ids   = module.net.private_subnet_ids

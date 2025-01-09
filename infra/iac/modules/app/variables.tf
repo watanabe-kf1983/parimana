@@ -14,6 +14,11 @@ variable "aws_region" {
   type        = string
 }
 
+variable "aws_account_id" {
+  description = "AWS Account id"
+  type        = string
+}
+
 variable "vpc_id" {
   description = "Vpc id"
   type        = string

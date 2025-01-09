@@ -168,13 +168,6 @@ resource "aws_security_group" "ecs_sg" {
   name   = "${var.project_name}-${var.env}-ecs-sg"
   vpc_id = var.vpc_id
 
-  ingress {
-    from_port   = 6379 # Redis用ポート
-    to_port     = 6379
-    protocol    = "tcp"
-    cidr_blocks = var.private_subnet_cidrs
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -184,3 +177,4 @@ resource "aws_security_group" "ecs_sg" {
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-ecs-sg" })
 }
+
