@@ -19,6 +19,11 @@ resource "aws_codebuild_project" "infra" {
     }
 
     environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = var.aws_account_id
+    }
+
+    environment_variable {
       name  = "PROJECT_NAME"
       value = var.target_project_name
     }
