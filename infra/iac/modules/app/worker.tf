@@ -70,13 +70,19 @@ resource "aws_iam_role_policy" "ecs_task_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
+      # If you don’t have the s3:ListBucket permission, Amazon S3 returns an HTTP status code 403 Forbidden error.
+      # https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/API/API_HeadObject.html
       {
         Effect = "Allow",
-        # If you don’t have the s3:ListBucket permission, Amazon S3 returns an HTTP status code 403 Forbidden error.
-        # https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/API/API_HeadObject.html
+        Action = [
+          "s3:ListBucket",
+        ],
+        Resource = "arn:aws:s3:::${aws_s3_bucket.app.bucket}"
+      },
+      {
+        Effect = "Allow",
         Action = [
           "s3:GetObject",
-          "s3:ListBucket",
           "s3:PutObject"
         ],
         Resource = "arn:aws:s3:::${aws_s3_bucket.app.bucket}/*"
