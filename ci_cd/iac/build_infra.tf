@@ -1,7 +1,7 @@
 
 resource "aws_codebuild_project" "infra" {
-  name         = "${var.target_project_name}-${var.env}-infra"
-  description  = "CodeBuild project for building infra of ${var.target_project_name}-${var.env}"
+  name         = "${var.target_project_name}-infra"
+  description  = "CodeBuild project for building infra of ${var.target_project_name}"
   service_role = aws_iam_role.build_infra_role.arn
 
   artifacts {
@@ -25,15 +25,14 @@ resource "aws_codebuild_project" "infra" {
 
     environment_variable {
       name  = "TFSTATE_BUCKET"
-      value = var.s3_tfstate_store
+      value = aws_s3_bucket.infra_tfstate.bucket
     }
 
     environment_variable {
       name  = "ENV"
-      value = var.env
+      value = "env"
     }
   }
-
 
   source {
     type      = "CODEPIPELINE"
@@ -49,15 +48,15 @@ resource "aws_codebuild_project" "infra" {
     cloudwatch_logs {
       status      = "ENABLED"
       group_name  = "/aws/codebuild/${var.cicd_project_name}"
-      stream_name = "${var.env}.infra"
+      stream_name = "infra"
     }
   }
 
-  tags = var.common_tags
+  tags = local.common_tags
 }
 
 resource "aws_iam_role" "build_infra_role" {
-  name = "${var.cicd_project_name}-build-${var.env}-infra-role"
+  name = "${var.cicd_project_name}-build-infra-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -71,7 +70,7 @@ resource "aws_iam_role" "build_infra_role" {
       }
     ]
   })
-  tags = var.common_tags
+  tags = local.common_tags
 }
 
 resource "aws_iam_role_policy_attachment" "build_infra_policy" {
@@ -80,7 +79,7 @@ resource "aws_iam_role_policy_attachment" "build_infra_policy" {
 }
 
 resource "aws_iam_policy" "build_infra_policy" {
-  name        = "BuildInfraPolicyAccess-${var.env}"
+  name        = "BuildInfraPolicyAccess"
   description = "Custom policy for build infra of ${var.target_project_name}"
   policy = jsonencode({
     Version = "2012-10-17"

@@ -1,9 +1,3 @@
-variable "aws_region" {
-  description = "AWS region"
-  type        = string
-  default     = "ap-northeast-1"
-}
-
 variable "aws_account_id" {
   description = "AWS Account id"
   type        = string
@@ -35,12 +29,22 @@ variable "source_repository" {
 
 variable "s3_artifact_store" {
   description = "S3 bucket for artifact store"
-  type = string
+  type        = string
 }
 
-variable "s3_tfstate_store" {
-  description = "S3 bucket for tfstate store"
-  type = string
+variable "codebuild_back" {
+  description = "Back Codebuild project name"
+  type        = string
+}
+
+variable "codebuild_front" {
+  description = "Front Codebuild project name"
+  type        = string
+}
+
+variable "codebuild_infra" {
+  description = "Infra Codebuild project name"
+  type        = string
 }
 
 variable "common_tags" {

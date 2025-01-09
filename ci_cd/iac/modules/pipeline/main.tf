@@ -42,7 +42,11 @@ resource "aws_codepipeline" "main_pipeline" {
       output_artifacts = ["build_infra_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.infra.name
+        ProjectName = var.codebuild_infra
+        EnvironmentVariables = jsonencode([{
+          name  = "ENV"
+          value = "${var.env}"
+        }])
       }
     }
 
@@ -56,7 +60,11 @@ resource "aws_codepipeline" "main_pipeline" {
       output_artifacts = ["build_front_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.front.name
+        ProjectName = var.codebuild_front
+        EnvironmentVariables = jsonencode([{
+          name  = "ENV"
+          value = "${var.env}"
+        }])
       }
     }
 
@@ -70,7 +78,11 @@ resource "aws_codepipeline" "main_pipeline" {
       output_artifacts = ["build_back_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.back.name
+        ProjectName = var.codebuild_back
+        EnvironmentVariables = jsonencode([{
+          name  = "ENV"
+          value = "${var.env}"
+        }])
       }
     }
 
@@ -185,7 +197,7 @@ resource "aws_iam_policy" "codepipeline_policy" {
         "Action" : "iam:PassRole",
         "Effect" : "Allow",
         "Resource" : ["arn:aws:iam::${var.aws_account_id}:role/${var.target_project_name}-${var.env}-ecs-task-role",
-                      "arn:aws:iam::${var.aws_account_id}:role/${var.target_project_name}-${var.env}-ecs-task-execution-role"],
+        "arn:aws:iam::${var.aws_account_id}:role/${var.target_project_name}-${var.env}-ecs-task-execution-role"],
         "Condition" : {
           "StringEqualsIfExists" : {
             "iam:PassedToService" : [
@@ -198,7 +210,3 @@ resource "aws_iam_policy" "codepipeline_policy" {
   })
 }
 
-resource "aws_cloudwatch_log_group" "codebuild_logs" {
-  name              = "/aws/codebuild/${var.cicd_project_name}"
-  retention_in_days = 7
-}

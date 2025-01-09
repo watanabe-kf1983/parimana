@@ -22,10 +22,10 @@ resource "aws_codebuild_project" "back" {
       name  = "PROJECT_NAME"
       value = var.target_project_name
     }
-
+    
     environment_variable {
       name  = "ENV"
-      value = var.env
+      value = "env"
     }
   }
 
@@ -43,15 +43,15 @@ resource "aws_codebuild_project" "back" {
     cloudwatch_logs {
       status      = "ENABLED"
       group_name  = "/aws/codebuild/${var.cicd_project_name}"
-      stream_name = "${var.env}.back"
+      stream_name = "back"
     }
   }
 
-  tags = var.common_tags
+  tags = local.common_tags
 }
 
 resource "aws_iam_role" "build_back_role" {
-  name = "${var.cicd_project_name}-build-${var.env}-back-role"
+  name = "${var.cicd_project_name}-build-back-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -65,7 +65,7 @@ resource "aws_iam_role" "build_back_role" {
       }
     ]
   })
-  tags = var.common_tags
+  tags = local.common_tags
 }
 
 resource "aws_iam_role_policy_attachment" "build_back_policy" {
@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "build_back_policy" {
 }
 
 resource "aws_iam_policy" "build_back_policy" {
-  name        = "BuildbackPolicyAccess-${var.env}"
+  name        = "BuildbackPolicyAccess"
   description = "Custom policy for build back of ${var.target_project_name}"
   policy = jsonencode({
     Version = "2012-10-17"
