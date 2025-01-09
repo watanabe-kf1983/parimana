@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
+from mangum import Mangum
 
 from parimana.app.exception import ResultNotExistError
 import parimana.ui.web.router.analyse as analyse
@@ -28,5 +29,4 @@ def start():
     uvicorn.run(app, host="0.0.0.0", port=5000, log_level="info")
 
 
-if __name__ == "__main__":
-    start()
+handler = Mangum(app)
