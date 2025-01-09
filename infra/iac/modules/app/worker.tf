@@ -67,15 +67,16 @@ resource "aws_iam_role" "ecs_task_role" {
 resource "aws_iam_role_policy" "ecs_task_policy" {
   name = "${var.project_name}-${var.env}-ecs-task-policy"
   role = aws_iam_role.ecs_task_role.id
-
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
         Effect = "Allow",
+        # If you don’t have the s3:ListBucket permission, Amazon S3 returns an HTTP status code 403 Forbidden error.
+        # https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/API/API_HeadObject.html
         Action = [
-          "s3:HeadObject",
           "s3:GetObject",
+          "s3:ListBucket",
           "s3:PutObject"
         ],
         Resource = "arn:aws:s3:::${aws_s3_bucket.app.bucket}/*"
