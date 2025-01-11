@@ -2,7 +2,7 @@ resource "aws_lambda_function" "web_api" {
   function_name = "${var.project_name}-${var.env}-web-api"
   role          = aws_iam_role.web_api_role.arn
   package_type  = "Image"
-  image_uri     = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/hello-world:latast"
+  image_uri     = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/hello-world:latest"
   memory_size   = 2048
   timeout       = 10
   vpc_config {
