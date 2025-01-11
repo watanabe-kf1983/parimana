@@ -9,6 +9,6 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     ./aws/install && \
     rm -rf awscliv2.zip ./aws
 
-RUN apt-get install git-secrets
+RUN apt-get install -y git-secrets docker.io
 
 WORKDIR /workspace

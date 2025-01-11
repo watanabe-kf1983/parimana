@@ -6,7 +6,8 @@
 	},
 	"customizations": {
 		"settings": {
-			"terminal.integrated.defaultProfile.linux": "bash"
+			"terminal.integrated.defaultProfile.linux": "bash",
+			"dev.containers.dockerCredentialHelper": false
 		},
 		"extensions": [
 			"hashicorp.terraform",
@@ -15,8 +16,15 @@
 		]
 	},
 	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
 		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
 		"source=${env:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
 		"source=${env:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
-	]
+	],
+	"remoteUser": "vscode",
+
+	// credsStoreが邪魔するので消す
+	"postCreateCommand": "rm ~/.docker/config.json",
+
+	"postStartCommand": "sudo groupmod -g $(stat -c '%g' /var/run/docker.sock) docker && sudo usermod -aG docker vscode && newgrp docker"
 }
