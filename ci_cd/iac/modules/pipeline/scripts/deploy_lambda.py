@@ -1,5 +1,7 @@
+import io
 import os
 import json
+import zipfile
 from contextlib import contextmanager
 
 import boto3
@@ -32,12 +34,20 @@ def get_input_from_event(event):
 
     s3 = boto3.client('s3')
     response = s3.get_object(Bucket=s3_bucket, Key=s3_key)
-    return response['Body'].read()
+    zip_content = response['Body'].read()
+
+    with zipfile.ZipFile(io.BytesIO(zip_content)) as z:
+
+        if 'imagedefinitions.json' in z.namelist():
+            with z.open('imagedefinitions.json') as f:
+                return f.read()
+        else:
+            raise FileNotFoundError("imagedefinitions.json not found in artifact.")
 
 
 def get_image_uri(json_file):
     image_details = json.loads(json_file)
-    return image_details['ImageURI']
+    return image_details['ImageUri']
 
 
 @contextmanager
@@ -56,4 +66,4 @@ def codepipeline_job(event):
                 'message': str(e)
             }
         )
-        raise 
+        raise
