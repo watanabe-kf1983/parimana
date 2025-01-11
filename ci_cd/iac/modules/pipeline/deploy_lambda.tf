@@ -84,7 +84,7 @@ resource "aws_lambda_function" "deploy_image_as_lambda" {
 
   environment {
     variables = {
-      LAMBDA_FUNCTION_NAME = "${var.target_project_name}-${var.env}-webapi"
+      UPDATE_FUNCTION_NAME = "${var.target_project_name}-${var.env}-webapi"
     }
   }
 
