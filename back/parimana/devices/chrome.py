@@ -1,6 +1,9 @@
+import os
 import logging
+import glob
 from typing import Optional
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 
 _headless_chrome: Optional[webdriver.Chrome] = None
 
@@ -31,4 +34,9 @@ def create_headless_chrome() -> webdriver.Chrome:
     options.add_argument("--log-level=3")
     options.set_capability("browserVersion", "117")
 
-    return webdriver.Chrome(options=options)
+    sm_cache_path = os.getenv("SE_CACHE_PATH", f"{os.getenv('HOME')}/.cache/selenium")
+    service = ChromeService(
+        glob.glob(f"{sm_cache_path}/chromedriver/linux64/*/chromedriver")[0]
+    )
+
+    return webdriver.Chrome(options=options, service=service)

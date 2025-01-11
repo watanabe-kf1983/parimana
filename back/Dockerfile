@@ -13,6 +13,8 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/
 
+# set selenium manager cache path for lambda
+ENV SE_CACHE_PATH=/tmp/.cache/selenium
 
 
 FROM python-base AS poetry
@@ -86,6 +88,3 @@ ENV APP_PATH="/app" \
     FILE_STORAGE_ROOT_PATH="/var/parimana/repo"
 
 COPY --from=prod-build ${APP_PATH} ${APP_PATH}
-
-# set selenium manager cache path for lambda
-ENV SE_CACHE_PATH=/tmp/.cache/selenium
