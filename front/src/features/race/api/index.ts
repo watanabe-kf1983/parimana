@@ -1,9 +1,7 @@
 import axios from "axios";
 import { Category, RaceInfo } from "../types";
 
-const hostname = window.location.hostname;
-const port = API_PORT;
-const baseUrl = `http://${hostname}:${port}/schedule`;
+const baseUrl = import.meta.env.VITE_API_URL.replace('${hostname}', window.location.hostname) + "/schedule";
 
 export async function getCategories(): Promise<Category[]> {
   const response = await axios.get(`${baseUrl}/categories`);

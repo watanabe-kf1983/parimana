@@ -175,5 +175,9 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
+
+### dotenv ###
+.env
+
 .storage/
 imagedefinitions.json

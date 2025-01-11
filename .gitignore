@@ -1,9 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/dotenv,windows,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=dotenv,windows,macos,linux
 
-### dotenv ###
-.env
-
 ### Linux ###
 *~
 

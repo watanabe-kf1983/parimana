@@ -2,9 +2,7 @@ import axios from "axios";
 import { AnalysisStatus, Candidate } from "../types";
 import { EventSourceManager } from "./eventSourceManager";
 
-const hostname = window.location.hostname
-const port = API_PORT;
-const baseUrl = `http://${hostname}:${port}/analyses`;
+const baseUrl = import.meta.env.VITE_API_URL.replace('${hostname}', window.location.hostname) + "/analyses";
 
 
 export async function requestAnalyse(raceId: string) {

@@ -1,6 +1,7 @@
 FROM node:20 AS node-base
 
 
+
 FROM node-base AS vscode-devcontainer
 
 # install git sudo
@@ -11,13 +12,18 @@ RUN apt-get update \
 
 USER node
 
+
+
 FROM node-base AS build-stage
+
+ARG BUILD_OPT="dev" 
 
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run build.${BUILD_OPT}
+
 
 
 FROM nginx:stable-alpine AS production-stage
