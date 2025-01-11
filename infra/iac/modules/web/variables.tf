@@ -9,6 +9,16 @@ variable "env" {
   default     = "dev"
 }
 
+variable "web_api_lambda_arn" {
+  description = "Web api lambda invoke arn"
+  type        = string
+}
+
+variable "web_api_lambda_name" {
+  description = "Web api lambda function name"
+  type        = string
+}
+
 variable "common_tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
