@@ -4,7 +4,7 @@ resource "aws_lambda_function" "web_api" {
   package_type  = "Image"
   image_uri     = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/hello-world:latest"
   memory_size   = 2048
-  timeout       = 10
+  timeout       = 60
   vpc_config {
     subnet_ids         = var.private_subnet_ids
     security_group_ids = [aws_security_group.lambda_sg.id]
