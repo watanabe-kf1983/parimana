@@ -49,6 +49,13 @@ resource "aws_iam_policy" "update_lambda_policy" {
         "Effect" : "Allow",
         "Action" : [
           "lambda:UpdateFunctionCode",
+          "ecr:GetRepositoryPolicy",
+          "ecr:SetRepositoryPolicy",
+          "ecr:InitiateLayerUpload",
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
         ],
         "Resource" : "*"
       },
@@ -76,6 +83,8 @@ resource "aws_lambda_function" "deploy_image_as_lambda" {
   function_name = "${var.cicd_project_name}-${var.env}-deploy-image-as-webapi"
   runtime       = "python3.13"
   handler       = "deploy_lambda.lambda_handler"
+  memory_size   = 512
+  timeout       = 10
 
   role = aws_iam_role.lambda_deploy_lambda.arn
 
@@ -84,7 +93,7 @@ resource "aws_lambda_function" "deploy_image_as_lambda" {
   
   environment {
     variables = {
-      UPDATE_FUNCTION_NAME = "${var.target_project_name}-${var.env}-webapi"
+      UPDATE_FUNCTION_NAME = "${var.target_project_name}-${var.env}-web-api"
     }
   }
 

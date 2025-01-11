@@ -47,7 +47,7 @@ def get_input_from_event(event):
 
 def get_image_uri(json_file):
     image_details = json.loads(json_file)
-    return image_details['ImageUri']
+    return image_details[0]['imageUri']
 
 
 @contextmanager
