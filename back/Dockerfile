@@ -14,6 +14,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/
 
 
+
 FROM python-base AS poetry
 
 # install curl
@@ -31,6 +32,7 @@ ENV POETRY_NO_INTERACTION=1 \
 
 RUN curl -sSL https://install.python-poetry.org | python -
 ENV PATH="${POETRY_HOME}/bin:$PATH"
+
 
 
 FROM poetry AS vscode-devcontainer
@@ -55,6 +57,7 @@ USER $USERNAME
 WORKDIR /home/$USERNAME/
 
 
+
 FROM poetry AS prod-build
 
 # poetry install
@@ -65,6 +68,7 @@ RUN poetry install --without dev --no-root
 COPY README.md ./
 COPY parimana ./parimana
 RUN poetry install --without dev
+
 
 
 FROM python-base AS prod
@@ -82,3 +86,6 @@ ENV APP_PATH="/app" \
     FILE_STORAGE_ROOT_PATH="/var/parimana/repo"
 
 COPY --from=prod-build ${APP_PATH} ${APP_PATH}
+
+# set selenium manager cache path for lambda
+ENV SE_CACHE_PATH=/tmp/.cache/selenium
