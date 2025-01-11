@@ -41,9 +41,8 @@ resource "aws_iam_policy" "update_lambda_policy" {
         Effect = "Allow"
         Action = [
           "s3:GetObject",
-          "s3:ListBucket",
         ]
-        Resource = "arn:aws:s3::*:codepipeline-*"
+        Resource = "arn:aws:s3:::parimana-artifacts/*"
       },
       # Update Lambda
       {
