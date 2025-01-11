@@ -128,7 +128,7 @@ resource "aws_codepipeline" "main_pipeline" {
       input_artifacts = ["build_back_output"]
 
       configuration = {
-        FunctionName = "${var.target_project_name}-${var.env}-webapi"
+        FunctionName = "${var.target_project_name}-${var.env}-web-api"
       }
     }
   }
