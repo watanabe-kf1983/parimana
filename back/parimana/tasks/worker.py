@@ -7,7 +7,11 @@ from parimana.tasks.base import CeleryTasks
 class Worker:
     def __init__(self, tasks_list: Sequence[CeleryTasks]):
         self.celery = tasks_list[0].celery
-        self.queues = set(queue for tasks in tasks_list for queue in tasks.queues())
+        self.tasks_list = tasks_list
+
+    @property
+    def queues(self):
+        return set(queue for tasks in self.tasks_list for queue in tasks.queues())
 
     def _start(self, queue_name: str):
         argv = [

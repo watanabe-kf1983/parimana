@@ -1,9 +1,8 @@
-import os
 import logging
-import glob
 from typing import Optional
+
 from selenium import webdriver
-# from selenium.webdriver.chrome.service import Service as ChromiumService
+
 
 _headless_chrome: Optional[webdriver.Chrome] = None
 
@@ -28,26 +27,5 @@ def create_headless_chrome() -> webdriver.Chrome:
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
-    # ChromeDriverがログを吐きまくる対策
-    # https://github.com/SeleniumHQ/selenium/issues/13095
-    # options.add_argument("--log-level=2")
-    # options.set_capability("browserVersion", "117")
-
-    sm_cache_path = os.getenv("SE_CACHE_PATH", f"{os.getenv('HOME')}/.cache/selenium")
-    print(f"{sm_cache_path}/chromedriver/linux64/*/chromedriver")
-    print(glob.glob(f"{sm_cache_path}/chromedriver/linux64/*/chromedriver"))
-    print(f"{sm_cache_path}/chrome/linux64/*/chrome")
-    print(glob.glob(f"{sm_cache_path}/chrome/linux64/*/chrome"))
-    # options.binary_location = glob.glob(
-    #     f"{sm_cache_path}/chromedriver/linux64/*/chromedriver"
-    # )[0]
-    # print(f"{sm_cache_path}/chromedriver/linux64/*/chromedriver")
-    # print(glob.glob(f"{sm_cache_path}/chromedriver/linux64/*/chromedriver"))
-    # service = ChromeService(
-    #     glob.glob(f"{sm_cache_path}/chromedriver/linux64/*/chromedriver")[0]
-    # )
-
-    # return webdriver.Chrome(options=options, service=service)
 
     return webdriver.Chrome(options=options)
