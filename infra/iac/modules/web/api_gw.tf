@@ -40,7 +40,7 @@ resource "aws_api_gateway_deployment" "web_api_deployment" {
 resource "aws_api_gateway_stage" "web_api_stage" {
   rest_api_id  = aws_api_gateway_rest_api.web_api.id
   deployment_id = aws_api_gateway_deployment.web_api_deployment.id
-  stage_name   = var.env # 例: dev, prod
+  stage_name   = var.env
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-api-stage" })
 }
