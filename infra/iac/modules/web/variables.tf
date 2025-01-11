@@ -9,6 +9,13 @@ variable "env" {
   default     = "dev"
 }
 
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+}
+
+
 variable "web_api_lambda_arn" {
   description = "Web api lambda invoke arn"
   type        = string

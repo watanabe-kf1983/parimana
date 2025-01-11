@@ -52,3 +52,24 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.web_api.execution_arn}/*"
 }
+
+resource "aws_api_gateway_rest_api_policy" "web_api_policy" {
+  rest_api_id = aws_api_gateway_rest_api.web_api.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = "*",
+        Action = "execute-api:Invoke",
+        Resource = "*",
+        Condition = {
+          StringEquals = {
+            "aws:SourceArn" = "${aws_cloudfront_distribution.web_distribution.arn}"
+          }
+        }
+      }
+    ]
+  })
+}

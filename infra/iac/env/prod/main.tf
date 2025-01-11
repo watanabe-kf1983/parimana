@@ -41,12 +41,13 @@ module "app" {
 }
 
 module "web" {
-  source       = "../../modules/web"
-  project_name = var.project_name
-  env          = var.env
-  web_api_lambda_arn = module.app.web_api_lambda_arn
+  source              = "../../modules/web"
+  project_name        = var.project_name
+  env                 = var.env
+  aws_region          = var.aws_region
+  web_api_lambda_arn  = module.app.web_api_lambda_arn
   web_api_lambda_name = module.app.web_api_lambda_name
-  common_tags  = local.common_tags
+  common_tags         = local.common_tags
 }
 
 

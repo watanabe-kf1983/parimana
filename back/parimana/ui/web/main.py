@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
@@ -8,17 +8,18 @@ from parimana.app.exception import ResultNotExistError
 import parimana.ui.web.router.analyse as analyse
 import parimana.ui.web.router.schedule as schedule
 
-app = FastAPI()
+api_router = APIRouter()
+api_router.include_router(analyse.router, prefix="/analyses", tags=["analysis"])
+api_router.include_router(schedule.router, prefix="/schedule", tags=["schedule"])
 
-app.include_router(analyse.router, prefix="/analyses", tags=["analysis"])
-app.include_router(schedule.router, prefix="/schedule", tags=["schedule"])
+app = FastAPI()
+app.include_router(api_router, prefix="/api/v1")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.exception_handler(ResultNotExistError)
 def not_exist_handler(request, exc):
