@@ -40,3 +40,17 @@ resource "aws_ecr_repository" "backend" {
 
   tags = local.common_tags
 }
+
+
+resource "aws_ecr_repository" "hello-world" {
+  name = "hello-world"
+  force_delete = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+  provisioner "local-exec" {
+    command = "./scripts/push_hello.sh ${var.aws_account_id} ${var.aws_region}"
+  }
+  tags = local.common_tags
+}
