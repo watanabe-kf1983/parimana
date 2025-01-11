@@ -128,7 +128,7 @@ resource "aws_codepipeline" "main_pipeline" {
       input_artifacts = ["build_back_output"]
 
       configuration = {
-        FunctionName = "${var.target_project_name}-${var.env}-web-api"
+        FunctionName = "${aws_lambda_function.deploy_image_as_lambda.function_name}"
       }
     }
   }

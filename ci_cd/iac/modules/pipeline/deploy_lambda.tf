@@ -74,7 +74,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "deploy_image_as_lambda" {
-  function_name = "${var.cicd_project_name}-${var.env}-deploy_image_as_webapi"
+  function_name = "${var.cicd_project_name}-${var.env}-deploy-image-as-webapi"
   runtime       = "python3.13"
   handler       = "deploy_lambda.lambda_handler"
 
