@@ -119,6 +119,18 @@ resource "aws_codepipeline" "main_pipeline" {
       }
     }
 
+    action {
+      name            = "Deploy_WebApi"
+      category        = "Invoke"
+      owner           = "AWS"
+      provider        = "Lambda"
+      version         = "1"
+      input_artifacts = ["build_back_output"]
+
+      configuration = {
+        FunctionName = "${var.target_project_name}-${var.env}-webapi"
+      }
+    }
   }
 
   tags = var.common_tags
@@ -126,7 +138,7 @@ resource "aws_codepipeline" "main_pipeline" {
 
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.cicd_project_name}-codepipeline-role"
+  name = "${var.cicd_project_name}-${var.env}-codepipeline-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -145,14 +157,14 @@ resource "aws_iam_role" "codepipeline_role" {
 
 
 resource "aws_iam_policy_attachment" "codepipeline_policy" {
-  name       = "${var.cicd_project_name}-codepipeline-policy-attachment"
+  name       = "${var.cicd_project_name}-${var.env}-codepipeline-policy-attachment"
   roles      = [aws_iam_role.codepipeline_role.name]
   policy_arn = aws_iam_policy.codepipeline_policy.arn
 }
 
 
 resource "aws_iam_policy" "codepipeline_policy" {
-  name        = "${var.cicd_project_name}-codepipeline-policy"
+  name        = "${var.cicd_project_name}-${var.env}-codepipeline-policy"
   description = "Minimal IAM policy for CodePipeline"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -205,7 +217,15 @@ resource "aws_iam_policy" "codepipeline_policy" {
             ]
           }
         }
-      }
+      },
+      # Call Lambda
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "lambda:*",
+        ],
+        "Resource" : "*"
+      },
     ]
   })
 }
