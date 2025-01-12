@@ -16,7 +16,6 @@ class S3Storage(Storage):
 
     def exists(self, key: str) -> bool:
         try:
-            mprint(f"heading s3://{self.bucket}/{self._get_key(key)} ...")
             self.s3client.head_object(Bucket=self.bucket, Key=self._get_key(key))
             return True
 
