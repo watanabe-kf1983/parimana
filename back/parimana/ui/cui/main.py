@@ -10,12 +10,11 @@ def start_web(args):
 
 
 def start_worker(args) -> None:
-    cx.worker.start()
+    cx.worker.start(start_beat=False)
 
 
 def start_service(args) -> None:
-    cx.schedule_tasks.scrape_and_schedule_analyse().apply_async()
-    cx.worker.start()
+    cx.worker.start(start_beat=True)
 
 
 def monitor(args):

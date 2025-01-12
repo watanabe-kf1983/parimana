@@ -1,4 +1,5 @@
 import multiprocessing
+from pathlib import Path
 from typing import Sequence
 
 from parimana.tasks.base import CeleryTasks
@@ -26,7 +27,18 @@ class Worker:
 
         self.celery.worker_main(argv)
 
-    def start(self):
+    def _start_beat(self):
+        celerybeat_tmppath = Path("/tmp/parimana/celery/celerybeat-schedule")
+        celerybeat_tmppath.parent.mkdir(parents=True, exist_ok=True)
+        argv = [
+            "beat",
+            "--loglevel=info",
+            "-s",
+            str(celerybeat_tmppath),
+        ]
+        self.celery.start(argv)
+
+    def start(self, start_beat: bool = True):
 
         workers = [
             multiprocessing.Process(
@@ -34,6 +46,10 @@ class Worker:
             )
             for queue in self.queues
         ]
+        if start_beat:
+            workers.append(
+                multiprocessing.Process(name="Celery_Beat", target=self._start_beat)
+            )
 
         for worker in workers:
             worker.start()

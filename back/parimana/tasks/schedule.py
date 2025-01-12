@@ -3,6 +3,7 @@ import datetime
 from datetime import timedelta
 
 from celery import Celery, Task, chain, group
+from celery.schedules import crontab
 
 from parimana.io.kvs import Storage
 from parimana.io.message import mprint
@@ -31,7 +32,7 @@ class ScheduleTasks(CeleryTasks):
         return self.schedule_app.update_schedule(cat)
 
     @task
-    def schedule_analyse(self, min: int = 30, **kwargs) -> None:
+    def schedule_analyse(self, min: int = 20, **kwargs) -> None:
         for race in self.schedule_app.get_today_schedule():
             now = datetime.datetime.now(tz=race.fixture.course.category.timezone)
             analyse_schedule = race.generate_analyse_schedule(
@@ -62,17 +63,33 @@ class ScheduleTasks(CeleryTasks):
         mprint(f"Failed task info: args={request.args}, kwargs={request.kwargs}, ")
         mprint("")
 
-    def scrape_and_schedule_analyse(self, min: int = 30):
-        return chain(
-            self.update_schedule_all(),
-            self.schedule_analyse.si(min=min),
-        ).on_error(self.handle_error.s())
+    @task
+    def scrape_and_schedule_analyse(self, min: int = 20):
+        return (
+            chain(
+                self.update_schedule_all(),
+                self.schedule_analyse.si(min=min),
+            )
+            .on_error(self.handle_error.s())
+            .apply_async()
+            .id
+        )
 
     def update_schedule_all(self):
         return group(
             self.update_schedule.si(cat=cat)
             for cat in self.schedule_app.category_selector.all()
         )
+
+    def get_beat_schedules(self) -> dict:
+        print(self.scrape_and_schedule_analyse.name)
+        return {
+            "periodic-analyse-scheduling": {
+                "task": self.scrape_and_schedule_analyse.name,
+                "schedule": crontab(minute="*/20"),
+                "args": (25,),
+            },
+        }
 
     def queue_broker(self, *args, **kwargs) -> str:
         if cat := kwargs.get("cat"):

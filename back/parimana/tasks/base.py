@@ -15,6 +15,10 @@ class CeleryTasks(ABC):
 
     def prepare_task(self):
         utils.decorate_methods(self, self.task_decorator)
+        conf = self.celery.conf
+        if not hasattr(conf, "beat_schedule"):
+            conf.beat_schedule = dict()
+        conf.beat_schedule |= self.get_beat_schedules()
 
     @abstractmethod
     def queues(self) -> Collection[str]:
@@ -45,6 +49,9 @@ class CeleryTasks(ABC):
     def queue_provider(self, next, *args, **kwargs) -> str:
         queue_name = self.queue_broker(*args, **kwargs)
         return next(*args, queue=queue_name, **kwargs)
+
+    def get_beat_schedules(self) -> dict:
+        return dict()
 
 
 def route_task(name, args, kwargs, options, task=None, **kw):
