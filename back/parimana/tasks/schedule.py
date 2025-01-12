@@ -31,22 +31,22 @@ class ScheduleTasks(CeleryTasks):
         return self.schedule_app.update_schedule(cat)
 
     @task
-    def schedule_analyse(self, **kwargs) -> None:
+    def schedule_analyse(self, min: int = 30, **kwargs) -> None:
         for race in self.schedule_app.get_today_schedule():
             now = datetime.datetime.now(tz=race.fixture.course.category.timezone)
-            analyse_schedule = set(
-                max(
-                    now,
-                    race.poll_start_time,
-                    (race.poll_closing_time + timedelta(minutes=delta_min)),
-                )
-                for delta_min in [5, -7, -20, -60, -180]
+            analyse_schedule = race.generate_analyse_schedule(
+                closing_time_delta_list=[5, -7, -20, -60, -180],
+                time_fron=now,
+                time_to=now + timedelta(minutes=min),
             )
             for eta in analyse_schedule:
-                options = AnalyseTaskOptions(race.race_id, analyser_names=["no_cor"])
-                task_key = f"task/analyse/{race.race_id}/{eta.timestamp()}"
+                task_key = f"task/analyse/{race.race_id}/{int(eta.timestamp())}"
                 if not self.task_schedule_kvs.exists(task_key):
                     self.task_schedule_kvs.write_binary(task_key, b"scheduled")
+
+                    options = AnalyseTaskOptions(
+                        race.race_id, analyser_names=["no_cor"]
+                    )
                     self.analyse_task_provider(options=options).apply_async(
                         eta=eta, expires=(eta + timedelta(minutes=10))
                     )
@@ -62,10 +62,10 @@ class ScheduleTasks(CeleryTasks):
         mprint(f"Failed task info: args={request.args}, kwargs={request.kwargs}, ")
         mprint("")
 
-    def init_today(self):
+    def scrape_and_schedule_analyse(self, min: int = 30):
         return chain(
             self.update_schedule_all(),
-            self.schedule_analyse.si(),
+            self.schedule_analyse.si(min=min),
         ).on_error(self.handle_error.s())
 
     def update_schedule_all(self):

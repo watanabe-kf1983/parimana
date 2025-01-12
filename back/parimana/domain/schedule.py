@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import datetime
 from typing import Sequence
-from datetime import date
+from datetime import date, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -83,6 +83,26 @@ class RaceInfo:
             self.fixture.course.category.poll_start_time,
             self.fixture.course.category.timezone,
         )
+
+    def generate_analyse_schedule(
+        self,
+        closing_time_delta_list: Sequence[int],
+        time_fron: datetime.datetime,
+        time_to: datetime.datetime,
+    ) -> Sequence[datetime.datetime]:
+
+        return [
+            t
+            for t in set(
+                max(
+                    time_fron,
+                    self.poll_start_time,
+                    (self.poll_closing_time + timedelta(minutes=delta_min)),
+                )
+                for delta_min in closing_time_delta_list
+            )
+            if t < time_to
+        ]
 
 
 class ScheduleSource(ABC):

@@ -14,7 +14,7 @@ def start_worker(args) -> None:
 
 
 def start_service(args) -> None:
-    cx.schedule_tasks.init_today().apply_async()
+    cx.schedule_tasks.scrape_and_schedule_analyse().apply_async()
     cx.worker.start()
 
 

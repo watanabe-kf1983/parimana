@@ -50,5 +50,5 @@ def scrape_schedule():
 
 @router.post("/init-today/start")
 def init_today():
-    task_id = tasks.init_today().delay().id
+    task_id = tasks.scrape_and_schedule_analyse().delay().id
     return {"task_id": task_id}
