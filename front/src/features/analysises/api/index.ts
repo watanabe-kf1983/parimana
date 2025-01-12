@@ -2,8 +2,9 @@ import axios from "axios";
 import { AnalysisStatus, Candidate } from "../types";
 import { EventSourceManager } from "./eventSourceManager";
 
-const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('${hostname}', window.location.hostname) + "/analyses";
 
+const hostname = window.location.hostname;
+const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('${hostname}', hostname) + "/analyses";
 
 export async function requestAnalyse(raceId: string) {
     await axios.post(`${baseUrl}/${raceId}/start`);
