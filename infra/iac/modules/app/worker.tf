@@ -101,8 +101,8 @@ resource "aws_ecs_task_definition" "app_task" {
   family                   = "${var.project_name}-${var.env}-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "1024"
-  memory                   = "2048"
+  cpu                      = "2048"
+  memory                   = "4096"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
@@ -110,8 +110,8 @@ resource "aws_ecs_task_definition" "app_task" {
     {
       name      = "${var.project_name}-backend"
       image     = "hello-world"
-      cpu       = 1024
-      memory    = 2048
+      cpu       = 2048
+      memory    = 4096
       essential = true
       command   = ["parimana", "service"]
       environment = [
