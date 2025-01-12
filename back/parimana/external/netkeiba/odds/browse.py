@@ -11,7 +11,7 @@ from parimana.io.message import mprint
 from parimana.domain.base import BettingType
 from parimana.external.netkeiba.base import NetKeibaRace
 from parimana.external.netkeiba.odds.btype import btype_to_code, supported_types
-from parimana.external.netkeiba.browser import driver, modestly
+from parimana.external.netkeiba.browser import get_driver, modestly
 
 
 def get_source_uri(race: NetKeibaRace) -> str:
@@ -19,7 +19,7 @@ def get_source_uri(race: NetKeibaRace) -> str:
 
 
 def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
-
+    driver = get_driver()
     driver.delete_all_cookies()
     driver.refresh()
     _get_page(driver, race, BettingType.WIN)
@@ -27,6 +27,7 @@ def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
 
 
 def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
+    driver = get_driver()
     for btype in supported_types:
         pages = _browse_odds_by_btype(driver, race, btype)
 
