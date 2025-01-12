@@ -4,7 +4,7 @@ import { EventSourceManager } from "./eventSourceManager";
 
 
 const hostname = window.location.hostname;
-const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('${hostname}', hostname) + "/analyses";
+const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('<hostname>', hostname) + "/analyses";
 
 export async function requestAnalyse(raceId: string) {
     await axios.post(`${baseUrl}/${raceId}/start`);
