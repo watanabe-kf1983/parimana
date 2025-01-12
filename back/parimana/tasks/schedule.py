@@ -82,7 +82,6 @@ class ScheduleTasks(CeleryTasks):
         )
 
     def get_beat_schedules(self) -> dict:
-        print(self.scrape_and_schedule_analyse.name)
         return {
             "periodic-analyse-scheduling": {
                 "task": self.scrape_and_schedule_analyse.name,
