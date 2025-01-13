@@ -182,3 +182,11 @@ resource "aws_security_group" "ecs_sg" {
   tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-ecs-sg" })
 }
 
+resource "aws_cloudwatch_log_group" "app_logs" {
+  name              = "${var.project_name}-${var.env}-app-logs"
+  retention_in_days = 7
+
+  tags = merge(var.common_tags, {
+    Name = "${var.project_name}-${var.env}-app-logs"
+  })
+}
