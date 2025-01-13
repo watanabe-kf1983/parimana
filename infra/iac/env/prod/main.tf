@@ -16,6 +16,11 @@ provider "aws" {
   region = var.aws_region
 }
 
+# 証明書発行用プロバイダ
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
 
 module "net" {
   source       = "../../modules/net"
@@ -26,7 +31,6 @@ module "net" {
   private_az   = "${var.aws_region}a"
   common_tags  = local.common_tags
 }
-
 
 module "app" {
   source               = "../../modules/app"
@@ -45,11 +49,17 @@ module "web" {
   project_name        = var.project_name
   env                 = var.env
   aws_region          = var.aws_region
+  domain_name         = var.domain_name
+  sub_domain_name     = var.sub_domain_name
   web_api_lambda_arn  = module.app.web_api_lambda_arn
   web_api_lambda_name = module.app.web_api_lambda_name
   common_tags         = local.common_tags
-}
 
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+}
 
 locals {
   common_tags = {

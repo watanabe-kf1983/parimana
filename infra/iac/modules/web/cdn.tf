@@ -74,15 +74,23 @@ resource "aws_cloudfront_distribution" "web_distribution" {
 
   default_root_object = "index.html"
 
+  aliases = [var.sub_domain_name]
 
   viewer_certificate {
-    cloudfront_default_certificate = true # デフォルトのCloudFront SSL証明書を使用
+    acm_certificate_arn      = aws_acm_certificate.cert.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2019"
   }
 
   restrictions {
     geo_restriction {
       restriction_type = "none"
     }
+  }
+
+  logging_config {
+    bucket = aws_s3_bucket.logs_web.bucket_regional_domain_name
+    prefix = "cloudfront-logs/"
   }
 
   tags = var.common_tags
@@ -93,3 +101,38 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for accessing S3 bucket"
 }
 
+
+resource "aws_s3_bucket" "logs_web" {
+  bucket        = "${var.project_name}-${var.env}-logs-web"
+  force_destroy = true
+
+  tags = var.common_tags
+}
+
+resource "aws_s3_bucket_ownership_controls" "logs_web" {
+  bucket = aws_s3_bucket.logs_web.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "logs_web" {
+  depends_on = [aws_s3_bucket_ownership_controls.logs_web]
+
+  bucket = aws_s3_bucket.logs_web.id
+  access_control_policy {
+    grant {
+      grantee {
+        id   = "c4c1ede66af53448b93c283ce9448c4ba468c9432aa01d700d3878632f77d2d0"
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
+    }
+
+    owner {
+      id = data.aws_canonical_user_id.current.id
+    }
+  }
+}
+
+data "aws_canonical_user_id" "current" {}

@@ -19,3 +19,13 @@ variable "aws_region" {
   type        = string
   default     = "ap-northeast-1"
 }
+
+variable "domain_name" {
+  description = "Domain name"
+  type        = string
+}
+
+variable "sub_domain_name" {
+  description = "Sub domain name"
+  type        = string
+}

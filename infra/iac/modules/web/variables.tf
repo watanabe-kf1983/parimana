@@ -26,6 +26,16 @@ variable "web_api_lambda_name" {
   type        = string
 }
 
+variable "domain_name" {
+  description = "Domain name"
+  type        = string
+}
+
+variable "sub_domain_name" {
+  description = "Sub domain name"
+  type        = string
+}
+
 variable "common_tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
