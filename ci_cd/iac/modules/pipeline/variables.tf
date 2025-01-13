@@ -13,6 +13,16 @@ variable "target_project_name" {
   type        = string
 }
 
+variable "domain_name" {
+  description = "Domain name"
+  type        = string
+}
+
+variable "sub_domain_name" {
+  description = "Sub domain name"
+  type        = string
+}
+
 variable "env" {
   description = "The target env name"
   type        = string

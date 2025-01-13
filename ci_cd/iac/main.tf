@@ -22,6 +22,8 @@ module "prod-pipeline" {
   aws_account_id      = var.aws_account_id
   cicd_project_name   = var.cicd_project_name
   target_project_name = var.target_project_name
+  domain_name         = var.domain_name
+  sub_domain_name     = var.domain_name
   env                 = "prod"
   s3_artifact_store   = aws_s3_bucket.artifacts.bucket
   common_tags         = local.common_tags

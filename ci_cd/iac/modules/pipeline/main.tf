@@ -43,10 +43,20 @@ resource "aws_codepipeline" "main_pipeline" {
 
       configuration = {
         ProjectName = var.codebuild_infra
-        EnvironmentVariables = jsonencode([{
-          name  = "ENV"
-          value = "${var.env}"
-        }])
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "ENV"
+            value = "${var.env}"
+          },
+          {
+            name  = "DOMAIN_NAME"
+            value = "${var.domain_name}"
+          },
+          {
+            name  = "SUB_DOMAIN_NAME"
+            value = "${var.sub_domain_name}"
+          }
+        ])
       }
     }
 

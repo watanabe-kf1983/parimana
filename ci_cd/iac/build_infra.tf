@@ -34,6 +34,16 @@ resource "aws_codebuild_project" "infra" {
     }
 
     environment_variable {
+      name  = "DOMAIN_NAME"
+      value = var.domain_name
+    }
+
+    environment_variable {
+      name  = "SUB_DOMAIN_NAME"
+      value = var.domain_name
+    }
+
+    environment_variable {
       name  = "ENV"
       value = "env"
     }
