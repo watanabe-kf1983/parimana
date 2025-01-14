@@ -74,3 +74,28 @@ class FileStorage(Storage):
 
     def _get_file_path(self, key: str) -> Path:
         return self.root_path / key
+
+
+@dataclass(frozen=True)
+class CachedStorage(Storage):
+    original: Storage
+    cache: Storage
+
+    def _fetch_to_cache(self, key: str) -> bool:
+        if not self.cache.exists(f"fetched:{key}"):
+            self.cache.write_binary(f"fetched:{key}", b"T")
+            if self.original.exists(key):
+                self.cache.write_binary(f"cache:{key}", self.original.read_binary(key))
+
+    def exists(self, key: str) -> bool:
+        self._fetch_to_cache(key)
+        return self.cache.exists(f"cache:{key}")
+
+    def read_binary(self, key: str) -> Optional[bytes]:
+        self._fetch_to_cache(key)
+        return self.cache.read_binary(f"cache:{key}")
+
+    def write_binary(self, key: str, binary: bytes) -> None:
+        self.cache.write_binary(f"fetched:{key}", b"T")
+        self.cache.write_binary(f"cache:{key}", binary)
+        self.original.write_binary(binary)

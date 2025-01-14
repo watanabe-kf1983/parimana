@@ -1,5 +1,6 @@
 from celery import Celery
 
+from parimana.io.kvs import CachedStorage
 from parimana.devices.redis.redis_channel import RedisChannelFactory
 from parimana.devices.redis.redis_kvs import RedisStorage
 from parimana.external.boatrace import BoatRace, category_boat
@@ -18,7 +19,10 @@ category_selector = CategorySelector(categories)
 
 settings = Settings()
 
-storage = settings.storage.get()
+storage = CachedStorage(
+    original=settings.storage.get(),
+    cache=RedisStorage(settings.redis_ap_uri, "kvscache"),
+)
 publish_center = RedisChannelFactory(settings.redis_ap_uri).publish_center
 
 analyse_app = AnalyseApp(store=storage)
