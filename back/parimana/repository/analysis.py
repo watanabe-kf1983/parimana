@@ -63,13 +63,6 @@ class AnalysisRepositoryImpl(AnalysisRepository):
         prefix = f"analysis/{race.race_id}/{ts}/{model}"
         return self.store.read_object(f"{prefix}/charts.pickle")
 
-    def charts_exists_one(self, race: Race, model: str) -> bool:
-        ts = self.load_latest_charts_time(race)
-        if ts:
-            return self.charts_exists(race, ts, model), ts
-        else:
-            return False
-
     def charts_exists(self, race: Race, ts: OddsTimeStamp, model: str) -> bool:
         prefix = f"analysis/{race.race_id}/{ts}/{model}"
         return self.store.exists(f"{prefix}/charts.pickle")
@@ -88,6 +81,9 @@ class AnalysisRepositoryImpl(AnalysisRepository):
 
     def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
         return self.store.read_object(f"analysis/{race.race_id}/charts_ts.pickle")
+
+    def charts_exists_one(self, race: Race, model: str) -> bool:
+        return self.store.exists(f"analysis/{race.race_id}/charts_ts.pickle")
 
 
 def _chart_to_html(chart_json: str) -> str:
