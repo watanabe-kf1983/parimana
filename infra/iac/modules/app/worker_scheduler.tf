@@ -14,7 +14,7 @@ resource "aws_cloudwatch_event_rule" "scale_down_rule" {
 
 resource "aws_cloudwatch_event_rule" "restart_rule" {
   name                = "${var.project_name}-${var.env}-restart-worker"
-  schedule_expression = "cron(0 01-14/3 * * ? *)" # 10, 13, 16, 19, 22 (+09)
+  schedule_expression = "cron(10 01-14/3 * * ? *)" # 10:10, 13:10, 16:10, 19:10, 22:10 (+09)
 
   tags = var.common_tags
 }
@@ -32,8 +32,8 @@ resource "aws_cloudwatch_event_target" "scale_down_target" {
 }
 
 resource "aws_cloudwatch_event_target" "restart_target" {
-  rule  = aws_cloudwatch_event_rule.restart_rule.name
-  arn   = aws_lambda_function.ecs_task_stopper.arn
+  rule = aws_cloudwatch_event_rule.restart_rule.name
+  arn  = aws_lambda_function.ecs_task_stopper.arn
 }
 
 resource "aws_lambda_permission" "allow_eventbridge_scale_up" {
