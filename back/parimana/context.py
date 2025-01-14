@@ -25,7 +25,8 @@ analyse_app = AnalyseApp(store=storage)
 odds_app = OddsCollectorApp(store=storage)
 schedule_app = ScheduleApp(category_selector=category_selector, store=storage)
 ps_manager = ProcessStatusManager(
-    store=RedisStorage(settings.redis_ap_uri, "processes"), center=publish_center
+    store=RedisStorage(settings.redis_ap_uri, "processes", ex=600),  # 10 min
+    center=publish_center,
 )
 
 celery = Celery(
