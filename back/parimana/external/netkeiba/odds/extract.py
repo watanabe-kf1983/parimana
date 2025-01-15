@@ -39,6 +39,13 @@ def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, Odds]:
     elements = soup.select(f"table td.Odds span[id^='odds-{btype_to_code(btype)}']")
     odds = _elements_to_odds(elements)
 
+    # 7頭立て以下の場合は複勝は2着まで
+    # https://www.jra.go.jp/kouza/yougo/w432.html
+    if btype == BettingType.SHOW and len(odds) <= 7:
+        odds = {
+            Eye.from_names(list(e.names), BettingType.PLACE): o for e, o in odds.items()
+        }
+
     if btype == BettingType.WIDE:
         elementsmax = soup.select(
             f"table td.Odds span[id^='oddsmin-{btype_to_code(btype)}']"
