@@ -9,11 +9,11 @@ export async function getCategories(): Promise<Category[]> {
   return response.data;
 }
 
-export async function getCalendar(categoryId: string, scrapedOnly: boolean): Promise<RaceInfo[]> {
+export async function getCalendar(categoryId: string, analysedOnly: boolean): Promise<RaceInfo[]> {
   const response = await axios.get(`${baseUrl}/races`, {
     params: {
       category_id: categoryId,
-      scraped_only: scrapedOnly
+      analysed_only: analysedOnly
     },
   });
   return response.data;

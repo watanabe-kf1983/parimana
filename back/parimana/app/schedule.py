@@ -30,13 +30,14 @@ class ScheduleApp:
         ]
 
     def get_schedule(
-        self, cat: Category, scraped_only: bool = True
+        self, cat: Category, analysed_only: bool = True
     ) -> Sequence[RaceInfo]:
         return [
             race_info
             for date in self.get_recent_calendar(cat)
             for race_info in (self.repo.load_schedule(cat, date) or [])
-            if (not scraped_only) or self.an_repo.charts_exists_one(race_info, "no_cor")
+            if (not analysed_only)
+            or self.an_repo.charts_exists_one(race_info, "no_cor")
         ]
 
     def get_recent_calendar(
