@@ -12,5 +12,5 @@ router.include_router(schedule.router, prefix="/schedule", tags=["schedule"])
 
 # health check
 @router.get("/info")
-def app_info():
+def app_info() -> AppInfo:
     return AppInfo(status="ok", auto_analyse=cx.settings.auto_analyse_mode)

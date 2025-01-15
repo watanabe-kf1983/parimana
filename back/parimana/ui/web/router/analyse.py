@@ -4,11 +4,24 @@ from fastapi.responses import StreamingResponse
 
 from parimana.tasks import AnalyseTaskOptions
 from parimana.ui.web.model.analyse import EyeExpectedValue, Result, Status
-
 from parimana.context import context as cx
 
 
 router = APIRouter()
+
+if not cx.settings.auto_analyse_mode:
+
+    @router.post("/{race_id}/start")
+    def start_analyse(race_id: str):
+        options = AnalyseTaskOptions(race_id, analyser_names=["no_cor"])
+        task_id = cx.analyse_tasks.scrape_and_analyse(options).delay().id
+        return {"task_id": task_id}
+
+    @router.get("/{race_id}/progress", response_class=StreamingResponse)
+    async def get_progress(race_id: str):
+        return _eventStreamResponse(
+            cx.publish_center.get_channel(f"analyse_{race_id}").alisten()
+        )
 
 
 @router.get("/{race_id}/status")
@@ -38,22 +51,8 @@ def get_candidates(
     ]
 
 
-if not cx.settings.auto_analyse_mode:
-
-    @router.post("/{race_id}/start")
-    def start_analyse(race_id: str):
-        options = AnalyseTaskOptions(race_id, analyser_names=["no_cor"])
-        task_id = cx.analyse_tasks.scrape_and_analyse(options).delay().id
-        return {"task_id": task_id}
-
-    @router.get("/{race_id}/progress", response_class=StreamingResponse)
-    async def get_progress(race_id: str):
-        return _eventStreamResponse(
-            cx.publish_center.get_channel(f"analyse_{race_id}").alisten()
-        )
-
-    def _eventStreamResponse(generator: AsyncGenerator[str, Any]):
-        return StreamingResponse(
-            (f"data: {msg}\n\n" async for msg in generator),
-            media_type="text/event-stream",
-        )
+def _eventStreamResponse(generator: AsyncGenerator[str, Any]):
+    return StreamingResponse(
+        (f"data: {msg}\n\n" async for msg in generator),
+        media_type="text/event-stream",
+    )

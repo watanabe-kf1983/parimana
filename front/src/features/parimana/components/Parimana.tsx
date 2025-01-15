@@ -12,23 +12,23 @@ import { RaceSelector } from "../../race/components/RaceSelector"
 import mathJaxURL from "mathjax-full/es5/tex-svg.js?url"
 import { HelpIcon } from './HelpIcon'
 import { HelpContent } from './HelpContent';
+import { useEffect, useState } from 'react';
+import api from '../api';
 
 export function Parimana() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<ParimanaPage showControl={false} />} />
-        <Route path="/sctl" element={<ParimanaPage showControl={true} />} />
+        <Route path="/" element={<ParimanaPage />} />
         <Route path="/about" element={<HelpPage />} />
-        <Route path="/analysis/:raceId" element={<ParimanaPage showControl={false} />} />
-        <Route path="/analysis/:raceId/sctl" element={<ParimanaPage showControl={true} />} />
+        <Route path="/analysis/:raceId" element={<ParimanaPage />} />
       </Routes>
     </BrowserRouter>
   )
 }
 
-function ParimanaPage(props: { showControl: boolean }) {
-  return <ParimanaLayout content={<ParimanaContent showControl={props.showControl} />} />
+function ParimanaPage() {
+  return <ParimanaLayout content={<ParimanaContent />} />
 }
 
 function HelpPage() {
@@ -82,22 +82,32 @@ function ParimanaHeader() {
 }
 
 
-function ParimanaContent(props: { showControl: boolean }) {
+function ParimanaContent() {
   const raceId = useParams().raceId || '';
   const navigate = useNavigate();
+  const [showControl, setShowControl] = useState<boolean>(false);
   const setRaceId = (raceId: string) => {
-    navigate(props.showControl ? `/analysis/${raceId}/sctl` : `/analysis/${raceId}`);
+    navigate(`/analysis/${raceId}`);
   };
 
+  useEffect(() => {
+    const getAppInfo = async () => {
+      const appInfo = await api.getAppInfo();
+      setShowControl(!appInfo.auto_analyse);
+    };
+    getAppInfo();
+  }, []);
+
+
   return (
-    <Box key={`parimana-content-${raceId}-${props.showControl}`}
+    <Box key={`parimana-content-${raceId}`}
       sx={{
         display: 'flex',
         flexDirection: 'column',
       }}>
-      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} showControl={props.showControl} />
+      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} showControl={showControl} />
       {raceId ?
-        <Race raceId={raceId} showControl={props.showControl} /> : null}
+        <Race raceId={raceId} showControl={showControl} /> : null}
     </Box>
   )
 }
