@@ -7,6 +7,7 @@ import { Box, Typography } from "@mui/material"
 
 import { Race } from "../../analysises/components/Race"
 import { RaceSelector } from "../../race/components/RaceSelector"
+import { useWindowSize } from '../../../common/hooks/useWindowSize';
 
 // https://github.com/fast-reflexes/better-react-mathjax/issues/44#issuecomment-1589603608
 import mathJaxURL from "mathjax-full/es5/tex-svg.js?url"
@@ -36,6 +37,7 @@ function HelpPage() {
 }
 
 function ParimanaLayout(props: { content: React.ReactNode }) {
+
   return (
     <MathJaxContext src={mathJaxURL}>
       <Box sx={{
@@ -43,18 +45,17 @@ function ParimanaLayout(props: { content: React.ReactNode }) {
         justifyContent: 'center',
         padding: '10px',
         minHeight: '100vh',
-        // minWidth: '1000px', // 最小幅をコンテンツの幅に合わせる
       }}
       >
         <Box sx={{
-          maxWidth: '1030px'
-        }}
-        >
+          maxWidth: '1030px',
+          minWidth: `${Math.min(useWindowSize(), 1030)}px`,
+        }}>
           <ParimanaHeader />
           {props.content}
         </Box>
       </Box>
-    </MathJaxContext>
+    </MathJaxContext >
   )
 }
 
@@ -108,6 +109,6 @@ function ParimanaContent() {
       <RaceSelector raceId={raceId} onSetRaceId={setRaceId} showControl={showControl} />
       {raceId ?
         <Race raceId={raceId} showControl={showControl} /> : null}
-    </Box>
+    </Box >
   )
 }
