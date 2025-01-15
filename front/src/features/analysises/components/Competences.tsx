@@ -38,10 +38,8 @@ export function Competences(props: CompetenceProps) {
 
     return (
         <>
-            <Typography variant="h6">
+            <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
                 予想走破時計
-            </Typography>
-            <Typography variant="h6">
             </Typography>
             <DataGrid rows={rows} columns={columns} density='compact'
                 autoHeight disableColumnMenu hideFooter />

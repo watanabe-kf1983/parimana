@@ -9,7 +9,7 @@ export function Simulation(props: SimulationProps) {
 
     return (
         <>
-            <Typography variant="h6">
+            <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
                 的中確率と払戻期待値
             </Typography>
             <Betting raceId={props.raceId} modelName={props.modelName} />

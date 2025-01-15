@@ -27,13 +27,10 @@ export function Analysis(props: AnalysisProps) {
               オッズ出典元
             </Typography>
             <Typography variant="body1">
-              <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>  
+              <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
               （{analysis.odds_update_time === "confirmed" ? "確定オッズ" : analysis.odds_update_time.replace("updated at ", "") + " 更新オッズ"}）
               <br />
               <br />
-            </Typography>
-            <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
-              モデル {props.modelName} による推定
             </Typography>
             <Competences competences={analysis.competences} chart={analysis.model_box} />
             <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />

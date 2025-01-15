@@ -46,7 +46,7 @@ class ScheduleTasks(CeleryTasks):
                     self.task_schedule_kvs.write_binary(task_key, b"scheduled")
 
                     options = AnalyseTaskOptions(
-                        race.race_id, analyser_names=["no_cor"]
+                        race.race_id, analyser_names=["no_cor", "ppf_mtx"]
                     )
                     self.analyse_task_provider(options=options).apply_async(
                         eta=eta, expires=(eta + timedelta(minutes=10))

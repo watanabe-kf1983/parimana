@@ -3,6 +3,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MathJaxContext } from "better-react-mathjax"
 
+import { useTheme } from '@mui/material/styles';
 import { Box, Typography } from "@mui/material"
 
 import { Race } from "../../analysises/components/Race"
@@ -61,14 +62,25 @@ function ParimanaLayout(props: { content: React.ReactNode }) {
 
 
 function ParimanaHeader() {
+  const theme = useTheme();
+
   return (
     <>
-      <Box sx={{ display: 'flex', flexDirection: 'row', m: 2 }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        m: 2,
+        position: 'sticky',
+        top: 0,
+        zIndex: theme.zIndex.appBar,
+        backgroundColor: theme.palette.background.default
+      }}>
         <Typography
           component={RouterLink} to="/"
           variant="h3"
           sx={{
             color: "inherit",
+            backgroundColor: "inherit",
             textDecoration: "none",
           }}>
           parimana
@@ -77,7 +89,7 @@ function ParimanaHeader() {
           PARI-Mutuel odds ANAlyser
         </Typography>
         <HelpIcon />
-      </Box>
+      </Box >
     </>
   )
 }
@@ -99,16 +111,23 @@ function ParimanaContent() {
     getAppInfo();
   }, []);
 
+  const theme = useTheme();
 
   return (
-    <Box key={`parimana-content-${raceId}`}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-      <RaceSelector raceId={raceId} onSetRaceId={setRaceId} showControl={showControl} />
-      {raceId ?
-        <Race raceId={raceId} showControl={showControl} /> : null}
-    </Box >
+    <>
+      <Box key={`parimana-race-selector-${raceId ? "set" : "blank"}`}
+        sx={{
+          position: 'sticky',
+          top: 56,
+          zIndex: theme.zIndex.appBar,
+          backgroundColor: theme.palette.background.default
+        }}>
+        <RaceSelector raceId={raceId} onSetRaceId={setRaceId} showControl={showControl} />
+      </Box >
+      {
+        raceId ?
+          <Race raceId={raceId} showControl={showControl} /> : null
+      }
+    </>
   )
 }

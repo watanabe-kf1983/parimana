@@ -24,7 +24,7 @@ export function AnalysisProgress(props: AnalysisProgressProps): JSX.Element {
 
 
   return (
-    <Box ref={scrollRef} sx={{ height: 400, width: "100%", overflowY: 'scroll' }}>
+    <Box ref={scrollRef} sx={{ width: "100%" }}>
       <Typography component="pre" variant="body1">
         {messages}
       </Typography>

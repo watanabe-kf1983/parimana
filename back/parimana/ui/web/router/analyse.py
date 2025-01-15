@@ -13,7 +13,7 @@ if not cx.settings.auto_analyse_mode:
 
     @router.post("/{race_id}/start")
     def start_analyse(race_id: str):
-        options = AnalyseTaskOptions(race_id, analyser_names=["no_cor"])
+        options = AnalyseTaskOptions(race_id, analyser_names=["no_cor", "ppf_mtx"])
         task_id = cx.analyse_tasks.scrape_and_analyse(options).delay().id
         return {"task_id": task_id}
 
