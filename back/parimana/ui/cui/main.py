@@ -10,11 +10,8 @@ def start_web(args):
 
 
 def start_worker(args) -> None:
-    cx.worker.start(start_beat=False)
-
-
-def start_service(args) -> None:
-    cx.worker.start(start_beat=True)
+    cx.schedule_tasks.update_schedule_all().apply_async()
+    cx.worker.start(start_beat=cx.settings.auto_analyse_mode)
 
 
 def monitor(args):
@@ -44,9 +41,6 @@ def create_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("web", help="start web").set_defaults(func=start_web)
     subparsers.add_parser("worker", help="start worker").set_defaults(func=start_worker)
-    subparsers.add_parser("service", help="start service").set_defaults(
-        func=start_service
-    )
     subparsers.add_parser("monitor", help="start worker-monitor").set_defaults(
         func=monitor
     )

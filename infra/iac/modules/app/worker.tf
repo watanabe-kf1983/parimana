@@ -113,7 +113,7 @@ resource "aws_ecs_task_definition" "app_task" {
       cpu       = 1024
       memory    = 4096
       essential = true
-      command   = ["parimana", "service"]
+      command   = ["parimana", "worker"]
       environment = [
         {
           name  = "REDIS_ENDPOINT"
@@ -126,6 +126,10 @@ resource "aws_ecs_task_definition" "app_task" {
         {
           name  = "STORAGE__URI"
           value = "s3://${aws_s3_bucket.app.bucket}/"
+        },
+        {
+          name  = "AUTO_ANALYSE_MODE"
+          value = "True"
         }
       ]
       logConfiguration = {

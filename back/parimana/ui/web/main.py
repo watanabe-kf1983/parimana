@@ -1,27 +1,15 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
 from mangum import Mangum
 
 from parimana.app.exception import ResultNotExistError
-from parimana.ui.web.model.app import AppInfo
-import parimana.ui.web.router.analyse as analyse
-import parimana.ui.web.router.schedule as schedule
-
-api_router = APIRouter()
-api_router.include_router(analyse.router, prefix="/analyses", tags=["analysis"])
-api_router.include_router(schedule.router, prefix="/schedule", tags=["schedule"])
-
-
-# health check
-@api_router.get("/info")
-def app_info():
-    return AppInfo(status="ok")
+from parimana.ui.web.router.main import router
 
 
 app = FastAPI()
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(router, prefix="/api/v1")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

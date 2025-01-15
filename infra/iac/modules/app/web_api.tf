@@ -15,10 +15,10 @@ resource "aws_lambda_function" "web_api" {
   }
   environment {
     variables = {
-      STORAGE__TYPE      = "s3"
-      STORAGE__URI       = "s3://${aws_s3_bucket.app.bucket}/"
-      REDIS_ENDPOINT     = aws_elasticache_replication_group.redis.primary_endpoint_address
-      OTHER_ENV_VARIABLE = "value"
+      STORAGE__TYPE     = "s3"
+      STORAGE__URI      = "s3://${aws_s3_bucket.app.bucket}/"
+      REDIS_ENDPOINT    = aws_elasticache_replication_group.redis.primary_endpoint_address
+      AUTO_ANALYSE_MODE = "True"
     }
   }
   lifecycle {

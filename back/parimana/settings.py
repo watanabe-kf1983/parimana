@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     redis_endpoint: str = "localhost:6379"
     redis_id_for_q: int = 0
     redis_id_for_ap: int = 1
+    auto_analyse_mode: bool = False
 
     @property
     def redis_q_uri(self):
