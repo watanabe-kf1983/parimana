@@ -17,7 +17,7 @@ class _CategoryBoatRace(Category):
 
     @property
     def name(self) -> str:
-        return "ボートレース"
+        return "ボート"
 
     @property
     def schedule_source(self) -> ScheduleSource:
