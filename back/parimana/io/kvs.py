@@ -98,4 +98,4 @@ class CachedStorage(Storage):
     def write_binary(self, key: str, binary: bytes) -> None:
         self.cache.write_binary(f"fetched:{key}", b"T")
         self.cache.write_binary(f"cache:{key}", binary)
-        self.original.write_binary(binary)
+        self.original.write_binary(key, binary)
