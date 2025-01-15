@@ -50,7 +50,7 @@ class AnalysisRepositoryImpl(AnalysisRepository):
         self.store.write_text(
             f"{prefix}/box-plot.html", _chart_to_html(charts.model_box)
         )
-        # self.store.write_text(f"{prefix}/mds.html", chart_to_html(charts.model_mds))
+        self.store.write_text(f"{prefix}/mds.html", _chart_to_html(charts.model_mds))
         # self.store.write_text(
         #     f"{prefix}/mds-metric.html", chart_to_html(charts.model_mds_metric)
         # )

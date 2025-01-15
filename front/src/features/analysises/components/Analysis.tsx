@@ -4,6 +4,7 @@ import { AnalysisProps, AnalysisData } from '../types';
 import { Competences } from './Competences';
 import { Simulation } from './Simulation';
 import { getAnalysis } from '../api';
+import { Correlation } from './Correlation';
 
 export function Analysis(props: AnalysisProps) {
 
@@ -33,6 +34,10 @@ export function Analysis(props: AnalysisProps) {
               <br />
             </Typography>
             <Competences competences={analysis.competences} chart={analysis.model_box} />
+            {props.modelName !== 'no_cor' ?
+              <Correlation chart={analysis.model_mds} />
+              : null
+            }
             <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />
           </>
           : <Typography variant="body1">

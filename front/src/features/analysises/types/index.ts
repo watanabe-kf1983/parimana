@@ -15,7 +15,8 @@ export type AnalysisData = {
     source_uri: string,
     odds_update_time: string,
     odds_chance: string,
-    model_box: string
+    model_box: string,
+    model_mds: string,
 }
 
 export type Eye = { text: string, type: string }
@@ -25,6 +26,7 @@ export type Competence = { contestant: string, mean: number, q1: number, q3: num
 export type BettingQueryProps = { raceId: string, modelName: string }
 export type RecommendProps = { data: Array<Recommend> }
 export type SimulationProps = { raceId: string, modelName: string, chart: string }
+export type CorrelationProps = { chart: string }
 
 export type Candidate = { eye: Eye, odds: number, chance: number, expected: number }
 export type CandidatesProps = { data: Array<Candidate> }

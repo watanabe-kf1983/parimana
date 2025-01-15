@@ -80,6 +80,7 @@ class Result(BaseModel):
     odds_update_time: str
     odds_chance: str
     model_box: str
+    model_mds: str
 
     @staticmethod
     def from_base(
@@ -94,4 +95,5 @@ class Result(BaseModel):
             odds_update_time=ost.long_str(),
             odds_chance=charts.odds_chance,
             model_box=charts.model_box,
+            model_mds=charts.model_mds,
         )

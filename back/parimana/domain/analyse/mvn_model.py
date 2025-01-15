@@ -5,10 +5,7 @@ from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as plgo
-import plotly.tools as pltls
-import matplotlib.pyplot as mpplt
 from sklearn.manifold import MDS
-
 
 from parimana.domain.base import Comparable, Eye
 import parimana.domain.analyse.normal_dist as nd
@@ -110,12 +107,15 @@ class MvnModel(Generic[T]):
         )
         pos = mds.fit_transform(distance_df.values)
 
-        fig, ax = mpplt.subplots()
-        ax.scatter(pos[:, 0], pos[:, 1], marker="o")
-        for i, m in enumerate(self.members):
-            ax.text(pos[i, 0], pos[i, 1], str(m))
+        scatter = plgo.Scatter(
+            x=pos[:, 0],
+            y=pos[:, 1],
+            mode="markers+text",
+            text=[str(m) for m in self.members],
+            textposition="top center",
+        )
 
-        return pltls.mpl_to_plotly(fig)
+        return plgo.Figure(data=[scatter])
 
     def simulate_values(self, size: int) -> np.ndarray:
         mean = self.a_map.values
