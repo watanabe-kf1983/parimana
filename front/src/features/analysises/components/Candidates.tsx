@@ -1,7 +1,7 @@
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 import { CandidatesProps } from '../types';
-import { useWindowSize } from '../hooks/useWindowSize';
+import { useWindowSize } from '../../../common/hooks/useWindowSize';
 
 
 export function Candidates(props: CandidatesProps) {
