@@ -114,8 +114,8 @@ class MvnModel(Generic[T]):
             text=[str(m) for m in self.members],
             textposition="top center",
         )
-
-        return plgo.Figure(data=[scatter])
+        layout = plgo.Layout(yaxis=dict(scaleanchor="x"))
+        return plgo.Figure(data=[scatter], layout=layout)
 
     def simulate_values(self, size: int) -> np.ndarray:
         mean = self.a_map.values
