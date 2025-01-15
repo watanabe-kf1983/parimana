@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 
 from parimana.ui.web.model.analyse import EyeExpectedValue, Result, Status
 from parimana.tasks import AnalyseTaskOptions
-import parimana.context as cx
+from parimana.context import context as cx
 
 
 router = APIRouter()

@@ -2,7 +2,7 @@ import argparse
 
 import parimana.ui.cui.analyse as analyse_cui
 import parimana.ui.web as web
-import parimana.context as cx
+from parimana.context import context as cx
 
 
 def start_web(args):

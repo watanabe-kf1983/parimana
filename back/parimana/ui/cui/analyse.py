@@ -3,7 +3,7 @@ from typing import Sequence
 
 from parimana.tasks.analyse import AnalyseTaskOptions
 from parimana.domain.analyse import analyser_names
-import parimana.context as cx
+from parimana.context import context as cx
 
 
 def analyse(args):
