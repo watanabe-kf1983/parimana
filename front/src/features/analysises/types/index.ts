@@ -8,10 +8,12 @@ export type AnalyseControlProps = { raceId: string, status: AnalysisStatus, onRe
 export type AnalysisProgressProps = { raceId: string, onComplete: () => void, onAbort: () => void }
 export type AnalysisProps = { raceId: string, modelName: string }
 export type CompetenceProps = { competences: Array<Competence>, chart: string }
+export type Correlation = { a: string, row: object }
 
 export type AnalysisData = {
     eev: Array<Recommend>,
     competences: Array<Competence>,
+    correlations: Array<Correlation>,
     source_uri: string,
     odds_update_time: string,
     odds_chance: string,
@@ -26,7 +28,7 @@ export type Competence = { contestant: string, mean: number, q1: number, q3: num
 export type BettingQueryProps = { raceId: string, modelName: string }
 export type RecommendProps = { data: Array<Recommend> }
 export type SimulationProps = { raceId: string, modelName: string, chart: string }
-export type CorrelationProps = { chart: string }
+export type CorrelationProps = { correlations: Array<Correlation>, chart: string }
 
 export type Candidate = { eye: Eye, odds: number, chance: number, expected: number }
 export type CandidatesProps = { data: Array<Candidate> }

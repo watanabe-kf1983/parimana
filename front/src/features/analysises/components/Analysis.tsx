@@ -35,7 +35,7 @@ export function Analysis(props: AnalysisProps) {
             </Typography>
             <Competences competences={analysis.competences} chart={analysis.model_box} />
             {props.modelName !== 'no_cor' ?
-              <Correlation chart={analysis.model_mds} />
+              <Correlation chart={analysis.model_mds} correlations={analysis.correlations} />
               : null
             }
             <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />

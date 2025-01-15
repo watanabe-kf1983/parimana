@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Mapping, Sequence
 
 from pydantic import BaseModel
@@ -73,9 +74,15 @@ class Status(BaseModel):
     is_odds_confirmed: bool
 
 
+class Correlations(BaseModel):
+    a: str
+    row: Mapping[str, float]
+
+
 class Result(BaseModel):
     eev: Sequence[EyeExpectedValue]
     competences: Sequence[Competence]
+    correlations: Sequence[Correlations]
     source_uri: str
     odds_update_time: str
     odds_chance: str
@@ -88,9 +95,15 @@ class Result(BaseModel):
         race: rc.Race,
         ost: rc.OddsTimeStamp,
     ):
+        crs = defaultdict(dict)
+        for (a, b), v in charts.result.model.correlations.items():
+            crs[str(a)][str(b)] = v
+        correlations = [Correlations(a=key, row=dict) for key, dict in crs.items()]
+
         return Result(
             eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
             competences=Competence.from_abilities(charts.result.model.abilities),
+            correlations=correlations,
             source_uri=race.odds_source.get_uri(),
             odds_update_time=ost.long_str(),
             odds_chance=charts.odds_chance,
