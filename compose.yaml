@@ -7,7 +7,7 @@ services:
       STORAGE__ROOT_DIR: "/var/parimana/.storage"
       REDIS_ENDPOINT: "task-db:6379"
     volumes:
-      - storage:/var/parimana/.storage
+      - ./.storage:/var/parimana/.storage
     entrypoint: ["tail", "-f", "/dev/null"]
     restart: always
 
@@ -21,7 +21,7 @@ services:
       STORAGE__ROOT_DIR: "/var/parimana/.storage"
       REDIS_ENDPOINT: "task-db:6379"
     volumes:
-      - storage:/var/parimana/.storage
+      - ./.storage:/var/parimana/.storage
     depends_on:
       - task-db
     entrypoint:
@@ -43,7 +43,7 @@ services:
       STORAGE__ROOT_DIR: "/var/parimana/.storage"
       REDIS_ENDPOINT: "task-db:6379"
     volumes:
-      - storage:/var/parimana/.storage
+      - ./.storage:/var/parimana/.storage
     depends_on:
       - task-db
     entrypoint:
@@ -78,10 +78,7 @@ services:
     build:
       context: ./front
     ports:
-      - "80:80"
+      - "8607:80"
     depends_on:
       - api
     restart: always
-
-volumes:
-  storage:
