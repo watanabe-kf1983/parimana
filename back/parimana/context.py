@@ -46,7 +46,7 @@ class _ParimanaContext:
         if isinstance(_storage, S3Storage):
             _storage = CachedStorage(
                 original=_storage,
-                cache=RedisStorage(self.settings.redis_ap_uri, "kvscache"),
+                cache=RedisStorage(self.settings.redis_ap_uri, "kvscache", ex=43200),
             )
 
         return _storage

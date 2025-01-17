@@ -16,7 +16,7 @@ resource "aws_elasticache_replication_group" "redis" {
   replication_group_id       = "${var.project_name}-${var.env}-redis-rg"
   engine                     = "redis"
   engine_version             = "7.1"
-  node_type                  = "cache.t3.micro"
+  node_type                  = "cache.t3.small"
   num_cache_clusters         = 1
   automatic_failover_enabled = false
   parameter_group_name       = "default.redis7"
