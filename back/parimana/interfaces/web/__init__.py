@@ -1,3 +1,3 @@
-from parimana.interfaces.web.main import start, handler as lambda_handler
+from parimana.interfaces.web.server import start
 
-__all__ = ["start", "lambda_handler"]
+__all__ = ["start"]
