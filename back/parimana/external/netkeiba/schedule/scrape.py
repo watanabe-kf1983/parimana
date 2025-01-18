@@ -8,11 +8,13 @@ from parimana.external.netkeiba.base import NetKeibaRace, category_keiba
 from parimana.external.netkeiba.schedule.base import JraCourse
 from parimana.external.netkeiba.schedule.browse import (
     browse_monthly_calendar,
+    browse_race,
     browse_schedule,
 )
 from parimana.external.netkeiba.schedule.extract import (
     RaceListItem,
     extract_open_days,
+    extract_race_date,
     extract_schedule,
 )
 
@@ -25,6 +27,9 @@ class _KeibaScheduleSource(ScheduleSource):
 
     def scrape_calendar(self, year: int, month: int) -> Sequence[datetime.date]:
         return _scrape_calendar(year, month)
+
+    def scrape_race_info(self, race_id: str) -> RaceInfo:
+        return _scrape_race_info(race_id)
 
     def site_name(self):
         return "netkeiba"
@@ -44,7 +49,6 @@ def _scrape_calendar(year: int, month: int) -> Sequence[datetime.date]:
 
 
 def _item_to_race(item: RaceListItem, date: datetime.date) -> RaceInfo:
-    print(item)
     return RaceInfo(
         race_id=NetKeibaRace(item.netkeiba_race_id).race_id,
         name=f"{item.race_num_text}",
@@ -60,3 +64,12 @@ def _item_to_race(item: RaceListItem, date: datetime.date) -> RaceInfo:
             category_keiba.timezone,
         ),
     )
+
+
+def _scrape_race_info(race_id: str) -> RaceInfo:
+    race = NetKeibaRace.from_id(race_id)
+    race_date = extract_race_date(browse_race(race))
+    schedule = _scrape_day_schedule(race_date)
+    for info in schedule:
+        if info.race_id == race_id:
+            return info

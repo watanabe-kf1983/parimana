@@ -32,6 +32,10 @@ class ScheduleTasks(CeleryTasks):
         return self.schedule_app.update_schedule(cat)
 
     @task
+    def scrape_race_info(self, *, cat: Category, race_id: str, **kwargs) -> RaceInfo:
+        return self.schedule_app.scrape_race(cat=cat, race_id=race_id)
+
+    @task
     def schedule_analyse(self, min: int = 20, **kwargs) -> None:
         for race in self.schedule_app.get_today_schedule():
             now = datetime.datetime.now(tz=race.fixture.course.category.timezone)

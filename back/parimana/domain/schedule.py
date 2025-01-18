@@ -23,6 +23,10 @@ class Category(ABC):
     def schedule_source(self) -> "ScheduleSource":
         pass
 
+    @abstractmethod
+    def has_race(self, race_id: str) -> bool:
+        pass
+
     @property
     @abstractmethod
     def timezone(self) -> ZoneInfo:
@@ -47,6 +51,13 @@ class CategorySelector:
                 return category
 
         raise ValueError(f"category_id: {category_id} is illegal")
+
+    def select_from_race_id(self, race_id: str) -> Category:
+        for category in self.all():
+            if category.has_race(race_id):
+                return category
+
+        raise ValueError(f"category_id: {race_id} is illegal")
 
     def source_sites(self) -> Sequence[str]:
         return [category.schedule_source.site_name() for category in self.categories]
@@ -106,6 +117,10 @@ class RaceInfo:
 
 
 class ScheduleSource(ABC):
+    @abstractmethod
+    def scrape_race_info(self, race_id: str) -> RaceInfo:
+        pass
+
     @abstractmethod
     def scrape_day_schedule(self, date: date) -> Sequence[RaceInfo]:
         pass

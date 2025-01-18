@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import datetime
 import re
 from typing import Sequence
 
@@ -27,10 +28,22 @@ def extract_schedule(schedule_page_html: str) -> Sequence[RaceListItem]:
         schedule_page_html.encode("utf-8"), "html.parser", from_encoding="utf-8"
     )
     anchors = soup.select("#RaceTopRace li.RaceList_DataItem > a:nth-child(1)")
-    return [extract_race_info(a_tag) for a_tag in anchors]
+    return [_extract_race_info(a_tag) for a_tag in anchors]
 
 
-def extract_race_info(a_tag: Tag) -> RaceListItem:
+def extract_race_date(race_page_html: str) -> datetime.date:
+    soup = BeautifulSoup(
+        race_page_html.encode("utf-8"), "html.parser", from_encoding="utf-8"
+    )
+    schedule_link = soup.select_one("#RaceList_DateList > dd.Active > a").get("href")
+    if m := re.search(_NETKEIBA_KAISAI_DATE_LINK, schedule_link):
+        return datetime.datetime.strptime(m.group("kaisai_date"), "%Y%m%d").date()
+
+    else:
+        raise ValueError("Failed parse link: " + schedule_link)
+
+
+def _extract_race_info(a_tag: Tag) -> RaceListItem:
     href = a_tag.get("href")
     if m := re.search(_NETKEIBA_RACE_ID_LINK, href):
         netkeiba_race_id = m.group("netkeiba_race_id")
@@ -50,6 +63,11 @@ def extract_race_info(a_tag: Tag) -> RaceListItem:
         start_time_text=start_time_text,
         netkeiba_race_id=netkeiba_race_id,
     )
+
+
+_NETKEIBA_KAISAI_DATE_LINK: re.Pattern = re.compile(
+    r"kaisai_date=(?P<kaisai_date>[0-9]{8})"
+)
 
 
 _NETKEIBA_RACE_ID_LINK: re.Pattern = re.compile(

@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional, Sequence
+from typing import Sequence
 
 from parimana.domain.schedule import Category, CategorySelector, RaceInfo
 from parimana.io.kvs import Storage
@@ -54,6 +54,14 @@ class ScheduleApp:
             return race_info
         else:
             raise ResultNotExistError(f"{race_id} not found")
+
+    def scrape_race(self, cat: Category, race_id: str) -> RaceInfo:
+        if race_info := self.repo.load_race_info(race_id):
+            return race_info
+        else:
+            race_info = cat.schedule_source.scrape_race_info(race_id)
+            self.repo.save_race_info(race_info)
+            return race_info
 
     def update_calendar(self, cat: Category) -> None:
 

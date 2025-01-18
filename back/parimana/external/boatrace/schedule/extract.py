@@ -30,11 +30,10 @@ def extract_joes(day_page_html: str) -> Sequence[BoatRaceJo]:
 
 
 def _extract_jo_from_imgtag(img: Tag) -> Optional[BoatRaceJo]:
-    name = img.get("alt")
     code_match = re.search(IMG_JO_CODE_PATTERN, img.get("src"))
-    if name and code_match:
+    if code_match:
         jo_code = code_match.group("jo_code")
-        return BoatRaceJo(jo_code, name)
+        return BoatRaceJo.from_jo_code(jo_code)
 
 
 def extract_races(schedule_page_html: str) -> Sequence[SimpleRaceInfo]:

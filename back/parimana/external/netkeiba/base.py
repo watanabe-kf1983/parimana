@@ -26,6 +26,9 @@ class _CategoryNetKeiba(Category):
 
         return schedule_source
 
+    def has_race(self, race_id: str) -> bool:
+        return bool(NetKeibaRace.from_id(race_id))
+
     @property
     def timezone(self) -> ZoneInfo:
         return _keiba_timezone
@@ -57,14 +60,14 @@ class NetKeibaRace(Race):
         return NetKeibaSource
 
     @classmethod
-    def from_id(cls, race_id: str) -> Optional[Race]:
+    def from_id(cls, race_id: str) -> Optional["NetKeibaRace"]:
         if m := re.fullmatch(_RACE_ID_PATTERN, race_id):
             return cls(**m.groupdict())
         else:
             return None
 
     @classmethod
-    def from_uri(cls, uri: str) -> Optional[Race]:
+    def from_uri(cls, uri: str) -> Optional["NetKeibaRace"]:
         if not any(
             phrase in uri
             for phrase in [

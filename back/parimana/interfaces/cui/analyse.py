@@ -7,6 +7,10 @@ from parimana.context import context as cx
 
 
 def analyse(args):
+    race_id = args.get("race_id")
+    cat = cx.category_selector.select_from_race_id(race_id)
+    cx.schedule_tasks.scrape_race_info.s(cat=cat, race_id=race_id).apply().get()
+
     options = AnalyseTaskOptions(**args)
     results = cx.analyse_tasks.scrape_and_analyse(options).apply().get()
 

@@ -25,6 +25,9 @@ class _CategoryBoatRace(Category):
 
         return schedule_source
 
+    def has_race(self, race_id: str) -> bool:
+        return bool(BoatRace.from_id(race_id))
+
     @property
     def timezone(self) -> ZoneInfo:
         return _boat_timezone

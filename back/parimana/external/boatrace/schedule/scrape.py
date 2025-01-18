@@ -21,6 +21,9 @@ class _BoatScheduleSource(ScheduleSource):
         _, last_day = calendar.monthrange(year, month)
         return [datetime.date(year, month, day) for day in range(1, last_day + 1)]
 
+    def scrape_race_info(self, race_id: str) -> RaceInfo:
+        return _scrape_race_info(race_id)
+
     def site_name(self):
         return "boatrace.jp"
 
@@ -50,3 +53,11 @@ def _scrape_schedule(date: datetime.date, boat_jo: BoatRaceJo) -> Sequence[RaceI
         )
         for sr in s_races
     ]
+
+
+def _scrape_race_info(race_id: str) -> RaceInfo:
+    race = BoatRace.from_id(race_id)
+    schedule = _scrape_race_info(race.date, BoatRaceJo.from_jo_code(race.jo_code))
+    for info in schedule:
+        if info.race_id == race_id:
+            return info
