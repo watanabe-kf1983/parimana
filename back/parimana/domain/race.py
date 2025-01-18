@@ -25,6 +25,11 @@ class Race(ABC):
 
     @classmethod
     @abstractmethod
+    def from_uri(cls, uri: str) -> Optional["Race"]:
+        pass
+
+    @classmethod
+    @abstractmethod
     def odds_source_type(cls) -> Type["OddsSource"]:
         pass
 
@@ -39,6 +44,13 @@ class RaceSelector:
                 return found
 
         raise ValueError(f"race_id: {race_id} is illegal")
+
+    def select_from_uri(self, uri: str) -> "Race":
+        for race_type in self.race_types:
+            if found := race_type.from_uri(uri):
+                return found
+
+        raise ValueError(f"uri: {uri} is illegal")
 
     def odds_source_sites(self) -> Sequence[str]:
         return [

@@ -2,15 +2,15 @@ import axios from "axios";
 import { Category, RaceInfo } from "../types";
 
 const hostname = window.location.hostname;
-const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('<hostname>', hostname) + "/schedule";
+const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('<hostname>', hostname);
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await axios.get(`${baseUrl}/categories`);
+  const response = await axios.get(`${baseUrl}/schedule/categories`);
   return response.data;
 }
 
 export async function getCalendar(categoryId: string, analysedOnly: boolean): Promise<RaceInfo[]> {
-  const response = await axios.get(`${baseUrl}/races`, {
+  const response = await axios.get(`${baseUrl}/schedule/races`, {
     params: {
       category_id: categoryId,
       analysed_only: analysedOnly
@@ -19,19 +19,15 @@ export async function getCalendar(categoryId: string, analysedOnly: boolean): Pr
   return response.data;
 }
 
-export async function findRaceByUri(
-  uri: String
-): Promise<RaceInfo | undefined> {
-  const response = await axios.get(`${baseUrl}/races/`, {
-    params: {
-      uri: uri,
-    },
-  });
+export async function getRaceInfo(raceId: string): Promise<RaceInfo> {
+  const response = await axios.get(`${baseUrl}/schedule/races/${raceId}`);
   return response.data;
 }
 
-export async function getRaceInfo(raceId: string): Promise<RaceInfo> {
-  const response = await axios.get(`${baseUrl}/races/${raceId}`);
+export async function findRaceIdByUri(uri: string): Promise<string> {
+  const params = new URLSearchParams()
+  params.append("url", uri)
+  const response = await axios.get(`${baseUrl}/analyses/race_id`, { params: params });
   return response.data;
 }
 

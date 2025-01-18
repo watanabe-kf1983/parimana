@@ -59,9 +59,32 @@ class NetKeibaRace(Race):
     @classmethod
     def from_id(cls, race_id: str) -> Optional[Race]:
         if m := re.fullmatch(_RACE_ID_PATTERN, race_id):
-            return NetKeibaRace(**m.groupdict())
+            return cls(**m.groupdict())
         else:
+            return None
+
+    @classmethod
+    def from_uri(cls, uri: str) -> Optional[Race]:
+        if not any(
+            phrase in uri
+            for phrase in [
+                "race.sp.netkeiba.com",
+                "race.netkeiba.com",
+            ]
+        ):
+            return None
+
+        try:
+            if m := re.search(_URI_RACE_ID_PATTERN, uri):
+                return cls(**m.groupdict())
+            else:
+                return None
+
+        except Exception:
             return None
 
 
 _RACE_ID_PATTERN: re.Pattern = re.compile(r"hr(?P<netkeiba_race_id>[0-9]{12})")
+_URI_RACE_ID_PATTERN: re.Pattern = re.compile(
+    r"race_id=(?P<netkeiba_race_id>[0-9]{12})"
+)

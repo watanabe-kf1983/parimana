@@ -1,6 +1,7 @@
 from typing import Optional, Sequence
 from fastapi import APIRouter, Query
 
+from parimana.app.exception import ResultNotExistError
 from parimana.ui.web.model.schedule import Category, RaceInfo
 from parimana.context import context as cx
 
@@ -20,8 +21,17 @@ def get_races(
 ) -> Sequence[RaceInfo]:
     app = cx.schedule_app
     if url:
-        race = app.find_race(url)
-        return [RaceInfo.from_base(race)] if race else []
+        race = cx.race_selector.select_from_uri(url)
+        if race:
+            try:
+                race_info = cx.schedule_app.get_race(race.race_id)
+                return [RaceInfo.from_base(race_info)]
+
+            except ResultNotExistError:
+                return [RaceInfo(id=race.race_id, name=None, fixture=None)]
+        else:
+            return []
+
     else:
         try:
             return [

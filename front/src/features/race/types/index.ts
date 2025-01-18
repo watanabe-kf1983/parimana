@@ -40,3 +40,7 @@ export type RaceOnDaySelectorProps = {
   items?: RaceInfo[];
   onChange: (input: string) => void;
 };
+
+export type UriFormProps = {
+  onRaceIdFound: (raceId: string) => void;
+};

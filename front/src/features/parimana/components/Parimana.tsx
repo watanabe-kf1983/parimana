@@ -115,7 +115,7 @@ function ParimanaContent() {
 
   return (
     <>
-      <Box key={`parimana-race-selector-${raceId ? "set" : "blank"}`}
+      <Box 
         sx={{
           position: 'sticky',
           top: 56,

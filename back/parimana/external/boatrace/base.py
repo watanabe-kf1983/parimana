@@ -39,6 +39,9 @@ category_boat = _CategoryBoatRace()
 _RACE_ID_PATTERN: re.Pattern = re.compile(
     r"bt(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
 )
+_URI_DATE_PATTERN: re.Pattern = re.compile(r"hd=(?P<date>[0-9]{8})")
+_URI_JCD_PATTERN: re.Pattern = re.compile(r"jcd=(?P<jo_code>[0-9]{1,2})")
+_URI_RNO_PATTERN: re.Pattern = re.compile(r"rno=(?P<race_no>[0-9]{1,2})")
 
 
 @dataclass
@@ -76,4 +79,33 @@ class BoatRace(Race):
                 return None
 
         else:
+            return None
+
+    @classmethod
+    def from_uri(cls, uri: str) -> Optional["BoatRace"]:
+        if not any(
+            phrase in uri
+            for phrase in [
+                "www.boatrace.jp/owpc/pc/race",
+                "www.boatrace.jp/owsp/sp/race",
+            ]
+        ):
+            return None
+
+        try:
+            dm = re.search(_URI_DATE_PATTERN, uri)
+            jm = re.search(_URI_JCD_PATTERN, uri)
+            rm = re.search(_URI_RNO_PATTERN, uri)
+            if dm and jm and rm:
+                parsed = dm.groupdict() | jm.groupdict() | rm.groupdict()
+                return cls(
+                    date=datetime.datetime.strptime(parsed["date"], "%Y%m%d").date(),
+                    jo_code=parsed["jo_code"],
+                    race_no=int(parsed["race_no"]),
+                )
+
+            else:
+                return None
+
+        except Exception:
             return None

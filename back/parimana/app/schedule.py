@@ -49,9 +49,6 @@ class ScheduleApp:
         today = datetime.datetime.now(cat.timezone).date()
         return [date for date in calendar if date <= today][-4:]
 
-    def find_race(self, url: str) -> Optional[RaceInfo]:
-        return None
-
     def get_race(self, race_id: str) -> RaceInfo:
         if race_info := self.repo.load_race_info(race_id):
             return race_info

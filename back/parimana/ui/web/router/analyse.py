@@ -2,6 +2,7 @@ from typing import Any, AsyncGenerator, Optional, Sequence
 from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 
+from parimana.app.exception import ResultNotExistError
 from parimana.tasks import AnalyseTaskOptions
 from parimana.ui.web.model.analyse import EyeExpectedValue, Result, Status
 from parimana.context import context as cx
@@ -49,6 +50,15 @@ def get_candidates(
     return [
         EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2(query=query)
     ]
+
+
+@router.get("/race_id")
+def get_race_id(url: str = Query()) -> str:
+    try:
+        return cx.race_selector.select_from_uri(url).race_id
+
+    except Exception:
+        raise ResultNotExistError(f"URL {url} is not valid")
 
 
 def _eventStreamResponse(generator: AsyncGenerator[str, Any]):

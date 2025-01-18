@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -40,8 +41,8 @@ class Fixture(BaseModel):
 
 class RaceInfo(BaseModel):
     id: str
-    name: str
-    fixture: Fixture
+    name: Optional[str]
+    fixture: Optional[Fixture]
 
     @classmethod
     def from_base(cls, race: sc.RaceInfo):

@@ -13,6 +13,7 @@ import { DateSelector } from "./DateSelector";
 import { RaceOnDaySelector } from "./RaceOnDaySelector";
 import { CourseSelector } from "./CourseSelector";
 import * as api from "../api";
+import { UriForm } from "./UriForm";
 
 
 const fetchCategories = async (_params: any): Promise<Category[]> => {
@@ -32,7 +33,11 @@ const fetchSchedule = async (params: {
 
 const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
   if (raceId) {
-    return await api.getRaceInfo(raceId);
+    try{
+      return await api.getRaceInfo(raceId);
+    } catch (e) {
+      return undefined;
+    }
   } else {
     return undefined;
   }
@@ -65,6 +70,11 @@ export function RaceSelector(props: RaceSelectorProps) {
         setCategoryId(ri.fixture.course.category.id);
         setDate(ri.fixture.date);
         setCourseId(ri.fixture.course.id);
+      } else {
+        setRaceInfo(undefined);
+        setCategoryId(undefined);
+        setDate(undefined);
+        setCourseId(undefined);
       }
     };
     getRI();
@@ -125,6 +135,11 @@ export function RaceSelector(props: RaceSelectorProps) {
     setCourseId(cid);
     setRaceId("");
   };
+  const onSetRaceId = (rid: string) => {
+    setRaceId(rid);
+    props.onSetRaceId(rid);
+  };
+
 
   return (
     <>
@@ -150,11 +165,12 @@ export function RaceSelector(props: RaceSelectorProps) {
         <RaceOnDaySelector
           value={raceId}
           items={raceItems}
-          onChange={(rid) => {
-            setRaceId(rid);
-            props.onSetRaceId(rid);
-          }}
+          onChange={onSetRaceId}
         />
+        {props.showControl
+          ? <UriForm onRaceIdFound={onSetRaceId} />
+          : null
+        }
       </Box>
     </>
   );
