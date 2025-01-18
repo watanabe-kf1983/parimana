@@ -6,7 +6,7 @@ authors = ["Baya Minami <baya.f.minami@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-parimana = "parimana.ui.cui.main:main"
+parimana = "parimana.interfaces.cui.main:main"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"

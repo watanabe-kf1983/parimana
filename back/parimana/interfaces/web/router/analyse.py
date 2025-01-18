@@ -3,7 +3,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 
 from parimana.tasks import AnalyseTaskOptions
-from parimana.ui.web.model.analyse import EyeExpectedValue, Result, Status
+from parimana.interfaces.web.model.analyse import EyeExpectedValue, Result, Status
 from parimana.context import context as cx
 
 

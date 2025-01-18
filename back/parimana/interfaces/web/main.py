@@ -5,7 +5,7 @@ import uvicorn
 from mangum import Mangum
 
 from parimana.app.exception import ResultNotExistError
-from parimana.ui.web.router.main import router
+from parimana.interfaces.web.router.main import router
 
 
 app = FastAPI()

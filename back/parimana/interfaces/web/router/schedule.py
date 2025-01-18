@@ -1,7 +1,7 @@
 from typing import Optional, Sequence
 from fastapi import APIRouter, Query
 
-from parimana.ui.web.model.schedule import Category, RaceInfo
+from parimana.interfaces.web.model.schedule import Category, RaceInfo
 from parimana.context import context as cx
 
 router = APIRouter()
