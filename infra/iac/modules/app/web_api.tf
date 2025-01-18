@@ -11,7 +11,7 @@ resource "aws_lambda_function" "web_api" {
   }
   image_config {
     entry_point = ["python", "-m", "awslambdaric"]
-    command     = ["parimana.interfaces.aws_lambda.web_api"]
+    command     = ["parimana.interfaces.aws_lambda.web.handler"]
   }
   environment {
     variables = {

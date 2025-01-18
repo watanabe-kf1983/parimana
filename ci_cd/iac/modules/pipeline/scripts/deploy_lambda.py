@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     
     with codepipeline_job(event):
         image_uri = get_image_uri(get_input_from_event(event))
-        function_name = os.environ['UPDATE_FUNCTION_NAME']
+        function_name = get_function_name(event)
         update_lambda(function_name, image_uri)
 
     return {
@@ -26,6 +26,10 @@ def update_lambda(function_name, image_uri):
         FunctionName=function_name,
         ImageUri=image_uri
     )
+
+
+def get_function_name(event):
+    return event['CodePipeline.job']['data']['actionConfiguration']['configuration']['UserParameters']
 
 
 def get_input_from_event(event):
