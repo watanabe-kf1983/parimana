@@ -80,7 +80,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "deploy_image_as_lambda" {
-  function_name = "${var.cicd_project_name}-${var.env}-deploy-image-as-webapi"
+  function_name = "${var.cicd_project_name}-${var.env}-deploy-image"
   runtime       = "python3.13"
   handler       = "deploy_lambda.lambda_handler"
   memory_size   = 512
@@ -88,14 +88,8 @@ resource "aws_lambda_function" "deploy_image_as_lambda" {
 
   role = aws_iam_role.lambda_deploy_lambda.arn
 
-  filename = data.archive_file.lambda_zip.output_path
+  filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = filebase64sha256(data.archive_file.lambda_zip.output_path)
-  
-  environment {
-    variables = {
-      UPDATE_FUNCTION_NAME = "${var.target_project_name}-${var.env}-web-api"
-    }
-  }
 
   tags = var.common_tags
 }

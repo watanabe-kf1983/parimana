@@ -1,7 +1,7 @@
 import argparse
 
-import parimana.ui.cui.analyse as analyse_cui
-import parimana.ui.web as web
+import parimana.interfaces.cui.analyse as analyse_cui
+import parimana.interfaces.web as web
 from parimana.context import context as cx
 
 

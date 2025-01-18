@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from parimana.ui.web.model.app import AppInfo
-import parimana.ui.web.router.analyse as analyse
-import parimana.ui.web.router.schedule as schedule
+from parimana.interfaces.web.model.app import AppInfo
+import parimana.interfaces.web.router.analyse as analyse
+import parimana.interfaces.web.router.schedule as schedule
 from parimana.context import context as cx
 
 router = APIRouter()
