@@ -25,10 +25,14 @@ export function RaceAnalysises(props: RaceProps) {
         <Tab label="ふんわりモデル" />
       </Tabs>
       <div hidden={value !== 0}>
-        <Analysis raceId={props.raceId} modelName="no_cor" />
+        {value === 0 ?
+          <Analysis raceId={props.raceId} modelName="no_cor" />
+          : null}
       </div>
       <div hidden={value !== 1}>
-        <Analysis raceId={props.raceId} modelName="ppf_mtx" />
+        {value === 1 ?
+          <Analysis raceId={props.raceId} modelName="ppf_mtx" />
+          : null}
       </div>
     </>
   )
