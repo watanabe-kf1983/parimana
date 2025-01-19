@@ -1,10 +1,8 @@
 import { uniqWith, isEqual } from "lodash";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
 import { Box } from "@mui/material";
 
 import {
-  Category,
   RaceInfo,
   RaceSelectorProps,
 } from "../types";
@@ -12,24 +10,8 @@ import { CategorySelector } from "./CategorySelector";
 import { DateSelector } from "./DateSelector";
 import { RaceOnDaySelector } from "./RaceOnDaySelector";
 import { CourseSelector } from "./CourseSelector";
-import * as api from "../api";
 import { UriForm } from "./UriForm";
-
-
-const fetchCategories = async (_params: any): Promise<Category[]> => {
-  return await api.getCategories();
-};
-
-const fetchSchedule = async (params: {
-  categoryId?: string;
-  analysedOnly?: boolean;
-}): Promise<RaceInfo[]> => {
-  if (params.categoryId) {
-    return await api.getCalendar(params.categoryId, params.analysedOnly || false);
-  } else {
-    return [];
-  }
-};
+import * as api from "../api";
 
 const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
   if (raceId) {
@@ -44,25 +26,90 @@ const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
   return undefined;
 }
 
-
-const appendCategory = (categories: Category[] | undefined, additional: RaceInfo | undefined) => {
-  const arrayA = categories || []
-  const arrayB = additional ? [additional.fixture.course.category] : []
-  return uniqWith([...arrayA, ...arrayB], isEqual)
-}
-
-const appendSchedule = (schedule: RaceInfo[] | undefined, additional: RaceInfo | undefined) => {
-  const arrayA = schedule || []
-  const arrayB = additional ? [additional] : []
+const merge = (a: RaceInfo[] | RaceInfo | undefined, b: RaceInfo[] | RaceInfo | undefined) => {
+  const arrayA = Array.isArray(a) ? a : (a ? [a] : [])
+  const arrayB = Array.isArray(b) ? b : (b ? [b] : [])
   return uniqWith([...arrayA, ...arrayB], isEqual)
 }
 
 export function RaceSelector(props: RaceSelectorProps) {
   const [raceId, setRaceId] = useState<string>(props.raceId);
+  const [raceInfo, setRaceInfo] = useState<RaceInfo | undefined>();
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [date, setDate] = useState<string | undefined>();
   const [courseId, setCourseId] = useState<string | undefined>();
-  const [raceInfo, setRaceInfo] = useState<RaceInfo | undefined>();
+  const [recentRaces, setRecentRaces] = useState<RaceInfo[]>([]);
+
+  useEffect(() => {
+    const getRecentRaces = async () => {
+      const races = await api.getRaces(!props.showControl);
+      setRecentRaces(races)
+    }
+    getRecentRaces();
+
+    const interval = setInterval(() => {
+      getRecentRaces();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const getRaceInfo = async () => {
+      for (let i: number = 0; i < 20; i++) {
+        try {
+          const ri = await fetchRaceInfo(props.raceId);
+          onFetchRaceInfo(ri);
+          return;
+
+        } catch (e) {
+
+          onFetchRaceInfo(undefined);
+          if (!(props.showControl && e instanceof api.NotFoundError)) {
+            return;
+          }
+          if (i === 0) {
+            await api.postRaceInfo(raceId);
+          }
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          continue;
+        }
+      }
+    }
+    getRaceInfo();
+  }, [props.raceId, props.showControl]);
+
+  const candidates = merge(recentRaces, raceInfo);
+
+  const categoryItems = uniqWith(
+    candidates.map((r) => r.fixture.course.category),
+    isEqual
+  ).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+  const dateItems =
+    uniqWith(
+      candidates
+        .filter((r) => categoryId === r.fixture.course.category.id)
+        .map((r) => r.fixture.date),
+      isEqual
+    ).sort();
+
+  const courseItems =
+    uniqWith(
+      candidates
+        .filter((r) => categoryId === r.fixture.course.category.id)
+        .filter((r) => date === r.fixture.date)
+        .map((r) => r.fixture.course),
+      isEqual
+    ).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+  const raceItems =
+    candidates
+      .filter((r) => categoryId === r.fixture.course.category.id)
+      .filter((r) => date === r.fixture.date)
+      .filter((r) => courseId === r.fixture.course.id)
+      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
 
   const onFetchRaceInfo = (ri: RaceInfo | undefined) => {
     if (ri) {
@@ -76,72 +123,7 @@ export function RaceSelector(props: RaceSelectorProps) {
       setDate(undefined);
       setCourseId(undefined);
     }
-  }
-
-  useEffect(() => {
-    const getRI = async () => {
-      for (let i: number = 0; i < 20; i++) {
-        try {
-          const ri = await fetchRaceInfo(props.raceId);
-          onFetchRaceInfo(ri);
-          return;
-
-        } catch (e) {
-          onFetchRaceInfo(undefined);
-          if (props.showControl && e instanceof api.NotFoundError) {
-            if (i === 0) {
-              await api.postRaceInfo(raceId);
-            }
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          } else {
-            return;
-          }
-        }
-      }
-    }
-    getRI();
-  }, [props.raceId, props.showControl]);
-
-  const fetchedCategories = useSWR<Category[]>(
-    "x",
-    fetchCategories
-  ).data;
-
-  const fetchedSchedule = useSWR<RaceInfo[] | undefined>(
-    { categoryId: categoryId, analysedOnly: !props.showControl },
-    fetchSchedule
-  ).data;
-
-  const categories = appendCategory(fetchedCategories, raceInfo)
-  const schedule = appendSchedule(fetchedSchedule, raceInfo)
-
-  const categoryItems = categories.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-
-  const dateItems =
-    uniqWith(
-      schedule
-        .filter((r) => categoryId === r.fixture.course.category.id)
-        .map((r) => r.fixture.date),
-      isEqual
-    ).sort();
-
-  const courseItems =
-    uniqWith(
-      schedule
-        .filter((r) => categoryId === r.fixture.course.category.id)
-        .filter((r) => date === r.fixture.date)
-        .map((r) => r.fixture.course),
-      isEqual
-    ).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-
-  const raceItems =
-    schedule
-      .filter((r) => categoryId === r.fixture.course.category.id)
-      .filter((r) => date === r.fixture.date)
-      .filter((r) => courseId === r.fixture.course.id)
-      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-
-
+  };
   const onChangeCategoryId = (cid: string) => {
     setCategoryId(cid);
     setDate(undefined);

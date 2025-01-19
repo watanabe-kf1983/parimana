@@ -1,33 +1,20 @@
-from typing import Optional, Sequence
+from typing import Sequence
 from fastapi import APIRouter, Query
 
-from parimana.interfaces.web.model.schedule import Category, RaceInfo
+from parimana.interfaces.web.model.schedule import RaceInfo
 from parimana.context import context as cx
 
 router = APIRouter()
 
 
-@router.get("/categories")
-def get_categories():
-    return [Category.from_base(cat) for cat in cx.category_selector.all()]
-
-
 @router.get("/races")
 def get_races(
-    category_id: Optional[str] = Query(None),
     analysed_only: bool = Query(True),
 ) -> Sequence[RaceInfo]:
-    app = cx.schedule_app
-    try:
-        return [
-            RaceInfo.from_base(race)
-            for race in app.get_schedule(
-                cat=app.select_category(category_id), analysed_only=analysed_only
-            )
-        ]
-
-    except Exception:
-        return []
+    return [
+        RaceInfo.from_base(race)
+        for race in cx.schedule_app.get_recent_schedule(analysed_only=analysed_only)
+    ]
 
 
 @router.get("/races/{race_id}")
@@ -38,7 +25,7 @@ def get_race(race_id: str) -> RaceInfo:
 if not cx.settings.auto_analyse_mode:
 
     @router.post("/races/{race_id}")
-    def start_analyse(race_id: str):
+    def start_scrape_race_info(race_id: str):
         cat = cx.category_selector.select_from_race_id(race_id)
         task_id = (
             cx.schedule_tasks.scrape_race_info.s(cat=cat, race_id=race_id).delay().id

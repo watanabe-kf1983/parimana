@@ -1,24 +1,25 @@
 import axios from "axios";
 import Axios from "axios";
-import { Category, RaceInfo } from "../types";
+import { RaceInfo } from "../types";
 
 const hostname = window.location.hostname;
 const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('<hostname>', hostname);
 
-export async function getCategories(): Promise<Category[]> {
-  const response = await axios.get(`${baseUrl}/schedule/categories`);
-  return response.data;
+export class NotFoundError extends Error {
+  public constructor(message?: string) {
+    super(message);
+  }
 }
 
-export async function getCalendar(categoryId: string, analysedOnly: boolean): Promise<RaceInfo[]> {
+export async function getRaces(analysedOnly: boolean): Promise<RaceInfo[]> {
   const response = await axios.get(`${baseUrl}/schedule/races`, {
     params: {
-      category_id: categoryId,
       analysed_only: analysedOnly
     },
   });
   return response.data;
 }
+
 
 export async function getRaceInfo(raceId: string): Promise<RaceInfo> {
   try {
@@ -33,11 +34,6 @@ export async function getRaceInfo(raceId: string): Promise<RaceInfo> {
   }
 }
 
-export class NotFoundError extends Error {
-  public constructor(message?: string) {
-    super(message);
-  }
-}
 
 export async function postRaceInfo(raceId: string): Promise<RaceInfo> {
   const response = await axios.post(`${baseUrl}/schedule/races/${raceId}`);
@@ -51,4 +47,3 @@ export async function findRaceIdByUri(uri: string): Promise<string> {
   return response.data;
 }
 
-// export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress };

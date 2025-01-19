@@ -14,9 +14,6 @@ class ScheduleApp:
         self.repo: ScheduleRepository = ScheduleRepositoryImpl(store)
         self.an_repo: AnalysisRepository = AnalysisRepositoryImpl(store)
 
-    def select_category(self, category_id: str):
-        return self.category_selector.select(category_id)
-
     def get_today_schedule(
         self,
     ) -> Sequence[RaceInfo]:
@@ -29,7 +26,14 @@ class ScheduleApp:
             )
         ]
 
-    def get_schedule(
+    def get_recent_schedule(self, analysed_only: bool = True) -> Sequence[RaceInfo]:
+        return [
+            race_info
+            for cat in self.category_selector.all()
+            for race_info in self.get_recent_schedule_by_cat(cat, analysed_only)
+        ]
+
+    def get_recent_schedule_by_cat(
         self, cat: Category, analysed_only: bool = True
     ) -> Sequence[RaceInfo]:
         return [
