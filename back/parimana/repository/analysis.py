@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Optional
 
 from parimana.domain.race import Race, OddsTimeStamp
 from parimana.domain.analyse import AnalysisCharts
-from parimana.io.kvs import Storage
+from parimana.io.kvs import CachedStorage, Storage
 
 import plotly.io as pio
 
@@ -38,26 +37,34 @@ class AnalysisRepository(ABC):
         pass
 
 
-@dataclass
 class AnalysisRepositoryImpl(AnalysisRepository):
-    store: Storage
+
+    def __init__(self, store: Storage):
+        self.store: Storage = store
+        self.no_cache_store: Storage = (
+            store.original if isinstance(store, CachedStorage) else store
+        )
 
     def save_charts(self, race: Race, timestamp: OddsTimeStamp, charts: AnalysisCharts):
         prefix = f"analysis/{race.race_id}/{timestamp}/{charts.result.model.name}"
         self.store.write_object(f"{prefix}/charts.pickle", charts)
-        self.store.write_binary(f"{prefix}/result.xlsx", charts.excel)
-        self.store.write_text(f"{prefix}/oc.html", _chart_to_html(charts.odds_chance))
-        self.store.write_text(
-            f"{prefix}/box-plot.html", _chart_to_html(charts.model_box)
-        )
-        self.store.write_text(f"{prefix}/mds.html", _chart_to_html(charts.model_mds))
-        # self.store.write_text(
-        #     f"{prefix}/mds-metric.html", chart_to_html(charts.model_mds_metric)
-        # )
-
         ts = self.load_latest_charts_time(race)
         if (ts is None) or (ts < timestamp):
             self.save_latest_charts_time(race, timestamp)
+
+        self.no_cache_store.write_binary(f"{prefix}/result.xlsx", charts.excel)
+        self.no_cache_store.write_text(
+            f"{prefix}/oc.html", _chart_to_html(charts.odds_chance)
+        )
+        self.no_cache_store.write_text(
+            f"{prefix}/box-plot.html", _chart_to_html(charts.model_box)
+        )
+        self.no_cache_store.write_text(
+            f"{prefix}/mds.html", _chart_to_html(charts.model_mds)
+        )
+        # self.bypass_cache.write_text(
+        #     f"{prefix}/mds-metric.html", chart_to_html(charts.model_mds_metric)
+        # )
 
     def load_charts(self, race: Race, ts: OddsTimeStamp, model: str) -> AnalysisCharts:
         prefix = f"analysis/{race.race_id}/{ts}/{model}"
