@@ -18,38 +18,48 @@ export function Race(props: RaceControlProps) {
 
   useEffect(() => {
     const getStatus = async () => {
-      const s = await api.getAnalysisStatus(props.raceId);
-      setStatus(s);
+      if (props.raceId) {
+        const s = await api.getAnalysisStatus(props.raceId);
+        setStatus(s);
+      }
     };
     getStatus();
   }, [props.raceId, time]);
 
-  return (
-    <>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'row',
-      }}>
-        {props.showControl ? (
-          <>
-            <AnalyseControl
-              raceId={props.raceId}
-              status={status}
-              onReload={reload}
-            />
-          </>
+  if (!props.raceId) {
+
+    return null;
+
+  } else {
+
+    return (
+      <>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row',
+        }}>
+          {props.showControl ? (
+            <>
+              <AnalyseControl
+                raceId={props.raceId}
+                status={status}
+                onReload={reload}
+              />
+            </>
+          ) : null}
+        </Box>
+        {props.showControl && status.is_processing ? (
+          <AnalysisProgress
+            raceId={props.raceId}
+            onComplete={reload}
+            onAbort={() => { }}
+          />
         ) : null}
-      </Box>
-      {props.showControl && status.is_processing ? (
-        <AnalysisProgress
-          raceId={props.raceId}
-          onComplete={reload}
-          onAbort={() => { }}
-        />
-      ) : null}
-      {status.has_analysis && (!status.is_processing || !props.showControl) ? (
-        <RaceAnalysises raceId={props.raceId} />
-      ) : null}
-    </>
-  );
+        {status.has_analysis && (!status.is_processing || !props.showControl) ? (
+          <RaceAnalysises raceId={props.raceId} />
+        ) : null}
+      </>
+    );
+  }
+
 }

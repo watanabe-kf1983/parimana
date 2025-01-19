@@ -33,7 +33,7 @@ const merge = (a: RaceInfo[] | RaceInfo | undefined, b: RaceInfo[] | RaceInfo | 
 }
 
 export function RaceSelector(props: RaceSelectorProps) {
-  const [raceId, setRaceId] = useState<string>(props.raceId);
+  const [raceId, setRaceId] = useState<string | undefined>(props.initialRaceId);
   const [raceInfo, setRaceInfo] = useState<RaceInfo | undefined>();
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [date, setDate] = useState<string | undefined>();
@@ -52,13 +52,16 @@ export function RaceSelector(props: RaceSelectorProps) {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [props.showControl]);
 
   useEffect(() => {
     const getRaceInfo = async () => {
+      if (!props.initialRaceId) {
+        return
+      }
       for (let i: number = 0; i < 20; i++) {
         try {
-          const ri = await fetchRaceInfo(props.raceId);
+          const ri = await fetchRaceInfo(props.initialRaceId);
           onFetchRaceInfo(ri);
           return;
 
@@ -69,7 +72,7 @@ export function RaceSelector(props: RaceSelectorProps) {
             return;
           }
           if (i === 0) {
-            await api.postRaceInfo(raceId);
+            await api.postRaceInfo(props.initialRaceId);
           }
           await new Promise(resolve => setTimeout(resolve, 2000));
           continue;
@@ -77,7 +80,7 @@ export function RaceSelector(props: RaceSelectorProps) {
       }
     }
     getRaceInfo();
-  }, [props.raceId, props.showControl]);
+  }, [props.initialRaceId, props.showControl]);
 
   const candidates = merge(recentRaces, raceInfo);
 
@@ -128,20 +131,23 @@ export function RaceSelector(props: RaceSelectorProps) {
     setCategoryId(cid);
     setDate(undefined);
     setCourseId(undefined);
-    setRaceId("");
+    setRaceId(undefined);
+    props.onClearRaceId()
   };
   const onChangeDate = (d: string) => {
-    setCourseId(undefined);
-    setRaceId("");
     setDate(d);
+    setCourseId(undefined);
+    setRaceId(undefined);
+    props.onClearRaceId()
   };
   const onChangeCourseId = (cid: string) => {
     setCourseId(cid);
-    setRaceId("");
+    setRaceId(undefined);
+    props.onClearRaceId()
   };
   const onSetRaceId = (rid: string) => {
     setRaceId(rid);
-    props.onSetRaceId(rid);
+    props.onSetInitialRaceId(rid);
   };
 
 

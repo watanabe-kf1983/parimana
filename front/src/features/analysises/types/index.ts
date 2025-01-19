@@ -2,8 +2,8 @@ import { Dispatch, SetStateAction } from 'react'
 
 export type AnalysisStatus = { is_processing: boolean, has_analysis: boolean, is_odds_confirmed: boolean }
 
-export type RaceProps = { raceId: string }
-export type RaceControlProps = { raceId: string, showControl: boolean }
+export type RaceProps = { raceId: string | undefined }
+export type RaceControlProps = { raceId: string | undefined, showControl: boolean }
 export type AnalyseControlProps = { raceId: string, status: AnalysisStatus, onReload: () => void }
 export type AnalysisProgressProps = { raceId: string, onComplete: () => void, onAbort: () => void }
 export type AnalysisProps = { raceId: string, modelName: string }
