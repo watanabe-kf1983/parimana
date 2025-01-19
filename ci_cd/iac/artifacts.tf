@@ -1,7 +1,7 @@
 # S3 for artifacts
 resource "aws_s3_bucket" "artifacts" {
   bucket = "${var.target_project_name}-artifacts"
-
+  force_destroy = true
   tags = local.common_tags
 }
 
@@ -17,6 +17,7 @@ resource "aws_s3_bucket_versioning" "artifacts_bucket_versioning" {
 # S3 for infra-tfstate
 resource "aws_s3_bucket" "infra_tfstate" {
   bucket = "${var.target_project_name}-infra-resources-tfstate"
+  force_destroy = true
 
   tags = local.common_tags
 }
