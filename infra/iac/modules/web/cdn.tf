@@ -13,6 +13,7 @@ resource "aws_cloudfront_distribution" "web_distribution" {
   origin {
     domain_name = "${aws_api_gateway_rest_api.web_api.id}.execute-api.${var.aws_region}.amazonaws.com"
     origin_id   = "APIGatewayOrigin-${var.env}"
+    origin_path = "/${var.env}"
 
     custom_origin_config {
       http_port              = 80
@@ -38,7 +39,7 @@ resource "aws_cloudfront_distribution" "web_distribution" {
   }
 
   ordered_cache_behavior {
-    path_pattern           = "/${var.env}/api/*"
+    path_pattern           = "/api/*"
     target_origin_id       = "APIGatewayOrigin-${var.env}"
     viewer_protocol_policy = "https-only"
 
