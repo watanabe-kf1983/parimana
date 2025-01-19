@@ -57,7 +57,7 @@ def _scrape_schedule(date: datetime.date, boat_jo: BoatRaceJo) -> Sequence[RaceI
 
 def _scrape_race_info(race_id: str) -> RaceInfo:
     race = BoatRace.from_id(race_id)
-    schedule = _scrape_race_info(race.date, BoatRaceJo.from_jo_code(race.jo_code))
+    schedule = _scrape_schedule(race.date, BoatRaceJo.from_jo_code(race.jo_code))
     for info in schedule:
         if info.race_id == race_id:
             return info

@@ -33,15 +33,17 @@ const fetchSchedule = async (params: {
 
 const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
   if (raceId) {
-    try{
+    try {
       return await api.getRaceInfo(raceId);
     } catch (e) {
-      return undefined;
+      if (e instanceof api.NotFoundError) {
+        throw e;
+      }
     }
-  } else {
-    return undefined;
   }
-};
+  return undefined;
+}
+
 
 const appendCategory = (categories: Category[] | undefined, additional: RaceInfo | undefined) => {
   const arrayA = categories || []
@@ -62,23 +64,43 @@ export function RaceSelector(props: RaceSelectorProps) {
   const [courseId, setCourseId] = useState<string | undefined>();
   const [raceInfo, setRaceInfo] = useState<RaceInfo | undefined>();
 
+  const onFetchRaceInfo = (ri: RaceInfo | undefined) => {
+    if (ri) {
+      setRaceInfo(ri);
+      setCategoryId(ri.fixture.course.category.id);
+      setDate(ri.fixture.date);
+      setCourseId(ri.fixture.course.id);
+    } else {
+      setRaceInfo(undefined);
+      setCategoryId(undefined);
+      setDate(undefined);
+      setCourseId(undefined);
+    }
+  }
+
   useEffect(() => {
     const getRI = async () => {
-      const ri = await fetchRaceInfo(props.raceId);
-      if (ri) {
-        setRaceInfo(ri);
-        setCategoryId(ri.fixture.course.category.id);
-        setDate(ri.fixture.date);
-        setCourseId(ri.fixture.course.id);
-      } else {
-        setRaceInfo(undefined);
-        setCategoryId(undefined);
-        setDate(undefined);
-        setCourseId(undefined);
+      for (let i: number = 0; i < 20; i++) {
+        try {
+          const ri = await fetchRaceInfo(props.raceId);
+          onFetchRaceInfo(ri);
+          return;
+
+        } catch (e) {
+          onFetchRaceInfo(undefined);
+          if (props.showControl && e instanceof api.NotFoundError) {
+            if (i === 0) {
+              await api.postRaceInfo(raceId);
+            }
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } else {
+            return;
+          }
+        }
       }
-    };
+    }
     getRI();
-  }, [props.raceId]);
+  }, [props.raceId, props.showControl]);
 
   const fetchedCategories = useSWR<Category[]>(
     "x",

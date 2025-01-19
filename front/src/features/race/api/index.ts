@@ -1,4 +1,5 @@
 import axios from "axios";
+import Axios from "axios";
 import { Category, RaceInfo } from "../types";
 
 const hostname = window.location.hostname;
@@ -20,7 +21,26 @@ export async function getCalendar(categoryId: string, analysedOnly: boolean): Pr
 }
 
 export async function getRaceInfo(raceId: string): Promise<RaceInfo> {
-  const response = await axios.get(`${baseUrl}/schedule/races/${raceId}`);
+  try {
+    const response = await axios.get(`${baseUrl}/schedule/races/${raceId}`);
+    return response.data;
+  } catch (e) {
+    if (Axios.isAxiosError(e) && e.response && e.response.status === 404) {
+      throw new NotFoundError(`raceinfo of ${raceId} not found`);
+    } else {
+      throw e;
+    }
+  }
+}
+
+export class NotFoundError extends Error {
+  public constructor(message?: string) {
+    super(message);
+  }
+}
+
+export async function postRaceInfo(raceId: string): Promise<RaceInfo> {
+  const response = await axios.post(`${baseUrl}/schedule/races/${raceId}`);
   return response.data;
 }
 
