@@ -1,4 +1,4 @@
-from typing import Mapping, Sequence
+from typing import Mapping, Optional, Sequence
 from datetime import datetime
 import re
 
@@ -40,7 +40,7 @@ def extract_odds(html: str, btype: BettingType) -> Mapping[Eye, Odds]:
     table = select_table(btype, soup)
     extracted = extract_odds_from_table(table)
     eyes = eyes_table_order(btype)
-    return {eye: odds for eye, odds in zip(eyes, extracted)}
+    return {eye: odds for eye, odds in zip(eyes, extracted) if odds}
 
 
 def select_table(btype: BettingType, soup: BeautifulSoup) -> Tag:
@@ -64,7 +64,7 @@ def select_table(btype: BettingType, soup: BeautifulSoup) -> Tag:
         )
 
 
-def extract_odds_from_table(table: Tag) -> Sequence[Odds]:
+def extract_odds_from_table(table: Tag) -> Sequence[Optional[Odds]]:
     return [Odds.from_text(e.get_text()) for e in table.select("td.oddsPoint")]
 
 
