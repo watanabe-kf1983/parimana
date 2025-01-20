@@ -9,7 +9,7 @@ from parimana.domain.race import (
     RaceOddsPool,
     OddsSource,
 )
-from parimana.external.netkeiba.base import NetKeibaRace
+from parimana.external.netkeiba.base import JraRace
 from parimana.external.netkeiba.odds.data import ratio_data_derby
 from parimana.external.netkeiba.odds.extract import extract_odds, extract_timestamp
 from parimana.external.netkeiba.odds.browse import (
@@ -20,8 +20,8 @@ from parimana.external.netkeiba.odds.browse import (
 
 
 @dataclass
-class NetKeibaSource(OddsSource):
-    race: NetKeibaRace
+class NkJraSource(OddsSource):
+    race: JraRace
 
     def scrape_odds_pool(self) -> RaceOddsPool:
         return scrape_odds_pool(self.race)
@@ -34,10 +34,10 @@ class NetKeibaSource(OddsSource):
 
     @classmethod
     def site_name(cls):
-        return "netkeiba"
+        return "race.netkeiba.com"
 
 
-def scrape_odds_pool(race: NetKeibaRace) -> RaceOddsPool:
+def scrape_odds_pool(race: JraRace) -> RaceOddsPool:
     odds, timestamp = collect_odds(race)
     return RaceOddsPool(
         race=race,
@@ -47,11 +47,11 @@ def scrape_odds_pool(race: NetKeibaRace) -> RaceOddsPool:
     )
 
 
-def scrape_timestamp(race: NetKeibaRace) -> OddsTimeStamp:
+def scrape_timestamp(race: JraRace) -> OddsTimeStamp:
     return extract_timestamp(browse_for_odds_timestamp(race))
 
 
-def collect_odds(race: NetKeibaRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
+def collect_odds(race: JraRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
     for attempt in ["1st", "2nd"]:
         try:
             return attempt_collect_odds(race)
@@ -62,7 +62,7 @@ def collect_odds(race: NetKeibaRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]
 
 
 def attempt_collect_odds(
-    race: NetKeibaRace,
+    race: JraRace,
 ) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
     odds: dict[Eye, Odds] = {}
     timestamp = scrape_timestamp(race)

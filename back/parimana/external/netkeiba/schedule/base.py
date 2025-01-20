@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from parimana.domain.schedule import Course
-from parimana.external.netkeiba.base import category_keiba
+from parimana.external.netkeiba.base import category_jra
 
 
 @dataclass
@@ -10,7 +10,7 @@ class JraCourse:
     name: str
 
     def to_course(self):
-        return Course(id=f"hr{self.code}", name=self.name, category=category_keiba)
+        return Course(id=f"hj{self.code}", name=self.name, category=category_jra)
 
     @classmethod
     def from_code(cls, code: str):

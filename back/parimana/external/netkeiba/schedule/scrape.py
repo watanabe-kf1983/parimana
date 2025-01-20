@@ -4,7 +4,7 @@ from typing import Sequence
 
 
 from parimana.domain.schedule import ScheduleSource, RaceInfo, Fixture
-from parimana.external.netkeiba.base import NetKeibaRace, category_keiba
+from parimana.external.netkeiba.base import JraRace, category_jra
 from parimana.external.netkeiba.schedule.base import JraCourse
 from parimana.external.netkeiba.schedule.browse import (
     browse_monthly_calendar,
@@ -20,7 +20,7 @@ from parimana.external.netkeiba.schedule.extract import (
 
 
 @dataclass
-class _KeibaScheduleSource(ScheduleSource):
+class _JraScheduleSource(ScheduleSource):
 
     def scrape_day_schedule(self, date: datetime.date) -> Sequence[RaceInfo]:
         return _scrape_day_schedule(date)
@@ -32,10 +32,10 @@ class _KeibaScheduleSource(ScheduleSource):
         return _scrape_race_info(race_id)
 
     def site_name(self):
-        return "netkeiba"
+        return "race.netkeiba.com"
 
 
-schedule_source = _KeibaScheduleSource()
+jra_schedule_source = _JraScheduleSource()
 
 
 def _scrape_day_schedule(date: datetime.date) -> Sequence[RaceInfo]:
@@ -50,7 +50,7 @@ def _scrape_calendar(year: int, month: int) -> Sequence[datetime.date]:
 
 def _item_to_race(item: RaceListItem, date: datetime.date) -> RaceInfo:
     return RaceInfo(
-        race_id=NetKeibaRace(item.netkeiba_race_id).race_id,
+        race_id=JraRace(item.netkeiba_race_id).race_id,
         name=f"{item.race_num_text}",
         fixture=Fixture(
             course=JraCourse.from_code(code=item.keibajo_code).to_course(), date=date
@@ -61,13 +61,13 @@ def _item_to_race(item: RaceListItem, date: datetime.date) -> RaceInfo:
                 datetime.datetime.strptime(item.start_time_text, "%H:%M")
                 + datetime.timedelta(minutes=-1)
             ).time(),
-            category_keiba.timezone,
+            category_jra.timezone,
         ),
     )
 
 
 def _scrape_race_info(race_id: str) -> RaceInfo:
-    race = NetKeibaRace.from_id(race_id)
+    race = JraRace.from_id(race_id)
     race_date = extract_race_date(browse_race(race))
     schedule = _scrape_day_schedule(race_date)
     for info in schedule:

@@ -30,8 +30,8 @@ def add_sub_parser(subparsers):
         "race_id",
         type=str,
         help=(
-            "'bt{YYYYMMDD}{JCD}{RACE_NO}' or 'hr{NETKEIBA_RACE_ID}' \n"
-            "  (ex: bt202305310112, hr202305021211)"
+            "'bt{YYYYMMDD}{JCD}{RACE_NO}' or 'hj{NETKEIBA_RACE_ID}' \n"
+            "  (ex: bt202305310112, hj202305021211)"
         ),
     )
     parser.add_argument(

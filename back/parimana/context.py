@@ -13,7 +13,7 @@ from parimana.devices.redis.redis_channel import RedisChannelFactory
 from parimana.devices.redis.redis_kvs import RedisStorage
 from parimana.devices.s3.s3_kvs import S3Storage
 from parimana.external.boatrace import BoatRace, category_boat
-from parimana.external.netkeiba import NetKeibaRace, category_keiba
+from parimana.external.netkeiba import JraRace, category_jra
 from parimana.settings import Settings
 
 
@@ -21,11 +21,11 @@ class _ParimanaContext:
 
     @cached_property
     def race_types(self) -> Sequence[Type[Race]]:
-        return [BoatRace, NetKeibaRace]
+        return [BoatRace, JraRace]
 
     @cached_property
     def categories(self) -> Sequence[Category]:
-        return [category_boat, category_keiba]
+        return [category_boat, category_jra]
 
     @cached_property
     def race_selector(self) -> RaceSelector:

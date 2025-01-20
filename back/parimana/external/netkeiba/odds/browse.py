@@ -9,16 +9,16 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.io.message import mprint
 from parimana.domain.base import BettingType
-from parimana.external.netkeiba.base import NetKeibaRace
+from parimana.external.netkeiba.base import JraRace
 from parimana.external.netkeiba.odds.btype import btype_to_code, supported_types
 from parimana.external.netkeiba.browser import get_driver, modestly
 
 
-def get_source_uri(race: NetKeibaRace) -> str:
+def get_source_uri(race: JraRace) -> str:
     return _odds_page_uri_base(race)
 
 
-def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
+def browse_for_odds_timestamp(race: JraRace) -> str:
     driver = get_driver()
     driver.delete_all_cookies()
     driver.refresh()
@@ -26,7 +26,7 @@ def browse_for_odds_timestamp(race: NetKeibaRace) -> str:
     return driver.page_source
 
 
-def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
+def browse_odds_pages(race: JraRace) -> Iterator[Tuple[str, BettingType]]:
     driver = get_driver()
     for btype in supported_types:
         pages = _browse_odds_by_btype(driver, race, btype)
@@ -36,7 +36,7 @@ def browse_odds_pages(race: NetKeibaRace) -> Iterator[Tuple[str, BettingType]]:
 
 
 def _browse_odds_by_btype(
-    driver: WebDriver, race: NetKeibaRace, btype: BettingType
+    driver: WebDriver, race: JraRace, btype: BettingType
 ) -> Iterator[str]:
     _get_page(driver, race, btype)
 
@@ -54,17 +54,17 @@ def _browse_odds_by_btype(
                 yield driver.page_source
 
 
-def _get_page(driver: WebDriver, race: NetKeibaRace, btype: BettingType):
+def _get_page(driver: WebDriver, race: JraRace, btype: BettingType):
     uri = _odds_page_uri(race, btype)
     if uri != driver.current_url:
         _get(driver, uri)
 
 
-def _odds_page_uri(race: NetKeibaRace, btype: BettingType) -> str:
+def _odds_page_uri(race: JraRace, btype: BettingType) -> str:
     return f"{_odds_page_uri_base(race)}&type=b{btype_to_code(btype)}"
 
 
-def _odds_page_uri_base(race: NetKeibaRace) -> str:
+def _odds_page_uri_base(race: JraRace) -> str:
     return f"https://race.netkeiba.com/odds/index.html?race_id={race.netkeiba_race_id}"
 
 
