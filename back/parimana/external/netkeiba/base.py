@@ -7,62 +7,47 @@ from zoneinfo import ZoneInfo
 from parimana.domain.race import Race, OddsSource
 from parimana.domain.schedule import Category, ScheduleSource
 
-
 _keiba_timezone = ZoneInfo("Asia/Tokyo")
 
 
 class _CategoryJra(Category):
-    @property
-    def id(self) -> str:
-        return "hj"
 
-    @property
-    def name(self) -> str:
-        return "中央競馬"
+    def __init__(self):
+        super().__init__(
+            id="hj",
+            name="中央競馬",
+            timezone=_keiba_timezone,
+            poll_start_time=datetime.time(hour=8, minute=30),
+        )
 
     @property
     def schedule_source(self) -> ScheduleSource:
-        from parimana.external.netkeiba.schedule.scrape import jra_schedule_source
+        from parimana.external.netkeiba.schedule.scrape import JraScheduleSource
 
-        return jra_schedule_source
+        return JraScheduleSource()
 
     def has_race(self, race_id: str) -> bool:
         return bool(JraRace.from_id(race_id))
 
-    @property
-    def timezone(self) -> ZoneInfo:
-        return _keiba_timezone
-
-    @property
-    def poll_start_time(self) -> datetime.time:
-        return datetime.time(hour=8, minute=30)
-
 
 class _CategoryNar(Category):
-    @property
-    def id(self) -> str:
-        return "hn"
 
-    @property
-    def name(self) -> str:
-        return "地方競馬"
+    def __init__(self):
+        super().__init__(
+            id="hn",
+            name="地方競馬",
+            timezone=_keiba_timezone,
+            poll_start_time=datetime.time(hour=8, minute=30),
+        )
 
     @property
     def schedule_source(self) -> ScheduleSource:
-        raise NotImplementedError()
-        # from parimana.external.netkeiba.schedule.scrape import jra_schedule_source
-        # return jra_schedule_source
+        from parimana.external.netkeiba.schedule.scrape import NarScheduleSource
+
+        return NarScheduleSource()
 
     def has_race(self, race_id: str) -> bool:
         return bool(NarRace.from_id(race_id))
-
-    @property
-    def timezone(self) -> ZoneInfo:
-        return _keiba_timezone
-
-    @property
-    def poll_start_time(self) -> datetime.time:
-        return datetime.time(hour=8, minute=30)
 
 
 category_jra = _CategoryJra()
@@ -118,18 +103,25 @@ class NarRace(NetKeibaRace):
 
     @property
     def race_id(self) -> str:
-        return f"hr{self.netkeiba_race_id}"
+        return f"hn{self.netkeiba_race_id}"
 
     @property
     def odds_source(self) -> OddsSource:
         return self.odds_source_type()(self)
 
+    def kaisai_id(self) -> str:
+        return self.netkeiba_race_id[:-2]
+
+    def date(self) -> datetime.date:
+        yyyymmdd = self.netkeiba_race_id[0:4] + self.netkeiba_race_id[6:10]
+        return datetime.datetime.strptime(yyyymmdd, "%Y%m%d").date()
+
     @classmethod
     def odds_source_type(cls) -> Type[OddsSource]:
         raise NotImplementedError()
-        # from parimana.external.netkeiba.odds.scrape import NkJraSource
+        # from parimana.external.netkeiba.odds.scrape import NkNarRaceSource
 
-        # return NkJraSource
+        # return NkNarRaceSource
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["NarRace"]:

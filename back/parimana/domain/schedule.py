@@ -8,15 +8,10 @@ from zoneinfo import ZoneInfo
 
 @dataclass
 class Category(ABC):
-    @property
-    @abstractmethod
-    def id(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        pass
+    id: str
+    name: str
+    timezone: ZoneInfo
+    poll_start_time: datetime.time
 
     @property
     @abstractmethod
@@ -25,16 +20,6 @@ class Category(ABC):
 
     @abstractmethod
     def has_race(self, race_id: str) -> bool:
-        pass
-
-    @property
-    @abstractmethod
-    def timezone(self) -> ZoneInfo:
-        pass
-
-    @property
-    @abstractmethod
-    def poll_start_time(self) -> datetime.time:
         pass
 
 

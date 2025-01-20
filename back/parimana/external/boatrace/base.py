@@ -11,13 +11,14 @@ _boat_timezone = ZoneInfo("Asia/Tokyo")
 
 
 class _CategoryBoatRace(Category):
-    @property
-    def id(self) -> str:
-        return "bt"
 
-    @property
-    def name(self) -> str:
-        return "ボート"
+    def __init__(self):
+        super().__init__(
+            id="bt",
+            name="ボートレース",
+            timezone=_boat_timezone,
+            poll_start_time=datetime.time(hour=8, minute=30),
+        )
 
     @property
     def schedule_source(self) -> ScheduleSource:
@@ -27,14 +28,6 @@ class _CategoryBoatRace(Category):
 
     def has_race(self, race_id: str) -> bool:
         return bool(BoatRace.from_id(race_id))
-
-    @property
-    def timezone(self) -> ZoneInfo:
-        return _boat_timezone
-
-    @property
-    def poll_start_time(self) -> datetime.time:
-        return datetime.time(hour=8, minute=30)
 
 
 category_boat = _CategoryBoatRace()
