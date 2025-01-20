@@ -65,7 +65,14 @@ def select_table(btype: BettingType, soup: BeautifulSoup) -> Tag:
 
 
 def extract_odds_from_table(table: Tag) -> Sequence[Optional[Odds]]:
-    return [Odds.from_text(e.get_text()) for e in table.select("td.oddsPoint")]
+    return [_try_parse_odds(e.get_text()) for e in table.select("td.oddsPoint")]
+
+
+def _try_parse_odds(odds_text: str) -> Optional[Odds]:
+    try:
+        return Odds.from_text(odds_text())
+    except Exception:  # "欠場"
+        return None
 
 
 def eyes_table_order(btype: BettingType) -> Sequence[Eye]:

@@ -14,14 +14,11 @@ class Odds(ABC):
 
     @classmethod
     def from_text(cls, text: str) -> "Odds":
-        try:
-            if "-" in text:
-                sp = text.split("-")
-                return PlaceOdds(float(sp[0]), float(sp[1]))
-            else:
-                return NormalOdds(float(text))
-        except Exception:
-            return None
+        if "-" in text:
+            sp = text.split("-")
+            return PlaceOdds(float(sp[0]), float(sp[1]))
+        else:
+            return NormalOdds(float(text))
 
 
 @dataclass
