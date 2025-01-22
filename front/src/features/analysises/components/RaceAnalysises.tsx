@@ -1,10 +1,10 @@
 import { Tab, Tabs } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { RaceProps } from '../types';
+import { RaceAnalysisesProps } from '../types';
 import { Analysis } from './Analysis';
 import { useState } from 'react';
 
-export function RaceAnalysises(props: RaceProps) {
+export function RaceAnalysises(props: RaceAnalysisesProps) {
 
   const [value, setValue] = useState(0);
 

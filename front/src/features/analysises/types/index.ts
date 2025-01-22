@@ -6,6 +6,7 @@ export type RaceProps = { raceId: string | undefined }
 export type RaceControlProps = { raceId: string | undefined, showControl: boolean }
 export type AnalyseControlProps = { raceId: string, status: AnalysisStatus, onReload: () => void }
 export type AnalysisProgressProps = { raceId: string, onComplete: () => void, onAbort: () => void }
+export type RaceAnalysisesProps = { raceId: string }
 export type AnalysisProps = { raceId: string, modelName: string }
 export type CompetenceProps = { competences: Array<Competence>, chart: string }
 export type Correlation = { a: string, row: object }
