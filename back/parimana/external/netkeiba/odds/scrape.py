@@ -15,6 +15,7 @@ from parimana.external.netkeiba.base import NetKeibaRace
 from parimana.external.netkeiba.odds.data import ratio_data
 from parimana.external.netkeiba.odds.extract import (
     JraOddsExtractor,
+    NarOddsExtractor,
     NetKeibaOddsExtractor,
 )
 from parimana.external.netkeiba.odds.browse import NetKeibaOddsBrowser
@@ -51,6 +52,17 @@ class JraOddsSource(NetKeibaOddsSource):
     @classmethod
     def site_name(cls):
         return "race.netkeiba.com"
+
+
+@dataclass
+class NarOddsSource(NetKeibaOddsSource):
+
+    def extractor(self) -> NetKeibaOddsExtractor:
+        return NarOddsExtractor()
+
+    @classmethod
+    def site_name(cls):
+        return "nar.netkeiba.com"
 
 
 def _scrape_odds_pool(

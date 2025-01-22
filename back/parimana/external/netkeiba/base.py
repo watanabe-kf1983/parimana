@@ -118,10 +118,9 @@ class NarRace(NetKeibaRace):
 
     @classmethod
     def odds_source_type(cls) -> Type[OddsSource]:
-        raise NotImplementedError()
-        # from parimana.external.netkeiba.odds.scrape import NkNarRaceSource
+        from parimana.external.netkeiba.odds.scrape import NarOddsSource
 
-        # return NkNarRaceSource
+        return NarOddsSource
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["NarRace"]:

@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Mapping
+from typing import Collection, Mapping
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import re
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from parimana.domain.base import BettingType, Eye, Odds, PlaceOdds
 from parimana.domain.race import OddsTimeStamp
@@ -50,14 +50,6 @@ class JraOddsExtractor(NetKeibaOddsExtractor):
         elements = soup.select(f"table td.Odds span[id^='odds-{btype_to_code(btype)}']")
         odds = _elements_to_odds(elements)
 
-        # 7頭立て以下の場合は複勝は2着まで
-        # https://www.jra.go.jp/kouza/yougo/w432.html
-        if btype == BettingType.SHOW and len(odds) <= 7:
-            odds = {
-                Eye.from_names(list(e.names), BettingType.PLACE): o
-                for e, o in odds.items()
-            }
-
         if btype == BettingType.WIDE:
             elementsmax = soup.select(
                 f"table td.Odds span[id^='oddsmin-{btype_to_code(btype)}']"
@@ -65,7 +57,49 @@ class JraOddsExtractor(NetKeibaOddsExtractor):
             oddsmax = _elements_to_odds(elementsmax)
             odds = {e: PlaceOdds(odds[e].odds_, oddsmax[e].odds_) for e in odds.keys()}
 
+        odds = _convert_show_to_place(odds)
         return odds
+
+
+class NarOddsExtractor(NetKeibaOddsExtractor):
+    def extract_timestamp(self, html: str) -> OddsTimeStamp:
+        return OddsTimeStamp.confirmed()
+
+    def extract_odds(self, html: str, btype: BettingType) -> Mapping[Eye, Odds]:
+        soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
+        div = _select_nar_odds_div(soup, btype)
+        elements = div.select("table td.Odds")
+        odds = _elements_to_odds_nar(elements, btype)
+
+        odds = _convert_show_to_place(odds)
+        return odds
+
+
+def _convert_show_to_place(odds: Mapping[Eye, Odds]) -> Mapping[Eye, Odds]:
+
+    # 7頭立て以下の場合は複勝は2着まで
+    # https://www.jra.go.jp/kouza/yougo/w432.html
+    if (
+        1 <= len(odds) <= 7
+        and next(iter(odds.keys())).type == BettingType.SHOW
+        and all(int(next(iter(eye.names))) <= 7 for eye in odds.keys())
+        # 制限事項：8番以降が全部除外になって7頭になった場合も複勝は2着まで扱いになってしまう
+        # 気になる場合は 頑張って何頭立てか調べるように直す
+    ):
+        return {
+            Eye.from_names(list(e.names), BettingType.PLACE): o for e, o in odds.items()
+        }
+    else:
+        return odds
+
+
+def _select_nar_odds_div(soup: BeautifulSoup, btype: BettingType) -> Tag:
+    if btype == BettingType.WIN:
+        return soup.select_one("#odds_tan_block")
+    elif btype == BettingType.SHOW:
+        return soup.select_one("#odds_fuku_block")
+    else:
+        return soup.select_one("#odds_view_form div.GraphOdds")
 
 
 def _elements_to_odds(elements):
@@ -77,3 +111,32 @@ def _elem_id_to_eye(id: str):
     betting_type = code_to_btype(btype_code)
     names = [number[i : i + 2] for i in range(0, len(number), 2)]
     return Eye.from_names(names, betting_type)
+
+
+def _elements_to_odds_nar(elements: Collection[Tag], btype: BettingType):
+    def is_valid_odds(text: str):
+        return bool(re.fullmatch(r"[\-\.0-9]+", text))
+
+    if btype.size == 1:
+        return {
+            Eye.from_names([f"{int(i+1):02}"], btype): (
+                Odds.from_text(e.get_text(strip=True))
+            )
+            for i, e in enumerate(elements)
+            if is_valid_odds(e.get_text(strip=True))
+        }
+    else:
+        return {
+            _elem_id_to_eye_nar(e["id"], btype): (
+                Odds.from_text(e.get_text(strip=True))
+            )
+            for e in elements
+            if is_valid_odds(e.get_text(strip=True))
+        }
+
+
+def _elem_id_to_eye_nar(id: str, btype: BettingType):
+    if btype.size > 1:
+        num_texts = id.split("_")[-btype.size :]
+        names = [f"{int(num_text):02}" for num_text in num_texts]
+        return Eye.from_names(names, btype)
