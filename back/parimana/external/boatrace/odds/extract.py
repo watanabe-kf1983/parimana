@@ -70,7 +70,7 @@ def extract_odds_from_table(table: Tag) -> Sequence[Optional[Odds]]:
 
 def _try_parse_odds(odds_text: str) -> Optional[Odds]:
     try:
-        return Odds.from_text(odds_text())
+        return Odds.from_text(odds_text)
     except Exception:  # "欠場"
         return None
 
