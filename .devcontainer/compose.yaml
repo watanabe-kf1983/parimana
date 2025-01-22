@@ -12,6 +12,7 @@ services:
       - ~/.aws:/home/vscode/.aws:cached
     environment:
       REDIS_ENDPOINT: "task-db:6379"
+      WEB_API_PORT: "5005"
     command: ["tail", "-f", "/dev/null"]
     restart: always
     depends_on:
@@ -24,6 +25,8 @@ services:
     volumes:
       - ..:/workspace:cached
       - ~/.ssh:/home/node/.ssh:cached
+    environment:
+      VITE_API_URL_BASE: "http://<hostname>:5005/api/v1"
     command: ["tail", "-f", "/dev/null"]
     restart: always
 
