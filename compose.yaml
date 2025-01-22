@@ -4,7 +4,9 @@ services:
       context: ./back
     environment:
       STORAGE__TYPE: "file"
-      STORAGE__ROOT_DIR: "/var/parimana/.storage"
+      STORAGE__ROOT_DIR: "/var/parimana/.storage/store"
+      OUTPUT__TYPE: "file"
+      OUTPUT__ROOT_DIR: "/var/parimana/.storage/out"
       REDIS_ENDPOINT: "task-db:6379"
     volumes:
       - ./.storage:/var/parimana/.storage
@@ -18,7 +20,9 @@ services:
       - "5000:5000"
     environment:
       STORAGE__TYPE: "file"
-      STORAGE__ROOT_DIR: "/var/parimana/.storage"
+      STORAGE__ROOT_DIR: "/var/parimana/.storage/store"
+      OUTPUT__TYPE: "file"
+      OUTPUT__ROOT_DIR: "/var/parimana/.storage/out"
       REDIS_ENDPOINT: "task-db:6379"
     volumes:
       - ./.storage:/var/parimana/.storage
@@ -40,7 +44,9 @@ services:
       context: ./back
     environment:
       STORAGE__TYPE: "file"
-      STORAGE__ROOT_DIR: "/var/parimana/.storage"
+      STORAGE__ROOT_DIR: "/var/parimana/.storage/store"
+      OUTPUT__TYPE: "file"
+      OUTPUT__ROOT_DIR: "/var/parimana/.storage/out"
       REDIS_ENDPOINT: "task-db:6379"
     volumes:
       - ./.storage:/var/parimana/.storage

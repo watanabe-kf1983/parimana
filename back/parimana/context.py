@@ -54,6 +54,10 @@ class _ParimanaContext:
         return _storage
 
     @cached_property
+    def output(self) -> Storage:
+        return self.settings.output.get()
+
+    @cached_property
     def publish_center(self) -> PublishCenter:
         return RedisChannelFactory(self.settings.redis_ap_uri).publish_center
 
