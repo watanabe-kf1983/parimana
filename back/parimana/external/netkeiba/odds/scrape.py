@@ -1,4 +1,6 @@
+from abc import abstractmethod
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Mapping, Tuple
 
 from parimana.io.message import mprint
@@ -9,69 +11,91 @@ from parimana.domain.race import (
     RaceOddsPool,
     OddsSource,
 )
-from parimana.external.netkeiba.base import JraRace
-from parimana.external.netkeiba.odds.data import ratio_data_derby
-from parimana.external.netkeiba.odds.extract import extract_odds, extract_timestamp
-from parimana.external.netkeiba.odds.browse import (
-    browse_odds_pages,
-    browse_for_odds_timestamp,
-    get_source_uri,
+from parimana.external.netkeiba.base import NetKeibaRace
+from parimana.external.netkeiba.odds.data import ratio_data
+from parimana.external.netkeiba.odds.extract import (
+    JraOddsExtractor,
+    NetKeibaOddsExtractor,
 )
+from parimana.external.netkeiba.odds.browse import NetKeibaOddsBrowser
 
 
 @dataclass
-class JraOddsSource(OddsSource):
-    race: JraRace
+class NetKeibaOddsSource(OddsSource):
+    race: NetKeibaRace
+
+    @cached_property
+    def browser(self):
+        return NetKeibaOddsBrowser(self.site_name(), self.race)
+
+    @abstractmethod
+    def extractor(self) -> NetKeibaOddsExtractor:
+        pass
 
     def scrape_odds_pool(self) -> RaceOddsPool:
-        return scrape_odds_pool(self.race)
+        return _scrape_odds_pool(self.browser, self.extractor())
 
     def scrape_timestamp(self) -> OddsTimeStamp:
-        return scrape_timestamp(self.race)
+        return _scrape_timestamp(self.browser, self.extractor())
 
     def get_uri(self) -> str:
-        return get_source_uri(self.race)
+        return self.browser.get_source_uri()
+
+
+@dataclass
+class JraOddsSource(NetKeibaOddsSource):
+
+    def extractor(self) -> NetKeibaOddsExtractor:
+        return JraOddsExtractor()
 
     @classmethod
     def site_name(cls):
         return "race.netkeiba.com"
 
 
-def scrape_odds_pool(race: JraRace) -> RaceOddsPool:
-    odds, timestamp = collect_odds(race)
+def _scrape_odds_pool(
+    browser: NetKeibaOddsBrowser, extractor: NetKeibaOddsExtractor
+) -> RaceOddsPool:
+    odds, timestamp = _collect_odds(browser, extractor)
     return RaceOddsPool(
-        race=race,
+        race=browser.race,
         odds=odds,
         timestamp=timestamp,
-        vote_ratio=ratio_data_derby,
+        vote_ratio=ratio_data,
     )
 
 
-def scrape_timestamp(race: JraRace) -> OddsTimeStamp:
-    return extract_timestamp(browse_for_odds_timestamp(race))
+def _scrape_timestamp(
+    browser: NetKeibaOddsBrowser, extractor: NetKeibaOddsExtractor
+) -> OddsTimeStamp:
+    html = browser.browse_for_odds_timestamp()
+    return extractor.extract_timestamp(html)
 
 
-def collect_odds(race: JraRace) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
+def _collect_odds(
+    browser: NetKeibaOddsBrowser, extractor: NetKeibaOddsExtractor
+) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
     for attempt in ["1st", "2nd"]:
         try:
-            return attempt_collect_odds(race)
+            return _attempt_collect_odds(browser, extractor)
         except OddsUpdatedException:
             pass
 
     raise ValueError("collect_odds Failed")
 
 
-def attempt_collect_odds(
-    race: JraRace,
+def _attempt_collect_odds(
+    browser: NetKeibaOddsBrowser, extractor: NetKeibaOddsExtractor
 ) -> Tuple[Mapping[Eye, Odds], OddsTimeStamp]:
-    odds: dict[Eye, Odds] = {}
-    timestamp = scrape_timestamp(race)
 
-    for content, btype in browse_odds_pages(race):
-        if extract_timestamp(content) != timestamp:
+    odds: dict[Eye, Odds] = {}
+    timestamp = _scrape_timestamp(browser, extractor)
+
+    for content, btype in browser.browse_odds_pages():
+        if extractor.extract_timestamp(content) != timestamp:
             mprint("Odds update detected")
             raise OddsUpdatedException()
 
-        odds |= extract_odds(content, btype)
+        odds |= extractor.extract_odds(content, btype)
 
     return odds, timestamp

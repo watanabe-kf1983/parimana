@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from functools import cached_property
 from typing import Iterator, Tuple
 
 from selenium.webdriver.common.by import By
@@ -9,69 +11,94 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from parimana.io.message import mprint
 from parimana.domain.base import BettingType
-from parimana.external.netkeiba.base import JraRace
+from parimana.external.netkeiba.base import NetKeibaRace
 from parimana.external.netkeiba.odds.btype import btype_to_code, supported_types
 from parimana.external.netkeiba.browser import get_driver, modestly
 
 
-def get_source_uri(race: JraRace) -> str:
-    return _odds_page_uri_base(race)
+@dataclass
+class NetKeibaOddsBrowser:
+    host_name: str
+    race: NetKeibaRace
+
+    @cached_property
+    def _dwrapper(self):
+        return DriverWrapper(get_driver())
+
+    @cached_property
+    def _uri_provider(self):
+        return OddsUriProvider(self.host_name, self.race)
+
+    def get_source_uri(self) -> str:
+        return self._uri_provider.odds_uri_base
+
+    def browse_for_odds_timestamp(self) -> str:
+        dw = self._dwrapper
+        dw.refresh()
+        dw.go_to(self._uri_provider.odds_uri(BettingType.WIN))
+        return dw.page_source()
+
+    def browse_odds_pages(self) -> Iterator[Tuple[str, BettingType]]:
+
+        dw = self._dwrapper
+        for btype in supported_types:
+
+            dw.go_to(self._uri_provider.odds_uri(btype))
+            if btype.size < 3:
+                yield dw.page_source(), btype
+
+            else:
+                for source in _browse_all_axis(dw.driver):
+                    yield source, btype
 
 
-def browse_for_odds_timestamp(race: JraRace) -> str:
-    driver = get_driver()
-    driver.delete_all_cookies()
-    driver.refresh()
-    _get_page(driver, race, BettingType.WIN)
-    return driver.page_source
+@dataclass
+class OddsUriProvider:
+    host_name: str
+    race: NetKeibaRace
+
+    @cached_property
+    def odds_uri_base(self) -> str:
+        return (
+            f"https://{self.host_name}/odds/index.html"
+            f"?race_id={self.race.netkeiba_race_id}"
+        )
+
+    def odds_uri(self, btype: BettingType) -> str:
+        return f"{self.odds_uri_base}&type=b{btype_to_code(btype)}"
 
 
-def browse_odds_pages(race: JraRace) -> Iterator[Tuple[str, BettingType]]:
-    driver = get_driver()
-    for btype in supported_types:
-        pages = _browse_odds_by_btype(driver, race, btype)
+@dataclass
+class DriverWrapper:
+    driver: WebDriver
 
-        for page_content in pages:
-            yield (page_content, btype)
+    def go_to(self, uri):
+        if uri != self.driver.current_url:
+            self._get(uri)
 
+    def refresh(self):
+        self.driver.delete_all_cookies()
+        self.driver.refresh()
 
-def _browse_odds_by_btype(
-    driver: WebDriver, race: JraRace, btype: BettingType
-) -> Iterator[str]:
-    _get_page(driver, race, btype)
+    def page_source(self):
+        return self.driver.page_source
 
-    if btype.size < 3:
-        yield driver.page_source
-
-    else:
-        dropdown = driver.find_element(By.CSS_SELECTOR, "#list_select_horse")
-        options = dropdown.find_elements(By.CSS_SELECTOR, "option")
-        axis_numbers = {elem.get_attribute("value") for elem in options}
-
-        for axis in axis_numbers:
-            if axis:
-                _download_axis(driver, axis, dropdown)
-                yield driver.page_source
+    @modestly
+    def _get(self, uri):
+        mprint(f"opening {uri} ...")
+        self.driver.get(uri)
 
 
-def _get_page(driver: WebDriver, race: JraRace, btype: BettingType):
-    uri = _odds_page_uri(race, btype)
-    if uri != driver.current_url:
-        _get(driver, uri)
+def _browse_all_axis(driver: WebDriver) -> Iterator[str]:
 
+    dropdown = driver.find_element(By.CSS_SELECTOR, "#list_select_horse")
+    options = dropdown.find_elements(By.CSS_SELECTOR, "option")
+    axis_numbers = {elem.get_attribute("value") for elem in options}
 
-def _odds_page_uri(race: JraRace, btype: BettingType) -> str:
-    return f"{_odds_page_uri_base(race)}&type=b{btype_to_code(btype)}"
-
-
-def _odds_page_uri_base(race: JraRace) -> str:
-    return f"https://race.netkeiba.com/odds/index.html?race_id={race.netkeiba_race_id}"
-
-
-@modestly
-def _get(driver: WebDriver, uri):
-    mprint(f"opening {uri} ...")
-    driver.get(uri)
+    for axis in axis_numbers:
+        if axis:
+            _download_axis(driver, axis, dropdown)
+            yield driver.page_source
 
 
 @modestly
