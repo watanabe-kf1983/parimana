@@ -1,5 +1,4 @@
 import argparse
-from pathlib import Path
 from typing import Sequence
 
 from parimana.domain.analyse.analysis_result import AnalysisResult
