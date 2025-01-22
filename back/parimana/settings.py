@@ -41,7 +41,12 @@ class S3StorageSettings(BaseModel):
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
-    storage: Union[FileStorageSettings, S3StorageSettings] = FileStorageSettings()
+    storage: Union[FileStorageSettings, S3StorageSettings] = FileStorageSettings(
+        root_dir=".storage/store"
+    )
+    output: Union[FileStorageSettings, S3StorageSettings] = FileStorageSettings(
+        root_dir=".storage/out"
+    )
     web_api_port: int = 5000
     redis_endpoint: str = "localhost:6379"
     redis_id_for_q: int = 0

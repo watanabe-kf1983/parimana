@@ -16,7 +16,9 @@ resource "aws_lambda_function" "web_api" {
   environment {
     variables = {
       STORAGE__TYPE     = "s3"
-      STORAGE__URI      = "s3://${aws_s3_bucket.app.bucket}/"
+      STORAGE__URI      = "s3://${aws_s3_bucket.app.bucket}/store"
+      OUTPUT__TYPE     = "s3"
+      OUTPUT__URI      = "s3://${aws_s3_bucket.app.bucket}/out"
       REDIS_ENDPOINT    = aws_elasticache_replication_group.redis.primary_endpoint_address
       AUTO_ANALYSE_MODE = "True"
     }

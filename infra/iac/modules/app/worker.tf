@@ -125,8 +125,16 @@ resource "aws_ecs_task_definition" "app_task" {
         },
         {
           name  = "STORAGE__URI"
-          value = "s3://${aws_s3_bucket.app.bucket}/"
+          value = "s3://${aws_s3_bucket.app.bucket}/store"
         },
+        {
+          name  = "OUTPUT__TYPE"
+          value = "s3"
+        },
+        {
+          name  = "OUTPUT__URI"
+          value = "s3://${aws_s3_bucket.app.bucket}/out"
+        },       
         {
           name  = "AUTO_ANALYSE_MODE"
           value = "True"

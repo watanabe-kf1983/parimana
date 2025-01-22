@@ -29,7 +29,7 @@ docker compose up -d
 
 
 #### 計算結果などのファイル
-`.storage` 配下に作られます。エクセルファイル、htmlファイルはそのまま開いて見ることができます。
+`.storage` 配下に作られます。
 どんどん作られますが消されませんので、ジャマになりましたら随時消してください。
 
 
@@ -43,11 +43,19 @@ docker compose exec command parimana analyse hr202006050811
 
 とすると指定したレースIDのオッズを収集して計算を行います。
 
+
+```bash
+docker compose exec command parimana analyse hr202006050811 -w
+```
+
+と -w フラグをつけると `.storage/out` 配下に 計算結果の excel,htmlファイルが作られます。
+
+
 ```bash
 docker compose exec command parimana analyse -h
 ```
 
-で指定できるオプションが表示されます。
+でそのほかに指定できるオプションが表示されます。
 
 
 #### 終了

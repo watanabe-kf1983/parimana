@@ -50,7 +50,6 @@ class AnalysisResult:
     def get_charts(self) -> "AnalysisCharts":
         return AnalysisCharts(
             result=self,
-            excel=self.to_excel(),
             odds_chance=self.eev.chart().fig.to_json(),
             model_box=self.model.plot_box().to_json(),
             model_mds=self.model.plot_mds().to_json(),
@@ -61,8 +60,6 @@ class AnalysisResult:
 @dataclass(frozen=True)
 class AnalysisCharts:
     result: AnalysisResult
-    excel: bytes
     odds_chance: str
     model_box: str
     model_mds: str
-    # model_mds_metric: str
