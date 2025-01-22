@@ -46,7 +46,7 @@ class OddsRepositoryImpl(OddsRepository):
             self.save_latest_odds_time(odds_pool.race, odds_pool.timestamp)
 
     def load_odds_pool(self, race: Race, ts: OddsTimeStamp) -> Optional[RaceOddsPool]:
-        self.store.read_object(f"odds/{race.race_id}/{ts}/pool.pickle")
+        return self.store.read_object(f"odds/{race.race_id}/{ts}/pool.pickle")
 
     def load_latest_odds_pool(self, race: Race) -> Optional[RaceOddsPool]:
         ts = self.load_latest_odds_time(race)
