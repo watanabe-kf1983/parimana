@@ -67,7 +67,7 @@ class FileStorage(Storage):
 
     def write_binary(self, key: str, binary: bytes) -> None:
         file_path = self._get_file_path(key)
-        file_path.parent.mkdir(exist_ok=True, parents=True)
+        file_path.parent.absolute().mkdir(exist_ok=True, parents=True)
         with open(file_path, "wb") as f:
             mprint(f"writing {file_path} ...")
             f.write(binary)
