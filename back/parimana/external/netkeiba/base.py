@@ -72,9 +72,9 @@ class JraRace(NetKeibaRace):
 
     @classmethod
     def odds_source_type(cls) -> Type[OddsSource]:
-        from parimana.external.netkeiba.odds.scrape import NkJraRaceSource
+        from parimana.external.netkeiba.odds.scrape import JraOddsSource
 
-        return NkJraRaceSource
+        return JraOddsSource
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["JraRace"]:

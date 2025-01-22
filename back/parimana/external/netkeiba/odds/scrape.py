@@ -20,7 +20,7 @@ from parimana.external.netkeiba.odds.browse import (
 
 
 @dataclass
-class NkJraRaceSource(OddsSource):
+class JraOddsSource(OddsSource):
     race: JraRace
 
     def scrape_odds_pool(self) -> RaceOddsPool:
