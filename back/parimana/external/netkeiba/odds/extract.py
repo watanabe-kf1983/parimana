@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Collection, Mapping
+from typing import Collection, Mapping, Optional
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import re
@@ -13,6 +13,9 @@ from parimana.external.netkeiba.odds.btype import code_to_btype, btype_to_code
 
 # <span id="official_time">13:33(142分前)</span>
 UPDATE_PATTERN: re.Pattern = re.compile(r"(?P<time>[0-9]{1,2}:[0-9]{2})\([0-9-]+分前\)")
+
+# 13:33発走
+START_TIME_PATTERN: re.Pattern = re.compile(r"(?P<time>[0-9]{1,2}:[0-9]{2})発走")
 
 jst = ZoneInfo("Asia/Tokyo")
 
@@ -62,8 +65,37 @@ class JraOddsExtractor(NetKeibaOddsExtractor):
 
 
 class NarOddsExtractor(NetKeibaOddsExtractor):
-    def extract_timestamp(self, html: str) -> OddsTimeStamp:
-        return OddsTimeStamp.confirmed()
+    def extract_start_datetime(self, html: str) -> datetime:
+        soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
+        date_link = soup.select_one("#RaceList_DateList > dd.Active > a").get("href")
+        race_text = soup.select_one("div.RaceList_NameBox div.RaceData01").get_text()
+
+        if m := re.search(_NETKEIBA_KAISAI_DATE_LINK, date_link):
+            start_date = datetime.strptime(m.group("kaisai_date"), "%Y%m%d").date()
+        else:
+            raise ValueError("Failed parse link: " + date_link)
+
+        if m := re.search(START_TIME_PATTERN, race_text):
+            start_time = datetime.strptime(m.group("time"), "%H:%M").time()
+        else:
+            raise ValueError("Failed parse start time: " + race_text)
+
+        return datetime.combine(start_date, start_time, jst)
+
+    def extract_timestamp(self, html: str) -> Optional[OddsTimeStamp]:
+        # nar.netkeiba.comは 更新時刻を表示しないので 発走時刻前なら現在時刻を返す
+        start_dt = self.extract_start_datetime(html)
+        now = datetime.now(jst).replace(second=0, microsecond=0)
+
+        # 現在時刻を3分単位で切り捨て
+        now_trunc = now.replace(
+            minute=now.minute - (now.minute % 3), second=0, microsecond=0
+        )
+
+        if start_dt < now_trunc:
+            return OddsTimeStamp.confirmed()
+        else:
+            return OddsTimeStamp(now_trunc)
 
     def extract_odds(self, html: str, btype: BettingType) -> Mapping[Eye, Odds]:
         soup = BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
@@ -73,6 +105,11 @@ class NarOddsExtractor(NetKeibaOddsExtractor):
 
         odds = _convert_show_to_place(odds)
         return odds
+
+
+_NETKEIBA_KAISAI_DATE_LINK: re.Pattern = re.compile(
+    r"kaisai_date=(?P<kaisai_date>[0-9]{8})"
+)
 
 
 def _convert_show_to_place(odds: Mapping[Eye, Odds]) -> Mapping[Eye, Odds]:

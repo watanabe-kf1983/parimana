@@ -138,7 +138,7 @@ class _CategoryNar(Category):
             name="地方競馬",
             race_type=NarRace,
             timezone=_keiba_timezone,
-            poll_start_time=datetime.time(hour=8, minute=30),
+            poll_start_time=datetime.time(hour=10, minute=10),
         )
 
     @property
