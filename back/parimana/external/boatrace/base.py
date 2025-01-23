@@ -7,38 +7,6 @@ from zoneinfo import ZoneInfo
 from parimana.domain.race import Race, OddsSource
 from parimana.domain.schedule import Category, ScheduleSource
 
-_boat_timezone = ZoneInfo("Asia/Tokyo")
-
-
-class _CategoryBoatRace(Category):
-
-    def __init__(self):
-        super().__init__(
-            id="bt",
-            name="ボートレース",
-            timezone=_boat_timezone,
-            poll_start_time=datetime.time(hour=8, minute=30),
-        )
-
-    @property
-    def schedule_source(self) -> ScheduleSource:
-        from parimana.external.boatrace.schedule.scrape import schedule_source
-
-        return schedule_source
-
-    def has_race(self, race_id: str) -> bool:
-        return bool(BoatRace.from_id(race_id))
-
-
-category_boat = _CategoryBoatRace()
-
-_RACE_ID_PATTERN: re.Pattern = re.compile(
-    r"bt(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
-)
-_URI_DATE_PATTERN: re.Pattern = re.compile(r"hd=(?P<date>[0-9]{8})")
-_URI_JCD_PATTERN: re.Pattern = re.compile(r"jcd=(?P<jo_code>[0-9]{1,2})")
-_URI_RNO_PATTERN: re.Pattern = re.compile(r"rno=(?P<race_no>[0-9]{1,2})")
-
 
 @dataclass
 class BoatRace(Race):
@@ -105,3 +73,34 @@ class BoatRace(Race):
 
         except Exception:
             return None
+
+
+_RACE_ID_PATTERN: re.Pattern = re.compile(
+    r"bt(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
+)
+_URI_DATE_PATTERN: re.Pattern = re.compile(r"hd=(?P<date>[0-9]{8})")
+_URI_JCD_PATTERN: re.Pattern = re.compile(r"jcd=(?P<jo_code>[0-9]{1,2})")
+_URI_RNO_PATTERN: re.Pattern = re.compile(r"rno=(?P<race_no>[0-9]{1,2})")
+
+
+class _CategoryBoatRace(Category):
+
+    def __init__(self):
+        super().__init__(
+            id="bt",
+            name="ボートレース",
+            race_type=BoatRace,
+            timezone=_boat_timezone,
+            poll_start_time=datetime.time(hour=8, minute=30),
+        )
+
+    @property
+    def schedule_source(self) -> ScheduleSource:
+        from parimana.external.boatrace.schedule.scrape import schedule_source
+
+        return schedule_source
+
+
+_boat_timezone = ZoneInfo("Asia/Tokyo")
+
+category_boat = _CategoryBoatRace()

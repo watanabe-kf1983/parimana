@@ -12,20 +12,24 @@ from parimana.tasks import AnalyseTasks, ScheduleTasks, Worker
 from parimana.devices.redis.redis_channel import RedisChannelFactory
 from parimana.devices.redis.redis_kvs import RedisStorage
 from parimana.devices.s3.s3_kvs import S3Storage
-from parimana.external.boatrace import BoatRace, category_boat
-from parimana.external.netkeiba import JraRace, NarRace, category_jra, category_nar
+from parimana.external.boatrace import category_boat
+from parimana.external.netkeiba import category_jra, category_nar
 from parimana.settings import Settings
 
 
 class _ParimanaContext:
 
     @cached_property
-    def race_types(self) -> Sequence[Type[Race]]:
-        return [BoatRace, JraRace, NarRace]
+    def settings(self) -> Settings:
+        return Settings()
 
     @cached_property
     def categories(self) -> Sequence[Category]:
-        return [category_boat, category_jra, category_nar]
+        return [_category_dict[cid] for cid in self.settings.categories]
+
+    @cached_property
+    def race_types(self) -> Sequence[Type[Race]]:
+        return [cat.race_type for cat in self.categories]
 
     @cached_property
     def race_selector(self) -> RaceSelector:
@@ -34,10 +38,6 @@ class _ParimanaContext:
     @cached_property
     def category_selector(self) -> CategorySelector:
         return CategorySelector(self.categories)
-
-    @cached_property
-    def settings(self) -> Settings:
-        return Settings()
 
     @cached_property
     def storage(self) -> Storage:
@@ -116,4 +116,6 @@ class _ParimanaContext:
         return Worker(tasks_list=[self.analyse_tasks, self.schedule_tasks])
 
 
+_categories: Sequence[Category] = [category_boat, category_jra, category_nar]
+_category_dict = {cat.id: cat for cat in _categories}
 context: _ParimanaContext = _ParimanaContext()

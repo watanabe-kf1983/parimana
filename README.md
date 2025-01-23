@@ -35,17 +35,17 @@ docker compose up -d
 
 #### コマンドラインから操作
 
-起動している状態でレースID（例: hj202006050811 =2020年有馬記念）を指定して
+起動している状態でレースURL（例: "https://race.netkeiba.com/odds/index.html?race_id=202305021211" =2020年有馬記念）を指定して
 
 ```bash
-docker compose exec command parimana analyse hj202006050811
+docker compose exec command parimana analyse "https://race.netkeiba.com/odds/index.html?race_id=202305021211"
 ```
 
 とすると指定したレースIDのオッズを収集して計算を行います。
 
 
 ```bash
-docker compose exec command parimana analyse hj202006050811 -w
+docker compose exec command parimana analyse "https://race.netkeiba.com/odds/index.html?race_id=202305021211" -w
 ```
 
 と -w フラグをつけると `.storage/out` 配下に 計算結果の excel,htmlファイルが作られます。

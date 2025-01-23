@@ -55,7 +55,7 @@ def get_candidates(
 @router.get("/race_id")
 def get_race_id(url: str = Query()) -> str:
     try:
-        return cx.race_selector.select_from_uri(url).race_id
+        return cx.race_selector.select(url).race_id
 
     except Exception:
         raise ResultNotExistError(f"URL {url} is not valid")

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Sequence, Union
 from urllib.parse import urlparse
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     redis_id_for_q: int = 0
     redis_id_for_ap: int = 1
     auto_analyse_mode: bool = False
+    categories: Sequence[str] = ["bt", "hj", "hn"]
 
     @property
     def redis_q_uri(self):

@@ -26,7 +26,8 @@ if not cx.settings.auto_analyse_mode:
 
     @router.post("/races/{race_id}")
     def start_scrape_race_info(race_id: str):
-        cat = cx.category_selector.select_from_race_id(race_id)
+        race = cx.race_selector.select(race_id)
+        cat = cx.category_selector.select_from_race(race)
         task_id = (
             cx.schedule_tasks.scrape_race_info.s(cat=cat, race_id=race_id).delay().id
         )

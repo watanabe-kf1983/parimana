@@ -38,19 +38,16 @@ class Race(ABC):
 class RaceSelector:
     race_types: Collection[Type[Race]]
 
-    def select(self, race_id: str) -> "Race":
+    def select(self, race_id_or_uri: str) -> "Race":
         for race_type in self.race_types:
-            if found := race_type.from_id(race_id):
+            if found := race_type.from_id(race_id_or_uri):
                 return found
 
-        raise ValueError(f"race_id: {race_id} is illegal")
-
-    def select_from_uri(self, uri: str) -> "Race":
         for race_type in self.race_types:
-            if found := race_type.from_uri(uri):
+            if found := race_type.from_uri(race_id_or_uri):
                 return found
 
-        raise ValueError(f"uri: {uri} is illegal")
+        raise ValueError(f"race_id_or_uri: {race_id_or_uri} is illegal")
 
     def odds_source_sites(self) -> Sequence[str]:
         return [

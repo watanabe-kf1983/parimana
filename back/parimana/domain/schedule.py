@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import datetime
-from typing import Sequence
+from typing import Sequence, Type
 from datetime import date, timedelta
 from zoneinfo import ZoneInfo
+
+from parimana.domain.race import Race
 
 
 @dataclass
@@ -11,6 +13,7 @@ class Category(ABC):
     id: str
     name: str
     timezone: ZoneInfo
+    race_type: Type[Race]
     poll_start_time: datetime.time
 
     @property
@@ -18,9 +21,8 @@ class Category(ABC):
     def schedule_source(self) -> "ScheduleSource":
         pass
 
-    @abstractmethod
-    def has_race(self, race_id: str) -> bool:
-        pass
+    def contains(self, race: Race) -> bool:
+        return isinstance(race, self.race_type)
 
 
 @dataclass
@@ -37,12 +39,12 @@ class CategorySelector:
 
         raise ValueError(f"category_id: {category_id} is illegal")
 
-    def select_from_race_id(self, race_id: str) -> Category:
+    def select_from_race(self, race: Race) -> Category:
         for category in self.all():
-            if category.has_race(race_id):
+            if category.contains(race):
                 return category
 
-        raise ValueError(f"category_id: {race_id} is illegal")
+        raise ValueError(f"category not found: {race}")
 
     def source_sites(self) -> Sequence[str]:
         return [category.schedule_source.site_name() for category in self.categories]

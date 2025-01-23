@@ -8,12 +8,15 @@ from parimana.context import context as cx
 
 
 def analyse(args):
-    race_id = args.get("race_id")
-    cat = cx.category_selector.select_from_race_id(race_id)
+    race_id_or_uri = args.pop("RACE_URL")
+    race = cx.race_selector.select(race_id_or_uri)
+    race_id = race.race_id
+
+    cat = cx.category_selector.select_from_race(race)
     cx.schedule_tasks.scrape_race_info.s(cat=cat, race_id=race_id).apply().get()
 
     write_result: bool = args.pop("write_result")
-    options = AnalyseTaskOptions(**args)
+    options = AnalyseTaskOptions(race_id=race_id, **args)
     got_results = cx.analyse_tasks.scrape_and_analyse(options).apply().get()
     results: Sequence[AnalysisResult] = (
         got_results if isinstance(got_results, Sequence) else [got_results]
@@ -56,11 +59,14 @@ def add_sub_parser(subparsers):
     )
     parser.set_defaults(func=analyse)
     parser.add_argument(
-        "race_id",
+        "RACE_URL",
         type=str,
         help=(
-            "'bt{YYYYMMDD}{JCD}{RACE_NO}' or 'hj{NETKEIBA_RACE_ID}' \n"
-            "  (ex: bt202305310112, hj202305021211)"
+            " Odds Page URL or Race ID\n"
+            " (ex:"
+            ' "https://www.boatrace.jp/owpc/pc/race/odds3t?rno=12&jcd=12&hd=20241222", '
+            ' "https://race.netkeiba.com/odds/index.html?race_id=202305021211", '
+            " bt202412221212, hj202305021211, etc. )"
         ),
     )
     parser.add_argument(
@@ -71,6 +77,7 @@ def add_sub_parser(subparsers):
         help="write out result charts and excel",
     )
     parser.add_argument(
+        "-u",
         "--use-cache",
         action="store_true",
         default=default_options.use_cache,
@@ -85,6 +92,7 @@ def add_sub_parser(subparsers):
         help="using analyser",
     )
     parser.add_argument(
+        "-c",
         "--simulation-count",
         type=int,
         default=default_options.simulation_count,

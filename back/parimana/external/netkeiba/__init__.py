@@ -1,3 +1,3 @@
-from parimana.external.netkeiba.base import JraRace, NarRace, category_jra, category_nar
+from parimana.external.netkeiba.base import category_jra, category_nar
 
-__all__ = ["JraRace", "NarRace", "category_jra", "category_nar"]
+__all__ = ["category_jra", "category_nar"]

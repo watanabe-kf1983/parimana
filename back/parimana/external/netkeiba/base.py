@@ -7,52 +7,6 @@ from zoneinfo import ZoneInfo
 from parimana.domain.race import Race, OddsSource
 from parimana.domain.schedule import Category, ScheduleSource
 
-_keiba_timezone = ZoneInfo("Asia/Tokyo")
-
-
-class _CategoryJra(Category):
-
-    def __init__(self):
-        super().__init__(
-            id="hj",
-            name="中央競馬",
-            timezone=_keiba_timezone,
-            poll_start_time=datetime.time(hour=8, minute=30),
-        )
-
-    @property
-    def schedule_source(self) -> ScheduleSource:
-        from parimana.external.netkeiba.schedule.scrape import JraScheduleSource
-
-        return JraScheduleSource()
-
-    def has_race(self, race_id: str) -> bool:
-        return bool(JraRace.from_id(race_id))
-
-
-class _CategoryNar(Category):
-
-    def __init__(self):
-        super().__init__(
-            id="hn",
-            name="地方競馬",
-            timezone=_keiba_timezone,
-            poll_start_time=datetime.time(hour=8, minute=30),
-        )
-
-    @property
-    def schedule_source(self) -> ScheduleSource:
-        from parimana.external.netkeiba.schedule.scrape import NarScheduleSource
-
-        return NarScheduleSource()
-
-    def has_race(self, race_id: str) -> bool:
-        return bool(NarRace.from_id(race_id))
-
-
-category_jra = _CategoryJra()
-category_nar = _CategoryNar()
-
 
 @dataclass
 class NetKeibaRace(Race):
@@ -156,3 +110,46 @@ def contains_any_phrase(text: str, phrases: Sequence[str]) -> bool:
 def extract_netkeiba_id_from_uri(uri: str) -> Optional[str]:
     if m := re.search(_URI_RACE_ID_PATTERN, uri):
         return m.groupdict().get("netkeiba_race_id")
+
+
+class _CategoryJra(Category):
+
+    def __init__(self):
+        super().__init__(
+            id="hj",
+            name="中央競馬",
+            race_type=JraRace,
+            timezone=_keiba_timezone,
+            poll_start_time=datetime.time(hour=8, minute=30),
+        )
+
+    @property
+    def schedule_source(self) -> ScheduleSource:
+        from parimana.external.netkeiba.schedule.scrape import JraScheduleSource
+
+        return JraScheduleSource()
+
+
+class _CategoryNar(Category):
+
+    def __init__(self):
+        super().__init__(
+            id="hn",
+            name="地方競馬",
+            race_type=NarRace,
+            timezone=_keiba_timezone,
+            poll_start_time=datetime.time(hour=8, minute=30),
+        )
+
+    @property
+    def schedule_source(self) -> ScheduleSource:
+        from parimana.external.netkeiba.schedule.scrape import NarScheduleSource
+
+        return NarScheduleSource()
+
+
+_keiba_timezone = ZoneInfo("Asia/Tokyo")
+
+
+category_jra = _CategoryJra()
+category_nar = _CategoryNar()
