@@ -130,10 +130,9 @@ class KeirinRace(Race):
 
     @classmethod
     def odds_source_type(cls) -> Type[OddsSource]:
-        raise NotImplementedError()
-        # from parimana.external.netkeiba.odds.scrape import JraOddsSource
+        from parimana.external.kdreams.odds.scrape import KeirinOddsSource
 
-        # return JraOddsSource
+        return KeirinOddsSource
 
     @classmethod
     def from_codes(cls, meeting_day_code: str, race_no: str) -> "KeirinRace":
