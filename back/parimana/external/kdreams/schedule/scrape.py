@@ -48,7 +48,7 @@ def _scrape_schedule(meeting_day_link: str) -> Sequence[RaceInfo]:
 def _scrape_race_info(race_id: str) -> RaceInfo:
     race = KeirinRace.from_id(race_id)
     page = browser.browse_race(race)
-    ext.extract_race_info(page)
+    return _to_race_info(race, ext.extract_closing_time(page))
 
 
 def _to_race_info_from_ext(extracted: ext.ExtractedRaceInfo) -> RaceInfo:
