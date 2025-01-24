@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Mapping
 
 from parimana.domain.base.eye import BettingType, Eye
@@ -45,7 +46,7 @@ class OddsPool:
     odds: Mapping[Eye, Odds]
     vote_ratio: Mapping[BettingType, float]
 
-    @property
+    @cached_property
     def contestants(self) -> Contestants:
-        names = [eye.text for eye in self.odds.keys() if eye.type == BettingType.WIN]
-        return Contestants.from_names(names)
+        nameset = {name for eye in self.odds.keys() for name in eye.names}
+        return Contestants.from_names(sorted(nameset))
