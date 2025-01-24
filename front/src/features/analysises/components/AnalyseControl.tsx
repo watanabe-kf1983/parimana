@@ -8,7 +8,7 @@ export function AnalyseControl(props: AnalyseControlProps) {
 
   const requestAnalyse = async () => {
     await api.requestAnalyse(props.raceId);
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 100));
     props.onReload();
   };
 
