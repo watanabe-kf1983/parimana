@@ -50,7 +50,7 @@ def extract_odds_by_btype(
     soup: BeautifulSoup, btype: BettingType
 ) -> Mapping[Eye, Odds]:
     div = soup.select_one(f"#JS_ODDSCONTENTS_{btype_div_id_suffix[btype]}")
-    elements = div.select("div.odds_table_wrapper table td:not(.rider,.empty)")
+    elements = div.select("div.odds_table_wrapper table td:not(.rider,.empty,.missing)")
     extracted = [
         Odds.from_text(elem.get_text().replace("～", "-")) for elem in elements
     ]
@@ -78,3 +78,5 @@ def eyes_table_order(names: Sequence[str], btype: BettingType) -> Sequence[Eye]:
 
 def parse(html: str) -> BeautifulSoup:
     return BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
+
+# 欠車の例 https://keirin.kdreams.jp/komatsushima/racedetail/7320200412020002
