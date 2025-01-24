@@ -25,7 +25,7 @@ export function Analysis(props: AnalysisProps) {
         {analysis
           ? <>
             <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
-              オッズ出典元
+              オッズ情報源
             </Typography>
             <Typography variant="body1">
               <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
