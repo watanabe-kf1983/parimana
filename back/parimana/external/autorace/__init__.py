@@ -1,3 +1,3 @@
-from parimana.external.boatrace.base import category_boat
+from parimana.external.autorace.base import category_moto
 
-__all__ = ["category_boat"]
+__all__ = ["category_moto"]

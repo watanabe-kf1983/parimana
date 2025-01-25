@@ -24,7 +24,7 @@ class _ParimanaContext:
 
     @cached_property
     def categories(self) -> Sequence[Category]:
-        return [categories[cid] for cid in self.settings.categories]
+        return [categories[cid] for cid in self.settings.categories.split(",")]
 
     @cached_property
     def race_types(self) -> Sequence[Type[Race]]:
