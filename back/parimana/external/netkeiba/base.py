@@ -120,7 +120,7 @@ class _CategoryJra(Category):
             name="中央競馬",
             race_type=JraRace,
             timezone=_keiba_timezone,
-            poll_start_time=datetime.time(hour=8, minute=30),
+            poll_start_time=datetime.time(hour=8, minute=0),
         )
 
     @property

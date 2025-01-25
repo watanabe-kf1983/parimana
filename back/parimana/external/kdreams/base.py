@@ -178,7 +178,7 @@ class _CategoryKeirin(Category):
             name="競輪",
             race_type=KeirinRace,
             timezone=_keirin_timezone,
-            poll_start_time=datetime.time(hour=7, minute=30),
+            poll_start_time=datetime.time(hour=7, minute=00),
         )
 
     @property

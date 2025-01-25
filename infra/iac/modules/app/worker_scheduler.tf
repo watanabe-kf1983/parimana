@@ -1,13 +1,13 @@
 resource "aws_cloudwatch_event_rule" "scale_up_rule" {
   name                = "${var.project_name}-${var.env}-scale-up-worker"
-  schedule_expression = "cron(20 23 * * ? *)" # every 08:20(+09:00)
+  schedule_expression = "cron(00 22 * * ? *)" # every 07:00(+09:00)
 
   tags = var.common_tags
 }
 
 resource "aws_cloudwatch_event_rule" "scale_down_rule" {
   name                = "${var.project_name}-${var.env}-scale-down-worker"
-  schedule_expression = "cron(50 14 * * ? *)" # every 23:50(+09:00)
+  schedule_expression = "cron(00 15 * * ? *)" # every 24:00(+09:00)
 
   tags = var.common_tags
 }
