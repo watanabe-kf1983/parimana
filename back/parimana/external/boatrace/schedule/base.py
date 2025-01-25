@@ -11,7 +11,7 @@ class BoatRaceJo:
     name: str
 
     def to_course(self):
-        return Course(id=f"bj{self.jo_code}", name=self.name, category=category_boat)
+        return Course(id=f"MB{self.jo_code}", name=self.name, category=category_boat)
 
     @classmethod
     def from_jo_code(cls, jo_code: str):

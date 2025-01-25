@@ -16,7 +16,7 @@ class BoatRace(Race):
 
     @property
     def race_id(self) -> str:
-        return f"bt{self.date:%Y%m%d}{self.jo_code}{self.race_no:02}"
+        return f"MB{self.date:%Y%m%d}{self.jo_code}{self.race_no:02}"
 
     @property
     def odds_source(self) -> OddsSource:
@@ -76,7 +76,7 @@ class BoatRace(Race):
 
 
 _RACE_ID_PATTERN: re.Pattern = re.compile(
-    r"bt(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
+    r"MB(?P<date>[0-9]{8})(?P<jo_code>[0-9]{2})(?P<race_no>[0-9]{2})"
 )
 _URI_DATE_PATTERN: re.Pattern = re.compile(r"hd=(?P<date>[0-9]{8})")
 _URI_JCD_PATTERN: re.Pattern = re.compile(r"jcd=(?P<jo_code>[0-9]{1,2})")
@@ -87,8 +87,8 @@ class _CategoryBoatRace(Category):
 
     def __init__(self):
         super().__init__(
-            id="bt",
-            name="ボートレース",
+            id="MB",
+            name="競艇",
             race_type=BoatRace,
             timezone=_boat_timezone,
             poll_start_time=datetime.time(hour=8, minute=30),

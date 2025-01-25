@@ -22,7 +22,7 @@ class NetKeibaCourse(ABC):
 @dataclass
 class JraCourse(NetKeibaCourse):
     def to_course(self):
-        return Course(id=f"hj{self.code}", name=self.name, category=category_jra)
+        return Course(id=f"HJ{self.code}", name=self.name, category=category_jra)
 
     @classmethod
     def from_code(cls, code: str) -> "JraCourse":
@@ -32,7 +32,7 @@ class JraCourse(NetKeibaCourse):
 @dataclass
 class NarCourse(NetKeibaCourse):
     def to_course(self):
-        return Course(id=f"hn{self.code}", name=self.name, category=category_nar)
+        return Course(id=f"HN{self.code}", name=self.name, category=category_nar)
 
     @classmethod
     def from_code(cls, code: str) -> "NarCourse":

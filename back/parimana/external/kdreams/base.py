@@ -15,7 +15,7 @@ class KeirinStudium:
     name_en: str
 
     def to_course(self):
-        return Course(id=f"kr{self.code}", name=self.name, category=category_keirin)
+        return Course(id=f"KR{self.code}", name=self.name, category=category_keirin)
 
     @classmethod
     def from_code(cls, code: str):
@@ -114,7 +114,7 @@ class KeirinRace(Race):
 
     @property
     def race_id(self) -> str:
-        return f"kr{self.code}"
+        return f"KR{self.code}"
 
     @property
     def name(self) -> str:
@@ -166,7 +166,7 @@ class KeirinRace(Race):
 _RACE_CODE_PATTERN: re.Pattern = re.compile(
     r"(?P<meeting_day_code>[0-9]{14})(?P<race_no>[0-9]{2})"
 )
-_RACE_ID_PATTERN: re.Pattern = re.compile(r"kr(?P<code>[0-9]{16})")
+_RACE_ID_PATTERN: re.Pattern = re.compile(r"KR(?P<code>[0-9]{16})")
 _URI_RACE_ID_PATTERN: re.Pattern = re.compile(r"racedetail/(?P<code>[0-9]{16})/")
 
 
@@ -174,7 +174,7 @@ class _CategoryKeirin(Category):
 
     def __init__(self):
         super().__init__(
-            id="kr",
+            id="KR",
             name="競輪",
             race_type=KeirinRace,
             timezone=_keirin_timezone,

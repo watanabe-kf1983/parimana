@@ -64,9 +64,9 @@ def add_sub_parser(subparsers):
         help=(
             " Odds Page URL or Race ID\n"
             " (ex:"
-            ' "https://www.boatrace.jp/owpc/pc/race/odds3t?rno=12&jcd=12&hd=20241222", '
             ' "https://race.netkeiba.com/odds/index.html?race_id=202305021211", '
-            " bt202412221212, hj202305021211, etc. )"
+            ' "https://www.boatrace.jp/owpc/pc/race/odds3t?rno=12&jcd=12&hd=20241222", '
+            " HJ202305021211, MB202412221212, etc. )"
         ),
     )
     parser.add_argument(

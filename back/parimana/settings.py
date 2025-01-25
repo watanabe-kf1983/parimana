@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     redis_id_for_q: int = 0
     redis_id_for_ap: int = 1
     auto_analyse_mode: bool = False
-    categories: str = "bt,hj,hn,kr,mb"
+    categories: str = "HJ,HN,KR,MB,MT"
 
     @property
     def redis_q_uri(self):

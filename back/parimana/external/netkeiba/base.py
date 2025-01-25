@@ -18,7 +18,7 @@ class JraRace(NetKeibaRace):
 
     @property
     def race_id(self) -> str:
-        return f"hj{self.netkeiba_race_id}"
+        return f"HJ{self.netkeiba_race_id}"
 
     @property
     def odds_source(self) -> OddsSource:
@@ -32,7 +32,7 @@ class JraRace(NetKeibaRace):
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["JraRace"]:
-        if m := re.fullmatch(r"hj(?P<netkeiba_race_id>[0-9]{12})", race_id):
+        if m := re.fullmatch(r"HJ(?P<netkeiba_race_id>[0-9]{12})", race_id):
             return cls(**m.groupdict())
         else:
             return None
@@ -57,7 +57,7 @@ class NarRace(NetKeibaRace):
 
     @property
     def race_id(self) -> str:
-        return f"hn{self.netkeiba_race_id}"
+        return f"HN{self.netkeiba_race_id}"
 
     @property
     def odds_source(self) -> OddsSource:
@@ -78,7 +78,7 @@ class NarRace(NetKeibaRace):
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["NarRace"]:
-        if m := re.fullmatch(r"hn(?P<netkeiba_race_id>[0-9]{12})", race_id):
+        if m := re.fullmatch(r"HN(?P<netkeiba_race_id>[0-9]{12})", race_id):
             return cls(**m.groupdict())
         else:
             return None
@@ -116,8 +116,8 @@ class _CategoryJra(Category):
 
     def __init__(self):
         super().__init__(
-            id="hj",
-            name="中央競馬",
+            id="HJ",
+            name="競馬(中央)",
             race_type=JraRace,
             timezone=_keiba_timezone,
             poll_start_time=datetime.time(hour=8, minute=0),
@@ -134,8 +134,8 @@ class _CategoryNar(Category):
 
     def __init__(self):
         super().__init__(
-            id="hn",
-            name="地方競馬",
+            id="HN",
+            name="競馬(地方)",
             race_type=NarRace,
             timezone=_keiba_timezone,
             poll_start_time=datetime.time(hour=10, minute=10),

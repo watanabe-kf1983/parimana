@@ -15,7 +15,7 @@ class MotoStudium:
     name_en: str
 
     def to_course(self):
-        return Course(id=f"mb{self.code}", name=self.name, category=category_moto)
+        return Course(id=f"MT{self.code}", name=self.name, category=category_moto)
 
     @classmethod
     def from_code(cls, code: str):
@@ -55,7 +55,7 @@ class AutoRace(Race):
 
     @property
     def race_id(self) -> str:
-        return f"mb{self.date:%Y%m%d}{self.studium.code}{self.race_no:02}"
+        return f"MT{self.date:%Y%m%d}{self.studium.code}{self.race_no:02}"
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["AutoRace"]:
@@ -91,7 +91,7 @@ class AutoRace(Race):
 
 
 _RACE_ID_PATTERN: re.Pattern = re.compile(
-    r"mb(?P<date>[0-9]{8})(?P<studium_code>[0-9]{2})(?P<race_no>[0-9]{2})"
+    r"MT(?P<date>[0-9]{8})(?P<studium_code>[0-9]{2})(?P<race_no>[0-9]{2})"
 )
 
 # ex1. https://autorace.jp/race_info/RaceResult/hamamatsu/2025-01-25_1
@@ -109,8 +109,8 @@ class _CategoryMoto(Category):
 
     def __init__(self):
         super().__init__(
-            id="mb",
-            name="オートレース",
+            id="MT",
+            name="オート",
             race_type=AutoRace,
             timezone=_moto_timezone,
             poll_start_time=datetime.time(hour=10, minute=10),
