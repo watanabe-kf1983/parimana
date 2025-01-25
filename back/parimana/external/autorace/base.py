@@ -26,7 +26,7 @@ class MotoStudium:
         return _name_en_studium_map.get(name_en)
 
 
-_all_studiums: Sequence[MotoStudium] = [
+all_studiums: Sequence[MotoStudium] = [
     MotoStudium(code, name, name_en)
     for name, name_en, code in (
         studium_text.split("/")
@@ -37,9 +37,9 @@ _all_studiums: Sequence[MotoStudium] = [
         ).split()
     )
 ]
-_code_studium_map: Mapping[str, MotoStudium] = {std.code: std for std in _all_studiums}
+_code_studium_map: Mapping[str, MotoStudium] = {std.code: std for std in all_studiums}
 _name_en_studium_map: Mapping[str, MotoStudium] = {
-    std.name_en: std for std in _all_studiums
+    std.name_en: std for std in all_studiums
 }
 
 
@@ -50,23 +50,12 @@ class AutoRace(Race):
     race_no: int
 
     @property
-    def race_id(self) -> str:
-        return f"mb{self.date:%Y%m%d}{self.studium.code}{self.race_no:02}"
-
-    @property
     def name(self) -> str:
         return f"{self.race_no}R"
 
     @property
-    def odds_source(self) -> OddsSource:
-        return self.odds_source_type()(self)
-
-    @classmethod
-    def odds_source_type(cls) -> Type[OddsSource]:
-        raise NotImplementedError()
-        # from parimana.external.autorace.odds.scrape import MotoOddsSource
-
-        # return MotoOddsSource
+    def race_id(self) -> str:
+        return f"mb{self.date:%Y%m%d}{self.studium.code}{self.race_no:02}"
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["AutoRace"]:
@@ -89,6 +78,17 @@ class AutoRace(Race):
             )
         else:
             return None
+
+    @property
+    def odds_source(self) -> OddsSource:
+        return self.odds_source_type()(self)
+
+    @classmethod
+    def odds_source_type(cls) -> Type[OddsSource]:
+        raise NotImplementedError()
+        # from parimana.external.autorace.odds.scrape import MotoOddsSource
+
+        # return MotoOddsSource
 
 
 _RACE_ID_PATTERN: re.Pattern = re.compile(
