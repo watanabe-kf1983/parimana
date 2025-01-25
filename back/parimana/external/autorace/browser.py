@@ -35,7 +35,7 @@ def get(uri: str, wait_selectors: Sequence[str]):
         for selector in wait_selectors
     ]
     try:
-        WebDriverWait(driver, 2).until(EC.all_of(*selectors))
+        WebDriverWait(driver, timeout=10).until(EC.all_of(*selectors))
         return driver.page_source
 
     except TimeoutException:
