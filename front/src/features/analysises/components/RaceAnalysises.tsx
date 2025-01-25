@@ -21,7 +21,7 @@ export function RaceAnalysises(props: RaceAnalysisesProps) {
           zIndex: theme.zIndex.appBar,
           backgroundColor: theme.palette.background.default
         }}>
-        <Tab label="さっくりモデル" />
+        <Tab label="ざっくりモデル" />
         <Tab label="ふんわりモデル" />
       </Tabs>
       <div hidden={value !== 0}>
