@@ -85,10 +85,9 @@ class AutoRace(Race):
 
     @classmethod
     def odds_source_type(cls) -> Type[OddsSource]:
-        raise NotImplementedError()
-        # from parimana.external.autorace.odds.scrape import MotoOddsSource
+        from parimana.external.autorace.odds.scrape import MotoOddsSource
 
-        # return MotoOddsSource
+        return MotoOddsSource
 
 
 _RACE_ID_PATTERN: re.Pattern = re.compile(
@@ -119,10 +118,9 @@ class _CategoryMoto(Category):
 
     @property
     def schedule_source(self) -> ScheduleSource:
-        raise NotImplementedError()
-        # from parimana.external.autorace.schedule.scrape import schedule_source
+        from parimana.external.autorace.schedule.scrape import schedule_source
 
-        # return schedule_source
+        return schedule_source
 
 
 _moto_timezone = ZoneInfo("Asia/Tokyo")

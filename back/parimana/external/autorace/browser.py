@@ -46,17 +46,17 @@ def browse_race_info_page(race: AutoRace) -> str:
     wait_selectors = [
         "#race-result-race-period-time > div:nth-child(2)",
     ]
-    return get(_race_page_uri(race), wait_selectors)
+    return get(race_page_uri(race), wait_selectors)
 
 
 def browse_race_odds_page(race: AutoRace) -> str:
     wait_selectors = [
         "#live-odds-pop-container table.liveTable.liveTable-ninki",
     ]
-    return get(_race_page_uri(race), wait_selectors)
+    return get(race_page_uri(race), wait_selectors)
 
 
-def _race_page_uri(race: AutoRace) -> str:
+def race_page_uri(race: AutoRace) -> str:
     return (
         f"https://autorace.jp/race_info/Odds/"
         f"{race.studium.name_en}/{race.date:%Y-%m-%d}_{race.race_no}/rt3"
