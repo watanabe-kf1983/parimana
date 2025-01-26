@@ -55,6 +55,6 @@ def _extract_odds_timestamp(page, date: datetime.date) -> OddsTimeStamp:
     else:
         odds_time = datetime.datetime.strptime(timestamp_text, "オッズ更新 %H:%M")
         odds_datetime = datetime.datetime.combine(
-            date, odds_time, category_moto.timezone
+            date, odds_time.time(), category_moto.timezone
         )
         return OddsTimeStamp(odds_datetime)
