@@ -5,26 +5,26 @@ import parimana.interfaces.web as web
 from parimana.context import context as cx
 
 
-def start_web(args):
+def start_web(**kwargs):
     web.start()
 
 
-def start_worker(args) -> None:
+def start_worker(queue_prefix: str = "", start_beat=False) -> None:
     cx.schedule_tasks.update_schedule_all().apply_async()
-    cx.worker.start(start_beat=cx.settings.auto_analyse_mode)
+    cx.worker.start(queue_prefix=queue_prefix, start_beat=start_beat)
 
 
-def monitor(args):
+def monitor(**kwargs):
     cx.worker.start_monitor()
 
 
 def main():
     parser = create_parser()
-    args = vars(parser.parse_args())
-    if "command" in args and "func" in args:
-        _ = args.pop("command")
-        func = args.pop("func")
-        func(args)
+    kwargs = vars(parser.parse_args())
+    if "command" in kwargs and "func" in kwargs:
+        _ = kwargs.pop("command")
+        func = kwargs.pop("func")
+        func(**kwargs)
 
     else:
         parser.print_help()
@@ -40,9 +40,25 @@ def create_parser() -> argparse.ArgumentParser:
     analyse_cui.add_sub_parser(subparsers)
 
     subparsers.add_parser("web", help="start web").set_defaults(func=start_web)
-    subparsers.add_parser("worker", help="start worker").set_defaults(func=start_worker)
     subparsers.add_parser("monitor", help="start worker-monitor").set_defaults(
         func=monitor
+    )
+
+    worker_parser = subparsers.add_parser("worker", help="start worker")
+    worker_parser.set_defaults(func=start_worker)
+    worker_parser.add_argument(
+        "-q",
+        "--queue-prefix",
+        type=str,
+        default="",
+        help="queue prefix",
+    )
+    worker_parser.add_argument(
+        "-b",
+        "--start-beat",
+        action="store_true",
+        default=False,
+        help="start celery beat",
     )
 
     return parser

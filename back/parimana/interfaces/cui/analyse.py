@@ -7,16 +7,16 @@ from parimana.domain.analyse import analyser_names
 from parimana.context import context as cx
 
 
-def analyse(args):
-    race_id_or_uri = args.pop("RACE_URL")
+def analyse(**kwargs):
+    race_id_or_uri = kwargs.pop("RACE_URL")
     race = cx.race_selector.select(race_id_or_uri)
     race_id = race.race_id
 
     cat = cx.category_selector.select_from_race(race)
     cx.schedule_tasks.scrape_race_info.s(cat=cat, race_id=race_id).apply().get()
 
-    write_result: bool = args.pop("write_result")
-    options = AnalyseTaskOptions(race_id=race_id, **args)
+    write_result: bool = kwargs.pop("write_result")
+    options = AnalyseTaskOptions(race_id=race_id, **kwargs)
     got_results = cx.analyse_tasks.scrape_and_analyse(options).apply().get()
     results: Sequence[AnalysisResult] = (
         got_results if isinstance(got_results, Sequence) else [got_results]

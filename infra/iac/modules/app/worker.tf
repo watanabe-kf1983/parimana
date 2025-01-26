@@ -113,7 +113,7 @@ resource "aws_ecs_task_definition" "app_task" {
       cpu       = 2048
       memory    = 4096
       essential = true
-      command   = ["parimana", "worker"]
+      command   = ["parimana", "worker", "-b"]
       environment = [
         {
           name  = "REDIS_ENDPOINT"

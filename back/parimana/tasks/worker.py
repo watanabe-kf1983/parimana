@@ -38,13 +38,14 @@ class Worker:
         ]
         self.celery.start(argv)
 
-    def start(self, start_beat: bool = True):
+    def start(self, queue_prefix: str = "", start_beat: bool = False):
 
         workers = [
             multiprocessing.Process(
                 name=f"Worker_for_{queue}", target=self._start, args=[queue]
             )
             for queue in self.queues
+            if queue.startswith(queue_prefix)
         ]
         if start_beat:
             workers.append(
