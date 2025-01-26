@@ -12,3 +12,4 @@ task_routes = (route_task,)
 task_default_queue = "default"
 
 broker_transport_options = {"visibility_timeout": 86400}  # 24 hours
+worker_prefetch_multiplier = 1

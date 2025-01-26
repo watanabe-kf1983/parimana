@@ -72,7 +72,7 @@ resource "aws_lambda_function" "ecs_task_stopper" {
   environment {
     variables = {
       CLUSTER_NAME = aws_ecs_cluster.app_cluster.name
-      SERVICE_NAME = aws_ecs_service.app_service.name
+      SERVICE_NAME = aws_ecs_service.scrape_service.name
     }
   }
 

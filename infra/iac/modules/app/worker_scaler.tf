@@ -54,8 +54,8 @@ resource "aws_iam_role_policy_attachment" "lambda_ecs_scaler_role_policy_attachm
 
 data "archive_file" "lambda_ecs_scaler_zip" {
   type        = "zip"
-  source_file = "${path.module}/scripts/ecs_task_scaler.py"
-  output_path = "${path.module}/scripts/ecs_task_scaler.zip"
+  source_file = "${path.module}/scripts/ecs_service_scaler.py"
+  output_path = "${path.module}/scripts/ecs_service_scaler.zip"
 }
 
 resource "aws_lambda_function" "ecs_task_scaler" {
@@ -64,14 +64,13 @@ resource "aws_lambda_function" "ecs_task_scaler" {
 
   filename         = data.archive_file.lambda_ecs_scaler_zip.output_path
   source_code_hash = filebase64sha256(data.archive_file.lambda_ecs_scaler_zip.output_path)
-  handler          = "ecs_task_scaler.lambda_handler"
+  handler          = "ecs_service_scaler.lambda_handler"
   runtime          = "python3.13"
   memory_size      = 512
   timeout          = 10
   environment {
     variables = {
       CLUSTER_NAME = aws_ecs_cluster.app_cluster.name
-      SERVICE_NAME = aws_ecs_service.app_service.name
     }
   }
 

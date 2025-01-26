@@ -97,12 +97,12 @@ resource "aws_iam_role_policy" "ecs_task_policy" {
 }
 
 
-resource "aws_ecs_task_definition" "app_task" {
-  family                   = "${var.project_name}-${var.env}-task"
+resource "aws_ecs_task_definition" "calc_task" {
+  family                   = "${var.project_name}-${var.env}-calc-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "2048"
-  memory                   = "4096"
+  cpu                      = "1024"
+  memory                   = "2048"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
@@ -110,10 +110,10 @@ resource "aws_ecs_task_definition" "app_task" {
     {
       name      = "${var.project_name}-backend"
       image     = "hello-world"
-      cpu       = 2048
-      memory    = 4096
+      cpu       = 1024
+      memory    = 2048
       essential = true
-      command   = ["parimana", "worker", "-b"]
+      command   = ["parimana", "worker", "-q", "default"]
       environment = [
         {
           name  = "REDIS_ENDPOINT"
@@ -134,7 +134,7 @@ resource "aws_ecs_task_definition" "app_task" {
         {
           name  = "OUTPUT__URI"
           value = "s3://${aws_s3_bucket.app.bucket}/out"
-        },       
+        },
         {
           name  = "AUTO_ANALYSE_MODE"
           value = "True"
@@ -145,7 +145,7 @@ resource "aws_ecs_task_definition" "app_task" {
         options = {
           awslogs-group         = "${aws_cloudwatch_log_group.app_logs.name}"
           awslogs-region        = "${var.aws_region}"
-          awslogs-stream-prefix = "ecs/app_task"
+          awslogs-stream-prefix = "ecs/calc-task"
         }
       }
     }
@@ -153,10 +153,10 @@ resource "aws_ecs_task_definition" "app_task" {
   tags = var.common_tags
 }
 
-resource "aws_ecs_service" "app_service" {
-  name            = "${var.project_name}-${var.env}-service"
+resource "aws_ecs_service" "calc_service" {
+  name            = "${var.project_name}-${var.env}-calc-service"
   cluster         = aws_ecs_cluster.app_cluster.id
-  task_definition = aws_ecs_task_definition.app_task.arn
+  task_definition = aws_ecs_task_definition.calc_task.arn
   desired_count   = 0
 
   capacity_provider_strategy {
@@ -177,8 +177,93 @@ resource "aws_ecs_service" "app_service" {
     ]
   }
 
-  tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-service" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-calc-service" })
 }
+
+
+resource "aws_ecs_task_definition" "scrape_task" {
+  family                   = "${var.project_name}-${var.env}-scrape-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "1024"
+  memory                   = "4096"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "${var.project_name}-backend"
+      image     = "hello-world"
+      cpu       = 1024
+      memory    = 4096
+      essential = true
+      command   = ["parimana", "worker", "-q", "scrape", "-b"]
+      environment = [
+        {
+          name  = "REDIS_ENDPOINT"
+          value = "${aws_elasticache_replication_group.redis.primary_endpoint_address}"
+        },
+        {
+          name  = "STORAGE__TYPE"
+          value = "s3"
+        },
+        {
+          name  = "STORAGE__URI"
+          value = "s3://${aws_s3_bucket.app.bucket}/store"
+        },
+        {
+          name  = "OUTPUT__TYPE"
+          value = "s3"
+        },
+        {
+          name  = "OUTPUT__URI"
+          value = "s3://${aws_s3_bucket.app.bucket}/out"
+        },
+        {
+          name  = "AUTO_ANALYSE_MODE"
+          value = "True"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "${aws_cloudwatch_log_group.app_logs.name}"
+          awslogs-region        = "${var.aws_region}"
+          awslogs-stream-prefix = "ecs/scrape-task"
+        }
+      }
+    }
+  ])
+  tags = var.common_tags
+}
+
+resource "aws_ecs_service" "scrape_service" {
+  name            = "${var.project_name}-${var.env}-scrape-service"
+  cluster         = aws_ecs_cluster.app_cluster.id
+  task_definition = aws_ecs_task_definition.scrape_task.arn
+  desired_count   = 0
+
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight            = 1
+  }
+
+  network_configuration {
+    subnets          = var.private_subnet_ids
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  lifecycle {
+    ignore_changes = [
+      task_definition,
+      desired_count
+    ]
+  }
+
+  tags = merge(var.common_tags, { Name = "${var.project_name}-${var.env}-scrape-service" })
+}
+
 
 resource "aws_security_group" "ecs_sg" {
   name   = "${var.project_name}-${var.env}-ecs-sg"

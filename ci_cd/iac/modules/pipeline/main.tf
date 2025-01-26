@@ -116,7 +116,7 @@ resource "aws_codepipeline" "main_pipeline" {
     }
 
     action {
-      name            = "Deploy_Worker"
+      name            = "Deploy_Scraper"
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
@@ -125,7 +125,21 @@ resource "aws_codepipeline" "main_pipeline" {
 
       configuration = {
         ClusterName = "${var.target_project_name}-${var.env}-cluster"
-        ServiceName = "${var.target_project_name}-${var.env}-service"
+        ServiceName = "${var.target_project_name}-${var.env}-scrape-service"
+      }
+    }
+
+    action {
+      name            = "Deploy_Analyser"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      version         = "1"
+      input_artifacts = ["build_back_output"]
+
+      configuration = {
+        ClusterName = "${var.target_project_name}-${var.env}-cluster"
+        ServiceName = "${var.target_project_name}-${var.env}-calc-service"
       }
     }
 
@@ -138,7 +152,7 @@ resource "aws_codepipeline" "main_pipeline" {
       input_artifacts = ["build_back_output"]
 
       configuration = {
-        FunctionName = "${aws_lambda_function.deploy_image_as_lambda.function_name}"
+        FunctionName   = "${aws_lambda_function.deploy_image_as_lambda.function_name}"
         UserParameters = "${var.target_project_name}-${var.env}-web-api"
       }
     }
@@ -152,7 +166,7 @@ resource "aws_codepipeline" "main_pipeline" {
       input_artifacts = ["build_back_output"]
 
       configuration = {
-        FunctionName = "${aws_lambda_function.deploy_image_as_lambda.function_name}"
+        FunctionName   = "${aws_lambda_function.deploy_image_as_lambda.function_name}"
         UserParameters = "${var.target_project_name}-${var.env}-command"
       }
     }
