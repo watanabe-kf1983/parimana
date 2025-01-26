@@ -113,7 +113,7 @@ class _CategoryMoto(Category):
             name="オート",
             race_type=AutoRace,
             timezone=_moto_timezone,
-            poll_start_time=datetime.time(hour=10, minute=10),
+            poll_start_time=datetime.time(hour=8, minute=30),
         )
 
     @property
