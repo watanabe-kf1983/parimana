@@ -46,6 +46,9 @@ class OddsPool:
     odds: Mapping[Eye, Odds]
     vote_ratio: Mapping[BettingType, float]
 
+    def __post_init__(self):
+        self.odds = {eye: odds for eye, odds in self.odds.items() if odds.odds > 0}
+
     @cached_property
     def contestants(self) -> Contestants:
         nameset = {name for eye in self.odds.keys() for name in eye.names}
