@@ -13,8 +13,6 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/
 
-# set selenium manager cache path for lambda
-ENV SE_CACHE_PATH=/tmp/.cache/selenium
 
 
 FROM python-base AS poetry
@@ -73,14 +71,7 @@ RUN poetry install --without dev
 
 
 
-FROM python-base AS prod
-
-# install dockerize
-ENV DOCKERIZE_VERSION=v0.7.0
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends wget \
-    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+FROM python-base AS prod-base
 
 # install parimana
 ENV APP_PATH="/app" \
@@ -88,3 +79,28 @@ ENV APP_PATH="/app" \
     FILE_STORAGE_ROOT_PATH="/var/parimana/repo"
 
 COPY --from=prod-build ${APP_PATH} ${APP_PATH}
+
+
+
+FROM prod-base AS aws
+
+# set selenium manager cache path for lambda
+ENV SE_CACHE_PATH=/tmp/.cache/selenium
+
+# install SSM Agent
+RUN apt-get update && \
+    apt-get install -y curl unzip && \
+    curl -fsSL https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.deb -o ssm-agent.deb && \
+    dpkg -i ssm-agent.deb && \
+    rm ssm-agent.deb
+
+
+
+FROM prod-base AS compose
+
+# install dockerize
+ENV DOCKERIZE_VERSION=v0.7.0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget \
+    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*

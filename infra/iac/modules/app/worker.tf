@@ -25,6 +25,11 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_attachment" {
   policy_arn = aws_iam_policy.ecs_task_execution_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_ssm_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_policy" "ecs_task_execution_policy" {
   name        = "AmazonECSTaskExecutionRolePolicy-${var.env}"
   description = "Custom policy for build infra of ${var.project_name}"
