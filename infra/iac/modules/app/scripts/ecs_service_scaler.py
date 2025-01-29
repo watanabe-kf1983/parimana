@@ -16,8 +16,8 @@ def scale_services(cluster_name, service_scales):
     return [
         ecs.update_service(
             cluster=cluster_name,
-            service=service_scale.service_name,
-            desiredCount=int(service_scale.desired_count),
+            service=service_scale["service_name"],
+            desiredCount=int(service_scale["desired_count"]),
         )
         for service_scale in service_scales
     ]
