@@ -7,7 +7,7 @@ def lambda_handler(event, context):
 
     cluster_name = os.environ['CLUSTER_NAME']
     result = scale_services(cluster_name, event.get("service_scales"))
-    return {"result": scale_services}
+    return {"result": "ok"}
 
 
 def scale_services(cluster_name, service_scales):
