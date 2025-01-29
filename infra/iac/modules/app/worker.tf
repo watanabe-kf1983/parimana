@@ -125,7 +125,7 @@ resource "aws_ecs_task_definition" "calc_task" {
         },
         {
           name  = "STORAGE__URI"
-          value = "s3://${aws_s3_bucket.app.bucket}/store"
+          value = "s3://${aws_s3_bucket.app.bucket}/store/"
         },
         {
           name  = "OUTPUT__TYPE"
@@ -133,7 +133,7 @@ resource "aws_ecs_task_definition" "calc_task" {
         },
         {
           name  = "OUTPUT__URI"
-          value = "s3://${aws_s3_bucket.app.bucket}/out"
+          value = "s3://${aws_s3_bucket.app.bucket}/out/"
         },
         {
           name  = "AUTO_ANALYSE_MODE"
@@ -209,7 +209,7 @@ resource "aws_ecs_task_definition" "scrape_task" {
         },
         {
           name  = "STORAGE__URI"
-          value = "s3://${aws_s3_bucket.app.bucket}/store"
+          value = "s3://${aws_s3_bucket.app.bucket}/store/"
         },
         {
           name  = "OUTPUT__TYPE"
@@ -217,7 +217,7 @@ resource "aws_ecs_task_definition" "scrape_task" {
         },
         {
           name  = "OUTPUT__URI"
-          value = "s3://${aws_s3_bucket.app.bucket}/out"
+          value = "s3://${aws_s3_bucket.app.bucket}/out/"
         },
         {
           name  = "AUTO_ANALYSE_MODE"
