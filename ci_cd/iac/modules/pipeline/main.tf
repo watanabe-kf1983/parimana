@@ -144,6 +144,20 @@ resource "aws_codepipeline" "main_pipeline" {
     }
 
     action {
+      name            = "Deploy_Monitor"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      version         = "1"
+      input_artifacts = ["build_back_output"]
+
+      configuration = {
+        ClusterName = "${var.target_project_name}-${var.env}-cluster"
+        ServiceName = "${var.target_project_name}-${var.env}-monitor-service"
+      }
+    }
+
+    action {
       name            = "Deploy_WebApi"
       category        = "Invoke"
       owner           = "AWS"
