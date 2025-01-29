@@ -1,6 +1,7 @@
 import multiprocessing
 from pathlib import Path
 from typing import Sequence
+import socket
 
 from parimana.tasks.base import CeleryTasks
 
@@ -20,7 +21,7 @@ class Worker:
             "--loglevel=info",
             f"--queues={queue_name}",
             "-n",
-            f"worker_{queue_name}",
+            f"worker_{queue_name}_{socket.gethostname()}",
         ]
         if "scrape" in queue_name:
             argv.append("--concurrency=1")
