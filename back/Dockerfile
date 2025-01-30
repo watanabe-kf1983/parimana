@@ -87,13 +87,6 @@ FROM prod-base AS aws
 # set selenium manager cache path for lambda
 ENV SE_CACHE_PATH=/tmp/.cache/selenium
 
-# install SSM Agent
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends wget \
-    && wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb \
-    && dpkg -i amazon-ssm-agent.deb \
-    && rm amazon-ssm-agent.deb \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 FROM prod-base AS compose
