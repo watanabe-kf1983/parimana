@@ -18,6 +18,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
     ]
   })
   tags = var.common_tags
+
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_attachment" {
@@ -25,10 +26,6 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_attachment" {
   policy_arn = aws_iam_policy.ecs_task_execution_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_ssm_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
 
 resource "aws_iam_policy" "ecs_task_execution_policy" {
   name        = "AmazonECSTaskExecutionRolePolicy-${var.env}"
@@ -101,6 +98,12 @@ resource "aws_iam_role_policy" "ecs_task_policy" {
   })
 }
 
+
+
+resource "aws_iam_role_policy_attachment" "ecs_ssm_policy" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
 
 resource "aws_ecs_task_definition" "calc_task" {
   family                   = "${var.project_name}-${var.env}-calc-task"

@@ -60,7 +60,8 @@ resource "aws_ecs_service" "monitor_service" {
   cluster         = aws_ecs_cluster.app_cluster.id
   task_definition = aws_ecs_task_definition.monitor_task.arn
   desired_count   = 0
-
+  enable_execute_command = true
+  
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
     weight            = 1
