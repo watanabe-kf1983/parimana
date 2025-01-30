@@ -75,7 +75,7 @@ resource "aws_cloudfront_distribution" "web_distribution" {
 
   default_root_object = "index.html"
 
-  # aliases = [var.sub_domain_name]
+  aliases = [var.sub_domain_name]
 
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.cert.arn
