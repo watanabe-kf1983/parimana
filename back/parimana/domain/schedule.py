@@ -85,7 +85,7 @@ class RaceInfo:
     def generate_analyse_schedule(
         self,
         closing_time_delta_list: Sequence[int],
-        time_fron: datetime.datetime,
+        time_from: datetime.datetime,
         time_to: datetime.datetime,
     ) -> Sequence[datetime.datetime]:
 
@@ -93,13 +93,12 @@ class RaceInfo:
             t
             for t in set(
                 max(
-                    time_fron,
                     self.poll_start_time,
                     (self.poll_closing_time + timedelta(minutes=delta_min)),
                 )
                 for delta_min in closing_time_delta_list
             )
-            if t < time_to
+            if time_from < t < time_to
         ]
 
 
