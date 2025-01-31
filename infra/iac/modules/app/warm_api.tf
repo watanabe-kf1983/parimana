@@ -5,10 +5,10 @@ resource "aws_cloudwatch_event_rule" "warm_up_lambda_rule" {
 }
 
 
-resource "aws_cloudwatch_event_target" "warm_up_target_lambda" {
-  count = 5
-  rule = aws_cloudwatch_event_rule.warm_up_lambda_rule.name
-  arn  = aws_lambda_function.web_api.arn
+resource "aws_cloudwatch_event_target" "warm_up_target_info_lambda" {
+  count = 3
+  rule  = aws_cloudwatch_event_rule.warm_up_lambda_rule.name
+  arn   = aws_lambda_function.web_api.arn
   input = jsonencode({
     "version" : "2.0",
     "requestContext" : {
@@ -20,6 +20,22 @@ resource "aws_cloudwatch_event_target" "warm_up_target_lambda" {
     }
   })
 }
+
+resource "aws_cloudwatch_event_target" "warm_up_target_schedule_lambda" {
+  rule = aws_cloudwatch_event_rule.warm_up_lambda_rule.name
+  arn  = aws_lambda_function.web_api.arn
+  input = jsonencode({
+    "version" : "2.0",
+    "requestContext" : {
+      "http" : {
+        "method" : "GET",
+        "path" : "/api/v1/schedule/races?analysed_only=true",
+        "sourceIp" : "111.111.111.111"
+      }
+    }
+  })
+}
+
 
 resource "aws_lambda_permission" "allow_eventbridge_warm_up_web_api" {
   statement_id  = "AllowEventBridge-${var.env}-warm-up-web-api"
