@@ -194,7 +194,7 @@ resource "aws_ecs_task_definition" "scrape_task" {
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "2048"
-  memory                   = "4096"
+  memory                   = "6144"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
@@ -203,7 +203,7 @@ resource "aws_ecs_task_definition" "scrape_task" {
       name      = "${var.project_name}-backend"
       image     = "hello-world"
       cpu       = 2048
-      memory    = 4096
+      memory    = 6144
       essential = true
       command   = ["parimana", "worker", "-q", "scrape", "-b"]
       environment = [
