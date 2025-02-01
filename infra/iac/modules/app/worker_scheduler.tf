@@ -1,11 +1,11 @@
 resource "aws_cloudwatch_event_rule" "start_up_weekday_rule" {
-  name                = "${var.project_name}-${var.env}-start-up-worker-weekend"
+  name                = "${var.project_name}-${var.env}-start-up-worker-weekday"
   schedule_expression = "cron(00 22 ? * SUN-THU *)" # every MON-FRI 07:00(+09:00)
   tags                = var.common_tags
 }
 
 resource "aws_cloudwatch_event_rule" "start_up_weekend_rule" {
-  name                = "${var.project_name}-${var.env}-start-up-worker-weekday"
+  name                = "${var.project_name}-${var.env}-start-up-worker-weekend"
   schedule_expression = "cron(00 22 ? * FRI,SAT *)" # every SAT,SUN 07:00(+09:00)
   tags                = var.common_tags
 }
