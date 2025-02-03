@@ -29,13 +29,15 @@ resource "aws_cloudwatch_event_target" "warm_up_target_schedule_lambda" {
     "requestContext" : {
       "http" : {
         "method" : "GET",
-        "path" : "/api/v1/schedule/races?analysed_only=true",
+        "path" : "/api/v1/schedule/races",
         "sourceIp" : "111.111.111.111"
+      },
+      "pathParameters" : {
+        "analysed_only" : "true"
       }
     }
   })
 }
-
 
 resource "aws_lambda_permission" "allow_eventbridge_warm_up_web_api" {
   statement_id  = "AllowEventBridge-${var.env}-warm-up-web-api"
