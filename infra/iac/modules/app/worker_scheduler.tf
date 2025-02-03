@@ -38,7 +38,7 @@ resource "aws_cloudwatch_event_target" "start_up_weekend_target" {
   input = jsonencode({
     "service_scales" : [
       { "service_name" : "${aws_ecs_service.scrape_service.name}", "desired_task_count" : "1" },
-      { "service_name" : "${aws_ecs_service.calc_service.name}", "desired_task_count" : "3" }
+      { "service_name" : "${aws_ecs_service.calc_service.name}", "desired_task_count" : "2" }
   ] })
 }
 
