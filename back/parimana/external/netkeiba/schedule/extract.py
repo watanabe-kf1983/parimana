@@ -19,10 +19,15 @@ class JraScheduleExtractor:
 
     def extract_open_days(self, calendar_page_html: str) -> Sequence[int]:
         soup = parse(calendar_page_html)
-        elements = soup.select(
-            "div.Race_Calendar_Main div.RaceKaisaiBox.HaveData span.Day"
-        )
-        return [int(e.get_text(strip=True)) for e in elements]
+        kaisai_boxes = soup.select("div.Race_Calendar_Main div.RaceKaisaiBox")
+        calendar = []
+        for kaisai_box in kaisai_boxes:
+            joes = kaisai_box.select("span.JyoName")
+            if len(joes):
+                span_day = kaisai_box.select_one("span.Day")
+                calendar.append(int(span_day.get_text(strip=True)))
+
+        return calendar
 
     def extract_schedule(self, schedule_page_html: str) -> Sequence[RaceListItem]:
         soup = parse(schedule_page_html)
