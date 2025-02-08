@@ -40,7 +40,7 @@ class ScheduleTasks(CeleryTasks):
         for race in self.schedule_app.get_today_schedule():
             now = datetime.datetime.now(tz=race.fixture.course.category.timezone)
             analyse_schedule = race.generate_analyse_schedule(
-                closing_time_delta_list=[180, 5, -7, -20, -60, -180],
+                closing_time_delta_list=[300, 180, 60, 5, -7, -20, -60, -180],
                 time_from=now,
                 time_to=now + timedelta(minutes=min),
             )
