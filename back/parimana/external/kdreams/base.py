@@ -66,7 +66,7 @@ class Meeting:
         if m := re.fullmatch(_MEETING_PATTERN, code):
             return cls.from_codes(**m.groupdict())
         else:
-            return ValueError(f"Invalid code {code}")
+            raise ValueError(f"Invalid code {code}")
 
 
 _MEETING_PATTERN: re.Pattern = re.compile(
@@ -99,7 +99,7 @@ class MeetingDay:
         if m := re.fullmatch(_MEETING_DAY_PATTERN, code):
             return cls.from_codes(**m.groupdict())
         else:
-            return ValueError(f"Invalid code {code}")
+            raise ValueError(f"Invalid code {code}")
 
 
 _MEETING_DAY_PATTERN: re.Pattern = re.compile(
@@ -143,7 +143,7 @@ class KeirinRace(Race):
         if m := re.fullmatch(_RACE_CODE_PATTERN, code):
             return cls.from_codes(**m.groupdict())
         else:
-            return ValueError(f"Invalid code {code}")
+            raise ValueError(f"Invalid code {code}")
 
     @classmethod
     def from_id(cls, race_id: str) -> Optional["KeirinRace"]:

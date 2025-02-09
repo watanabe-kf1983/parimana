@@ -39,10 +39,16 @@ def _scrape_meeting_day_link(date: datetime.date) -> Sequence[str]:
 
 def _scrape_schedule(meeting_day_link: str) -> Sequence[RaceInfo]:
     meeting_day_page = browser.browse_link(meeting_day_link)
-    return [
-        _to_race_info_from_ext(extracted)
-        for extracted in ext.extract_races(meeting_day_page)
-    ]
+    schedule = []
+
+    for extracted in ext.extract_races(meeting_day_page):
+        try:
+            ri = _to_race_info_from_ext(extracted)
+            schedule.append(ri)
+        except Exception as e:
+            print(f"extract race '{extracted}' skipped caused by '{e}' ")
+
+    return schedule
 
 
 def _scrape_race_info(race_id: str) -> RaceInfo:
