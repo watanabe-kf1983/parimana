@@ -20,10 +20,14 @@ class DictStorage(Storage):
 
 
 def test_cached_kvs_batch_exists():
-    target = CachedStorage(original=DictStorage("org"), cache=DictStorage("cac"))
 
-    target.write_text("a", "hello")
-    target.original.write_text("c", "hello")
+    original = DictStorage("org")
+    original.write_text("a", "hello")
 
-    assert target.original.batch_exists(["a", "b", "c"]) == [True, False, True]
-    assert target.batch_exists(["a", "b", "c"]) == [True, False, True]
+    target = CachedStorage(original=original, cache=DictStorage("cac"))
+    assert target.batch_exists(["a", "b", "c"]) == [True, False, False]
+
+    target.write_text("b", "hello")
+
+    assert target.batch_exists(["a", "b", "c"]) == [True, True, False]
+    assert target.original.batch_exists(["a", "b", "c"]) == [True, True, False]
