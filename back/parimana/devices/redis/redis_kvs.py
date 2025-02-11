@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Sequence
 
 import redis
 
@@ -15,6 +15,14 @@ class RedisStorage(Storage):
 
     def exists(self, key: str) -> bool:
         return bool(self.client.exists(self._get_key(key)))
+
+    def batch_exists(self, keys: Sequence[str]) -> Sequence[bool]:
+        pipe = self.client.pipeline()
+        for key in keys:
+            pipe.exists(self._get_key(key))
+
+        results = pipe.execute()
+        return [bool(result) for result in results]
 
     def read_binary(self, key: str) -> Optional[bytes]:
         if self.exists(key):
