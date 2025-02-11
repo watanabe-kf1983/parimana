@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 import pickle
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Sequence
 
 
 from parimana.io.message import mprint
@@ -29,6 +29,9 @@ class Storage(ABC):
             return deserializer(binary)
         else:
             return None
+
+    def batch_exists(self, keys: Sequence[str]) -> Sequence[bool]:
+        return [self.exists(key) for key in keys]
 
     def write_object(
         self,
@@ -81,18 +84,33 @@ class CachedStorage(Storage):
     original: Storage
     cache: Storage
 
-    def _fetch_to_cache(self, key: str) -> bool:
+    def _original_to_cache(self, key: str) -> None:
+        self.cache.write_binary(f"fetched:{key}", b"T")
+        if self.original.exists(key):
+            self.cache.write_binary(f"cache:{key}", self.original.read_binary(key))
+
+    def _fetch(self, key: str) -> None:
         if not self.cache.exists(f"fetched:{key}"):
-            self.cache.write_binary(f"fetched:{key}", b"T")
-            if self.original.exists(key):
-                self.cache.write_binary(f"cache:{key}", self.original.read_binary(key))
+            self._original_to_cache(key)
+
+    def _batch_fetch(self, keys: Sequence[str]) -> None:
+        fetched_exists_list = self.cache.batch_exists(
+            [f"fetched:{key}" for key in keys]
+        )
+        for key, fetched_exists in zip(keys, fetched_exists_list):
+            if not fetched_exists:
+                self._original_to_cache(key)
 
     def exists(self, key: str) -> bool:
-        self._fetch_to_cache(key)
+        self._fetch(key)
         return self.cache.exists(f"cache:{key}")
 
+    def batch_exists(self, keys: Sequence[str]) -> Sequence[bool]:
+        self._batch_fetch(keys)
+        return self.cache.batch_exists([f"cache:{key}" for key in keys])
+
     def read_binary(self, key: str) -> Optional[bytes]:
-        self._fetch_to_cache(key)
+        self._fetch(key)
         return self.cache.read_binary(f"cache:{key}")
 
     def write_binary(self, key: str, binary: bytes) -> None:
