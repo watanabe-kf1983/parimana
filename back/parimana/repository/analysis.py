@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Sequence
 
 from parimana.domain.race import Race, OddsTimeStamp
 from parimana.domain.analyse import AnalysisCharts
@@ -32,7 +32,7 @@ class AnalysisRepository(ABC):
         pass
 
     @abstractmethod
-    def charts_exists_one(self, race: Race, model: str) -> bool:
+    def extract_charts_exist(self, races: Sequence[Race]) -> Sequence[Race]:
         pass
 
 
@@ -70,5 +70,8 @@ class AnalysisRepositoryImpl(AnalysisRepository):
     def load_latest_charts_time(self, race: Race) -> Optional[OddsTimeStamp]:
         return self.store.read_object(f"analysis/{race.race_id}/charts_ts.pickle")
 
-    def charts_exists_one(self, race: Race, model: str) -> bool:
-        return self.store.exists(f"analysis/{race.race_id}/charts_ts.pickle")
+    def extract_charts_exist(self, races: Sequence[Race]) -> Sequence[Race]:
+        results = self.store.batch_exists(
+            [f"analysis/{race.race_id}/charts_ts.pickle" for race in races]
+        )
+        return [race for race, exists in zip(races, results) if exists]

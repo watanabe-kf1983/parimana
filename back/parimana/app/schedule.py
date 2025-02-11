@@ -27,22 +27,18 @@ class ScheduleApp:
         ]
 
     def get_recent_schedule(self, analysed_only: bool = True) -> Sequence[RaceInfo]:
-        return [
+        loaded_races = [
             race_info
             for cat in self.category_selector.all()
-            for race_info in self.get_recent_schedule_by_cat(cat, analysed_only)
-        ]
-
-    def get_recent_schedule_by_cat(
-        self, cat: Category, analysed_only: bool = True
-    ) -> Sequence[RaceInfo]:
-        return [
-            race_info
             for date in self.get_recent_calendar(cat)
             for race_info in (self.repo.load_schedule(cat, date) or [])
-            if (not analysed_only)
-            or self.an_repo.charts_exists_one(race_info, "no_cor")
         ]
+
+        return (
+            self.an_repo.extract_charts_exist(loaded_races)
+            if analysed_only
+            else loaded_races
+        )
 
     def get_recent_calendar(
         self,
