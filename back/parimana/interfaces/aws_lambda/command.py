@@ -34,3 +34,11 @@ def start_analyse(*args, **kwargs):
     options = AnalyseTaskOptions(*args, **kwargs)
     task_id = cx.analyse_tasks.scrape_and_analyse(options).delay().id
     return {"task_id": task_id}
+
+
+@command
+def reschedule_race(*args, **kwargs):
+    category_id = kwargs.get("category_id")
+    cat = cx.category_selector.select(category_id)
+    task_id = cx.schedule_tasks.update_rescheduled.s(cat=cat).delay().id
+    return {"task_id": task_id}

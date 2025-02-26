@@ -79,10 +79,14 @@ class ScheduleApp:
         self.update_calendar(cat)
 
         for date in self.get_recent_calendar(cat):
-            day_schedule = self.repo.load_schedule(cat, date)
+            self.update_day_schedule(cat, date)
 
-            if day_schedule is None:
-                day_schedule = cat.schedule_source.scrape_day_schedule(date)
-                self.repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
-                for race_info in day_schedule:
-                    self.repo.save_race_info(race_info)
+    def update_day_schedule(
+        self, cat: Category, date: datetime.date, scrape_force: bool = False
+    ) -> None:
+
+        if scrape_force or self.repo.load_schedule(cat, date) is None:
+            day_schedule = cat.schedule_source.scrape_day_schedule(date)
+            self.repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
+            for race_info in day_schedule:
+                self.repo.save_race_info(race_info)

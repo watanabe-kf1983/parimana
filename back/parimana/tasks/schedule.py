@@ -32,6 +32,11 @@ class ScheduleTasks(CeleryTasks):
         return self.schedule_app.update_schedule(cat)
 
     @task
+    def update_rescheduled(self, *, cat: Category, **kwargs):
+        date = datetime.datetime.now(tz=cat.timezone).date()
+        self.schedule_app.update_day_schedule(cat, date, scrape_force=True)
+
+    @task
     def scrape_race_info(self, *, cat: Category, race_id: str, **kwargs) -> RaceInfo:
         return self.schedule_app.scrape_race(cat=cat, race_id=race_id)
 
