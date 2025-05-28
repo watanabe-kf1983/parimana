@@ -44,7 +44,7 @@ def get(uri: str, wait_selectors: Sequence[str]):
 
 def browse_race_info_page(race: AutoRace) -> str:
     wait_selectors = [
-        "#race-result-race-period-time > div:nth-child(2)",
+        "#race-result-current-race-telvote > span",
     ]
     return get(race_page_uri(race), wait_selectors)
 

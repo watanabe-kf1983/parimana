@@ -14,7 +14,7 @@ def has_contents(page_html: str) -> bool:
 
 def extract_closing_time(page_html: str) -> datetime.time:
     soup = parse(page_html)
-    race_text = soup.select_one("#race-result-race-period-time").get_text()
+    race_text = soup.select_one("#race-result-current-race-telvote").get_text()
     if m := re.search(CLOSING_TIME_PATTERN, race_text):
         return datetime.datetime.strptime(m.group("time"), "%H:%M").time()
     else:
@@ -25,4 +25,4 @@ def parse(html: str) -> BeautifulSoup:
     return BeautifulSoup(html.encode("utf-8"), "html.parser", from_encoding="utf-8")
 
 
-CLOSING_TIME_PATTERN: re.Pattern = re.compile(r"投票締切(?P<time>[0-9]{1,2}:[0-9]{2})")
+CLOSING_TIME_PATTERN: re.Pattern = re.compile(r"投票締切\s*(?P<time>[0-9]{1,2}:[0-9]{2})")
