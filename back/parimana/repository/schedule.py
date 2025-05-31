@@ -44,6 +44,21 @@ class ScheduleRepository(ABC):
     def load_race_info(self, race_id: str) -> Optional[RaceInfo]:
         pass
 
+    @abstractmethod
+    def save_analysed(
+        self,
+        cat: Category,
+        date: datetime.date,
+        analysed: Sequence[RaceInfo],
+    ):
+        pass
+
+    @abstractmethod
+    def load_analysed(
+        self, cat: Category, date: datetime.date
+    ) -> Optional[Sequence[RaceInfo]]:
+        pass
+
 
 @dataclass
 class ScheduleRepositoryImpl(ScheduleRepository):
@@ -81,3 +96,20 @@ class ScheduleRepositoryImpl(ScheduleRepository):
 
     def load_race_info(self, race_id: str) -> Optional[RaceInfo]:
         return self.store.read_object(f"schedule/races/{race_id}.pickle")
+
+    def save_analysed(
+        self,
+        cat: Category,
+        date: datetime.date,
+        analysed: Sequence[RaceInfo],
+    ):
+        self.store.write_object(
+            f"schedule/cat/{cat.id}/{date:%Y%m%d}_analysed.pickle", analysed
+        )
+
+    def load_analysed(
+        self, cat: Category, date: datetime.date
+    ) -> Optional[Sequence[RaceInfo]]:
+        return self.store.read_object(
+            f"schedule/cat/{cat.id}/{date:%Y%m%d}_analysed.pickle"
+        )

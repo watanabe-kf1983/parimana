@@ -1,5 +1,5 @@
 import datetime
-from typing import Sequence
+from typing import Collection, Sequence
 
 from parimana.domain.schedule import Category, CategorySelector, RaceInfo
 from parimana.io.kvs import Storage
@@ -26,19 +26,13 @@ class ScheduleApp:
             )
         ]
 
-    def get_recent_schedule(self, analysed_only: bool = True) -> Sequence[RaceInfo]:
-        loaded_races = [
+    def get_recent_schedule(self) -> Sequence[RaceInfo]:
+        return [
             race_info
             for cat in self.category_selector.all()
             for date in self.get_recent_calendar(cat)
             for race_info in (self.repo.load_schedule(cat, date) or [])
         ]
-
-        return (
-            self.an_repo.extract_charts_exist(loaded_races)
-            if analysed_only
-            else loaded_races
-        )
 
     def get_recent_calendar(
         self,
@@ -90,3 +84,30 @@ class ScheduleApp:
             self.repo.save_schedule(cat=cat, date=date, schedule=day_schedule)
             for race_info in day_schedule:
                 self.repo.save_race_info(race_info)
+
+    def get_recent_analysed(self) -> Sequence[RaceInfo]:
+
+        scheduled = self.get_recent_schedule()
+
+        analysed = [
+            race_info
+            for cat, date in _distinct_cat_and_date(scheduled)
+            for race_info in (self.repo.load_analysed(cat, date) or [])
+        ]
+
+        if not_analysed := set(scheduled) - set(analysed):
+            new_analysed = self.an_repo.extract_charts_exist(list(not_analysed))
+            analysed += new_analysed
+            for cat, date in _distinct_cat_and_date(new_analysed):
+                analysed_by_cat_date = [
+                    race
+                    for race in analysed
+                    if race.fixture.course.category == cat and race.fixture.date == date
+                ]
+                self.repo.save_analysed(cat, date, analysed_by_cat_date)
+
+        return analysed
+
+
+def _distinct_cat_and_date(races: Collection[RaceInfo]):
+    return {(ri.fixture.course.category, ri.fixture.date) for ri in races}

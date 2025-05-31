@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from parimana.domain.race import Race
 
 
-@dataclass
+@dataclass(frozen=True)
 class Category(ABC):
     id: str
     name: str
@@ -50,14 +50,14 @@ class CategorySelector:
         return [category.schedule_source.site_name() for category in self.categories]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Course:
     id: str
     name: str
     category: Category
 
 
-@dataclass
+@dataclass(frozen=True)
 class Fixture:
     """
     開催日
@@ -67,7 +67,7 @@ class Fixture:
     date: date
 
 
-@dataclass
+@dataclass(frozen=True)
 class RaceInfo:
     race_id: str
     name: str

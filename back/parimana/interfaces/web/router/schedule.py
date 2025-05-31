@@ -11,10 +11,12 @@ router = APIRouter()
 def get_races(
     analysed_only: bool = Query(True),
 ) -> Sequence[RaceInfo]:
-    return [
-        RaceInfo.from_base(race)
-        for race in cx.schedule_app.get_recent_schedule(analysed_only=analysed_only)
-    ]
+    races = (
+        cx.schedule_app.get_recent_analysed()
+        if analysed_only
+        else cx.schedule_app.get_recent_schedule()
+    )
+    return [RaceInfo.from_base(race) for race in races]
 
 
 @router.get("/races/{race_id}")
