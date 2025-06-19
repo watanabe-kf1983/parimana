@@ -64,18 +64,27 @@ def _iterate_relation_single(col: Collection[T]) -> Iterable[Relation[T]]:
     return itertools.chain(i1, i2, i3)
 
 
-def iterate_relation(*collections: Collection[T]) -> Iterable[Relation[T]]:
+def iterate_relation(
+    placed: Collection[T], unplaced: Collection[T], omitted: Collection[T] = ()
+) -> Iterable[Relation[T]]:
+
     i1 = (
         Relation(a, b, Superiority.SUPERIOR)
-        for (col_a, col_b) in itertools.combinations(collections, 2)
-        for a, b in itertools.product(col_a, col_b)
+        for a, b in itertools.product(placed, unplaced)
     )
     i2 = (
         Relation(b, a, Superiority.INFERIOR)
-        for (col_a, col_b) in itertools.combinations(collections, 2)
-        for a, b in itertools.product(col_a, col_b)
+        for a, b in itertools.product(placed, unplaced)
     )
-    i3 = itertools.chain.from_iterable(
-        (_iterate_relation_single(col) for col in collections)
+    i3 = (
+        Relation(a, b, Superiority.UNKNOWN)
+        for a, b in itertools.product(itertools.chain(placed, unplaced), omitted)
     )
-    return itertools.chain(i1, i2, i3)
+    i4 = (
+        Relation(b, a, Superiority.UNKNOWN)
+        for a, b in itertools.product(itertools.chain(placed, unplaced), omitted)
+    )
+    i5 = itertools.chain.from_iterable(
+        (_iterate_relation_single(col) for col in [placed, unplaced, set(omitted)])
+    )
+    return itertools.chain(i1, i2, i3, i4, i5)
