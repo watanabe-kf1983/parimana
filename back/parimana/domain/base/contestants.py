@@ -73,8 +73,17 @@ class Contestants:
     def triple_destribution(
         self, vote_tallies: Mapping[Eye, float]
     ) -> TripleDistribution[Contestant]:
+
         return TripleDistribution(
-            [self.situation(k, v) for k, v in vote_tallies.items()]
+            *[
+                Distribution(
+                    [
+                        self.situation_by_step(k, step, v)
+                        for k, v in vote_tallies.items()
+                    ]
+                )
+                for step in range(3)
+            ]
         )
 
     @classmethod

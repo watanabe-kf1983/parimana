@@ -143,3 +143,10 @@ class Distribution(Generic[T]):
         self,
     ) -> Collection[Tuple[Situation[T], Collection[Relation[T]]]]:
         return [(s, s.relations) for s in self.situations]
+
+
+@dataclass(frozen=True)
+class TripleDistribution(Generic[T]):
+    first: Distribution[T]
+    second: Distribution[T]
+    third: Distribution[T]
