@@ -42,3 +42,49 @@ def test_situation():
         "5<4",
         "5=5",
     ]
+
+
+def test_situation_step0():
+    situation = Contestants.no_absences(4).situation_by_step(Eye("2-3"), 0)
+
+    assert [str(r) for r in situation.relations] == [
+        "1=1",
+        "1<2",
+        "1?3",
+        "1?4",
+        "2>1",
+        "2=2",
+        "2>3",
+        "2>4",
+        "3?1",
+        "3<2",
+        "3=3",
+        "3?4",
+        "4?1",
+        "4<2",
+        "4?3",
+        "4=4",
+    ]
+
+
+def test_situation_step1():
+    situation = Contestants.no_absences(4).situation_by_step(Eye("2-3"), 1)
+
+    assert [str(r) for r in situation.relations] == [
+        "1=1",
+        "1?2",
+        "1<3",
+        "1?4",
+        "2?1",
+        "2=2",
+        "2?3",
+        "2?4",
+        "3>1",
+        "3?2",
+        "3=3",
+        "3>4",
+        "4?1",
+        "4?2",
+        "4<3",
+        "4=4",
+    ]
