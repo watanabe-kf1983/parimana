@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Box, Link, Typography } from '@mui/material';
-import { Competences } from '../../models/components/Competences';
 import { Simulation } from '../../simulation/components/Simulation';
-import { Correlation } from '../../models/components/Correlation';
+import { Model } from '../../models/components/Model';
 import { AnalysisData } from '../types';
 import { getAnalysis } from '../api';
 
@@ -26,20 +25,13 @@ export function Analysis(props: Props) {
       <Box sx={{ m: 2 }}>
         {analysis
           ? <>
-            <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
-              オッズ情報源
-            </Typography>
-            <Typography variant="body1">
-              <Link target="_blank" href={analysis.source_uri}>{analysis.source_uri}</Link>
-              （{analysis.odds_update_time === "confirmed" ? "確定オッズ" : analysis.odds_update_time.replace("updated at ", "") + " 更新オッズ"}）
-              <br />
-              <br />
-            </Typography>
-            <Competences competences={analysis.competences} chart={analysis.model_box} />
-            {props.modelName !== 'no_cor' ?
-              <Correlation chart={analysis.model_mds} correlations={analysis.correlations} />
-              : null
-            }
+            <SourceInfo uri={analysis.source_uri} updateTime={analysis.odds_update_time} />
+            <br />
+            <Model modelName={props.modelName}
+              competences={analysis.competences}
+              competencesChart={analysis.model_box}
+              correlations={analysis.correlations}
+              correlationsChart={analysis.model_mds} />
             <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />
           </>
           : <Typography variant="body1">
@@ -47,6 +39,22 @@ export function Analysis(props: Props) {
           </Typography>
         }
       </Box>
+    </>
+  );
+}
+
+
+function SourceInfo(props: { uri: string, updateTime: string }) {
+
+  return (
+    <>
+      <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
+        オッズ情報源
+      </Typography>
+      <Typography variant="body1">
+        <Link target="_blank" href={props.uri}>{props.uri}</Link>
+        （{props.updateTime === "confirmed" ? "確定オッズ" : props.updateTime.replace("updated at ", "") + " 更新オッズ"}）
+      </Typography>
     </>
   );
 }

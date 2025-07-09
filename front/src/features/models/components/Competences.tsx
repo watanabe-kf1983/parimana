@@ -42,8 +42,10 @@ export function Competences(props: Props) {
             <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
                 予想走破時計
             </Typography>
-            <DataGrid rows={rows} columns={columns} density='compact'
-                autoHeight disableColumnMenu hideFooter />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <DataGrid rows={rows} columns={columns} density='compact'
+                    disableColumnMenu hideFooter />
+            </div>
             <PlotlyChart chartJSON={props.chart} />
             <br></br>
         </>
