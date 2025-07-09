@@ -26,8 +26,10 @@ export function Correlation(props: Props) {
             <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
                 出走者間の相関
             </Typography>
-            <DataGrid rows={rows} columns={columns} density='compact'
-                autoHeight disableColumnMenu hideFooter />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <DataGrid rows={rows} columns={columns} density='compact'
+                    disableColumnMenu hideFooter />
+            </div>
             <PlotlyChart chartJSON={props.chart} />
             <br></br>
         </>
