@@ -8,28 +8,24 @@ import parimana.domain.analyse as an
 import parimana.domain.race as rc
 
 
-class Eye(BaseModel):
-    text: str
-    type: str
+class Status(BaseModel):
+    is_processing: bool
+    has_analysis: bool
+    is_odds_confirmed: bool
+
+
+class OddsSourceInfo(BaseModel):
+    source_uri: str
+    odds_update_time: str
 
     @staticmethod
-    def from_base(eye: bs.Eye):
-        return Eye(text=eye.text, type=eye.type.name)
-
-
-class EyeExpectedValue(BaseModel):
-    eye: Eye
-    odds: float
-    chance: float
-    expected: float
-
-    @staticmethod
-    def from_base(eev: an.EyeExpectedValue):
-        return EyeExpectedValue(
-            eye=Eye.from_base(eev.eye),
-            odds=eev.odds,
-            chance=eev.chance,
-            expected=eev.expected,
+    def from_base(
+        odds_source: rc.OddsSource,
+        timestamp: rc.OddsTimeStamp,
+    ):
+        return OddsSourceInfo(
+            source_uri=odds_source.get_uri(),
+            odds_update_time=timestamp.long_str(),
         )
 
 
@@ -57,7 +53,7 @@ class Competence(BaseModel):
 
     @staticmethod
     def from_abilities(
-        abilities: Mapping[bs.Contestant, an.Ability]
+        abilities: Mapping[bs.Contestant, an.Ability],
     ) -> Sequence["Competence"]:
         return sorted(
             (
@@ -68,26 +64,80 @@ class Competence(BaseModel):
         )
 
 
-class Status(BaseModel):
-    is_processing: bool
-    has_analysis: bool
-    is_odds_confirmed: bool
-
-
 class Correlations(BaseModel):
     a: str
     row: Mapping[str, float]
 
 
-class Result(BaseModel):
-    eev: Sequence[EyeExpectedValue]
+class Model(BaseModel):
+    type: str
     competences: Sequence[Competence]
+    competences_chart: str
     correlations: Sequence[Correlations]
-    source_uri: str
-    odds_update_time: str
-    odds_chance: str
-    model_box: str
-    model_mds: str
+    correlations_chart: str
+
+    @staticmethod
+    def from_base(
+        charts: an.AnalysisCharts,
+    ):
+        model = charts.result.model
+        crs = defaultdict(dict)
+        for (a, b), v in model.correlations.items():
+            crs[str(a)][str(b)] = v
+        correlations = [Correlations(a=key, row=dict) for key, dict in crs.items()]
+
+        return Model(
+            type=model.name,
+            competences=Competence.from_abilities(charts.result.model.abilities),
+            competences_chart=charts.model_box,
+            correlations=correlations,
+            correlations_chart=charts.model_mds,
+        )
+
+
+class Eye(BaseModel):
+    text: str
+    type: str
+
+    @staticmethod
+    def from_base(eye: bs.Eye):
+        return Eye(text=eye.text, type=eye.type.name)
+
+
+class EyeExpectedValue(BaseModel):
+    eye: Eye
+    odds: float
+    chance: float
+    expected: float
+
+    @staticmethod
+    def from_base(eev: an.EyeExpectedValue):
+        return EyeExpectedValue(
+            eye=Eye.from_base(eev.eye),
+            odds=eev.odds,
+            chance=eev.chance,
+            expected=eev.expected,
+        )
+
+
+class Simulation(BaseModel):
+    eev: Sequence[EyeExpectedValue]
+    odds_chance_chart: str
+
+    @staticmethod
+    def from_base(
+        charts: an.AnalysisCharts,
+    ):
+        return Simulation(
+            eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
+            odds_chance_chart=charts.odds_chance,
+        )
+
+
+class Result(BaseModel):
+    source: OddsSourceInfo
+    model: Model
+    simulation: Simulation
 
     @staticmethod
     def from_base(
@@ -95,18 +145,11 @@ class Result(BaseModel):
         race: rc.Race,
         ost: rc.OddsTimeStamp,
     ):
-        crs = defaultdict(dict)
-        for (a, b), v in charts.result.model.correlations.items():
-            crs[str(a)][str(b)] = v
-        correlations = [Correlations(a=key, row=dict) for key, dict in crs.items()]
 
         return Result(
-            eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
-            competences=Competence.from_abilities(charts.result.model.abilities),
-            correlations=correlations,
-            source_uri=race.odds_source.get_uri(),
-            odds_update_time=ost.long_str(),
-            odds_chance=charts.odds_chance,
-            model_box=charts.model_box,
-            model_mds=charts.model_mds,
+            source=OddsSourceInfo.from_base(
+                odds_source=race.odds_source, timestamp=ost
+            ),
+            model=Model.from_base(charts),
+            simulation=Simulation.from_base(charts),
         )
