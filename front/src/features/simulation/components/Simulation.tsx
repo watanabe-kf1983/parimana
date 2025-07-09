@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 
+import { PlotlyChart } from '../../../common/components/PlotlyChart';
 import { SimulationProps } from '../types';
-import { PlotlyChart } from './PlotlyChart';
 import { Betting } from './Betting';
 
 

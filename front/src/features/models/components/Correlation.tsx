@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 
 import { CorrelationProps } from '../types';
-import { PlotlyChart } from './PlotlyChart';
+import { PlotlyChart } from '../../../common/components/PlotlyChart';
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
 
 export function Correlation(props: CorrelationProps) {

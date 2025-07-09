@@ -2,7 +2,7 @@ import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 import { Typography } from '@mui/material';
 
 import { CompetenceProps } from '../types';
-import { PlotlyChart } from './PlotlyChart';
+import { PlotlyChart } from '../../../common/components/PlotlyChart';
 
 export function Competences(props: CompetenceProps) {
 

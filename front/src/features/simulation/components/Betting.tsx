@@ -1,10 +1,10 @@
-import { Candidate, BettingQueryProps } from '../types';
+import { Candidate, BettingProps } from '../types';
 import { useEffect, useState } from 'react';
 import { getCandidates } from '../api';
 import { Candidates } from './Candidates';
 import { QuerySelector } from './QuerySelector';
 
-export function Betting(props: BettingQueryProps) {
+export function Betting(props: BettingProps) {
   const [query, setQuery] = useState<string>("");
   const [recs, setRecs] = useState<Candidate[]>([]);
 

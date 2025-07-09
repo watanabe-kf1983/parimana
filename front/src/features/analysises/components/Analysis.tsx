@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Box, Link, Typography } from '@mui/material';
+import { Competences } from '../../models/components/Competences';
+import { Simulation } from '../../simulation/components/Simulation';
+import { Correlation } from '../../models/components/Correlation';
 import { AnalysisProps, AnalysisData } from '../types';
-import { Competences } from './Competences';
-import { Simulation } from './Simulation';
 import { getAnalysis } from '../api';
-import { Correlation } from './Correlation';
 
 export function Analysis(props: AnalysisProps) {
 

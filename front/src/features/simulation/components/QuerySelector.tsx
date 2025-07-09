@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { TextField } from '@mui/material';
-import { QuerySelectorProps } from '../types';
 import { FilterAlt } from '@mui/icons-material';
+import { QuerySelectorProps } from '../types';
 
 export function QuerySelector(props: QuerySelectorProps) {
     const [query, setQuery] = useState<string>(props.query)
