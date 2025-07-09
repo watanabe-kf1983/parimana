@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Box, Link, Typography } from '@mui/material';
 import { Simulation } from '../../simulation/components/Simulation';
 import { Model } from '../../models/components/Model';
-import { AnalysisData } from '../types';
+import { AnalysisData, SourceData } from '../types';
 import { getAnalysis } from '../api';
 
 type Props = { raceId: string, modelName: string };
@@ -25,14 +25,10 @@ export function Analysis(props: Props) {
       <Box sx={{ m: 2 }}>
         {analysis
           ? <>
-            <SourceInfo uri={analysis.source_uri} updateTime={analysis.odds_update_time} />
+            <SourceInfo source={analysis.source} />
             <br />
-            <Model modelName={props.modelName}
-              competences={analysis.competences}
-              competencesChart={analysis.model_box}
-              correlations={analysis.correlations}
-              correlationsChart={analysis.model_mds} />
-            <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.odds_chance} />
+            <Model model={analysis.model} />
+            <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
           </>
           : <Typography variant="body1">
             Loading...
@@ -44,7 +40,9 @@ export function Analysis(props: Props) {
 }
 
 
-function SourceInfo(props: { uri: string, updateTime: string }) {
+function SourceInfo(props: { source: SourceData }) {
+  const updateTime = props.source.odds_update_time
+  const uri = props.source.source_uri
 
   return (
     <>
@@ -52,8 +50,8 @@ function SourceInfo(props: { uri: string, updateTime: string }) {
         オッズ情報源
       </Typography>
       <Typography variant="body1">
-        <Link target="_blank" href={props.uri}>{props.uri}</Link>
-        （{props.updateTime === "confirmed" ? "確定オッズ" : props.updateTime.replace("updated at ", "") + " 更新オッズ"}）
+        <Link target="_blank" href={uri}>{uri}</Link>
+        （{updateTime === "confirmed" ? "確定オッズ" : updateTime.replace("updated at ", "") + " 更新オッズ"}）
       </Typography>
     </>
   );

@@ -1,17 +1,13 @@
-import { Competence, CorrelationData } from '../types';
+import { ModelData } from '../types';
 import { Competences } from './Competences';
 import { Correlation } from './Correlation';
 
 type Props = {
-  modelName: string,
-  competences: Array<Competence>,
-  correlations: Array<CorrelationData>,
-  competencesChart: string,
-  correlationsChart: string,
+  model: ModelData
 }
 
 export function Model(props: Props) {
-  switch (props.modelName) {
+  switch (props.model.type) {
     case 'ppf_mtx':
       return <CorModel {...props} />;
     case 'no_cor':
@@ -24,8 +20,8 @@ export function Model(props: Props) {
 function CorModel(props: Props) {
   return (
     <>
-      <Competences competences={props.competences} chart={props.competencesChart} />
-      <Correlation correlations={props.correlations} chart={props.correlationsChart} />
+      <Competences competences={props.model.competences} chart={props.model.competences_chart} />
+      <Correlation correlations={props.model.correlations} chart={props.model.correlations_chart} />
     </>
   );
 }
@@ -33,7 +29,7 @@ function CorModel(props: Props) {
 function NoCorModel(props: Props) {
   return (
     <>
-      <Competences competences={props.competences} chart={props.competencesChart} />
+      <Competences competences={props.model.competences} chart={props.model.competences_chart} />
     </>
   );
 }
