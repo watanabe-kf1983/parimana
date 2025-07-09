@@ -1,11 +1,11 @@
 import { Typography } from '@mui/material';
 
-import { SimulationProps } from '../types';
-import { PlotlyChart } from './PlotlyChart';
+import { PlotlyChart } from '../../../common/components/PlotlyChart';
 import { Betting } from './Betting';
 
+type Props = { raceId: string, modelName: string, chart: string };
 
-export function Simulation(props: SimulationProps) {
+export function Simulation(props: Props) {
 
     return (
         <>

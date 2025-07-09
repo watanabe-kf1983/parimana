@@ -1,7 +1,13 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { RaceOnDaySelectorProps } from "../types";
+import { RaceInfo } from "../types";
 
-export function RaceOnDaySelector(props: RaceOnDaySelectorProps) {
+type Props = {
+  value?: string;
+  items?: RaceInfo[];
+  onChange: (input: string) => void;
+};
+
+export function RaceOnDaySelector(props: Props) {
 
   // To avoid "Consider providing a value that matches one of the available options or ''""
   const value = props.items?.find((race) => race.id == props.value) ? props.value : ""

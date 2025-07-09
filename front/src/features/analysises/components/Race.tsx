@@ -1,12 +1,14 @@
-import { Box } from "@mui/material";
-import { AnalysisStatus, RaceControlProps } from "../types";
 import { useState, useEffect } from "react";
+import { Box } from "@mui/material";
+import { AnalysisStatus } from "../types";
 import api from "../api";
 import { RaceAnalysises } from "./RaceAnalysises";
 import { AnalyseControl } from "./AnalyseControl";
 import { AnalysisProgress } from "./AnalysisProgress";
 
-export function Race(props: RaceControlProps) {
+type Props = { raceId: string | undefined, showControl: boolean };
+
+export function Race(props: Props) {
   const initialStatus: AnalysisStatus = {
     is_processing: false,
     has_analysis: false,

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Box, Link, Typography } from '@mui/material';
-import { AnalysisProps, AnalysisData } from '../types';
-import { Competences } from './Competences';
-import { Simulation } from './Simulation';
+import { Competences } from '../../models/components/Competences';
+import { Simulation } from '../../simulation/components/Simulation';
+import { Correlation } from '../../models/components/Correlation';
+import { AnalysisData } from '../types';
 import { getAnalysis } from '../api';
-import { Correlation } from './Correlation';
 
-export function Analysis(props: AnalysisProps) {
+type Props = { raceId: string, modelName: string };
+
+export function Analysis(props: Props) {
 
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
 

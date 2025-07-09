@@ -1,7 +1,7 @@
 import { MathJax } from 'better-react-mathjax';
 import React from 'react';
 import Plot from 'react-plotly.js';
-import { useWindowSize } from '../../../common/hooks/useWindowSize';
+import { useWindowSize } from '../hooks/useWindowSize';
 
 // Propsの型を定義
 interface PlotlyChartProps {

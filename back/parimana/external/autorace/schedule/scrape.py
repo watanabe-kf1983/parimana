@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import traceback
 from typing import Sequence
 
 
@@ -49,6 +50,10 @@ def _scrape_schedule(date: datetime.date, studium: MotoStudium) -> Sequence[Race
         except browser.NoContentError:
             break
 
+        except Exception:
+            print(f"Warning: skipped race_no {race_no}")
+            print(traceback.format_exc())
+
     return schedule
 
 
@@ -58,14 +63,17 @@ def _scrape_race_info(race: AutoRace) -> RaceInfo:
     return _to_race_info(race, c_time)
 
 
-def _to_race_info(race: AutoRace, poll_closing_time: datetime.time) -> RaceInfo:
+def _to_race_info(race: AutoRace, poll_closing_time: datetime.timedelta) -> RaceInfo:
     return RaceInfo(
         race_id=race.race_id,
         name=race.name,
         fixture=Fixture(course=race.studium.to_course(), date=race.date),
-        poll_closing_time=datetime.datetime.combine(
-            race.date,
-            poll_closing_time,
-            category_moto.timezone,
+        poll_closing_time=(
+            datetime.datetime.combine(
+                race.date,
+                datetime.time(0, 0, 0),
+                category_moto.timezone,
+            )
+            + poll_closing_time
         ),
     )

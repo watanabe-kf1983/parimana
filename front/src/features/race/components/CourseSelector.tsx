@@ -1,7 +1,13 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { CourseSelectorProps } from "../types";
+import { Course } from "../types";
 
-export function CourseSelector(props: CourseSelectorProps) {
+type Props = {
+  value?: string;
+  items?: Course[];
+  onChange: (input: string) => void;
+};
+
+export function CourseSelector(props: Props) {
 
   // To avoid "Consider providing a value that matches one of the available options or ''""
   const value = props.items?.find((item) => item.id == props.value) ? props.value : ""

@@ -1,7 +1,12 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { DateSelectorProps } from "../types";
 
-export function DateSelector(props: DateSelectorProps) {
+type Props = {
+  value?: string;
+  items?: string[];
+  onChange: (input: string) => void;
+};
+
+export function DateSelector(props: Props) {
 
   // To avoid "Consider providing a value that matches one of the available options or ''""
   const value = props.items?.find((item) => item == props.value) ? props.value : ""

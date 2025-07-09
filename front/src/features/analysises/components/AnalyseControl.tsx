@@ -1,8 +1,10 @@
 import { Button } from "@mui/material";
-import { AnalyseControlProps } from "../types";
+import { AnalysisStatus } from "../types";
 import api from "../api/";
 
-export function AnalyseControl(props: AnalyseControlProps) {
+type Props = { raceId: string, status: AnalysisStatus, onReload: () => void };
+
+export function AnalyseControl(props: Props) {
 
   const status = props.status;
 

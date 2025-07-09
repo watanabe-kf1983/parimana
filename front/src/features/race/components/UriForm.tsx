@@ -6,10 +6,13 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { UriFormProps } from '../types';
 import * as api from "../api";
 
-export function UriForm(props: UriFormProps) {
+type Props = {
+  onRaceIdFound: (raceId: string) => void;
+};
+
+export function UriForm(props: Props) {
   const [open, setOpen] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
