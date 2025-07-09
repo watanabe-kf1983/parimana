@@ -1,10 +1,10 @@
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
-
-import { CandidatesProps } from '../types';
 import { useWindowSize } from '../../../common/hooks/useWindowSize';
+import { Candidate } from '../types';
 
+type Props = { data: Array<Candidate> };
 
-export function Candidates(props: CandidatesProps) {
+export function Candidates(props: Props) {
 
     const MAX_TABLE_WIDTH = 1000;
     const FRAME_PADDING = 15;

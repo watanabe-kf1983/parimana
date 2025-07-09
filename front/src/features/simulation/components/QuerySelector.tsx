@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, Dispatch, SetStateAction } from 'react'
 import { TextField } from '@mui/material';
 import { FilterAlt } from '@mui/icons-material';
-import { QuerySelectorProps } from '../types';
 
-export function QuerySelector(props: QuerySelectorProps) {
+type Props = { query: string, onSetQuery: Dispatch<SetStateAction<string>> };
+
+export function QuerySelector(props: Props) {
     const [query, setQuery] = useState<string>(props.query)
 
     const onQueryEntered = () => {

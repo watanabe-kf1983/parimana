@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
-import { AnalysisProgressProps } from '../types';
 import { getProgress } from '../api';
 
-export function AnalysisProgress(props: AnalysisProgressProps): JSX.Element {
+type Props = { raceId: string, onComplete: () => void, onAbort: () => void };
+
+export function AnalysisProgress(props: Props): JSX.Element {
   const [messages, setMessages] = useState<String>("");
   const scrollRef = useRef<HTMLDivElement>(null);
 

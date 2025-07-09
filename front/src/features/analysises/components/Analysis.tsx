@@ -3,10 +3,12 @@ import { Box, Link, Typography } from '@mui/material';
 import { Competences } from '../../models/components/Competences';
 import { Simulation } from '../../simulation/components/Simulation';
 import { Correlation } from '../../models/components/Correlation';
-import { AnalysisProps, AnalysisData } from '../types';
+import { AnalysisData } from '../types';
 import { getAnalysis } from '../api';
 
-export function Analysis(props: AnalysisProps) {
+type Props = { raceId: string, modelName: string };
+
+export function Analysis(props: Props) {
 
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
 

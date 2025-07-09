@@ -1,10 +1,11 @@
 import { Typography } from '@mui/material';
-
-import { CorrelationProps } from '../types';
 import { PlotlyChart } from '../../../common/components/PlotlyChart';
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
+import { CorrelationData } from '../types';
 
-export function Correlation(props: CorrelationProps) {
+type Props = { correlations: Array<CorrelationData>, chart: string };
+
+export function Correlation(props: Props) {
 
 
     const rows: GridRowsProp = props.correlations.map((c) => ({ id: c.a, ...c.row }));

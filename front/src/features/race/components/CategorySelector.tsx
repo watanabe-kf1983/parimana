@@ -1,7 +1,13 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { CategorySelectorProps } from "../types";
+import { Category } from "../types";
 
-export function CategorySelector(props: CategorySelectorProps) {
+type Props = {
+  value?: string;
+  items?: Category[];
+  onChange: (input: string) => void;
+};
+
+export function CategorySelector(props: Props) {
 
   // To avoid "Consider providing a value that matches one of the available options or ''""
   const value = props.items?.find((item) => item.id == props.value) ? props.value : ""

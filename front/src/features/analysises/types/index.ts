@@ -13,9 +13,3 @@ export type AnalysisData = {
     model_box: string,
     model_mds: string,
 }
-
-export type AnalyseControlProps = { raceId: string, status: AnalysisStatus, onReload: () => void }
-export type AnalysisProps = { raceId: string, modelName: string }
-export type AnalysisProgressProps = { raceId: string, onComplete: () => void, onAbort: () => void }
-export type RaceProps = { raceId: string | undefined, showControl: boolean }
-export type RaceAnalysisesProps = { raceId: string }

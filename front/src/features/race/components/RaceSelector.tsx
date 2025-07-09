@@ -1,17 +1,14 @@
-import { uniqWith, isEqual } from "lodash";
 import { useEffect, useState } from "react";
+import { uniqWith, isEqual } from "lodash";
 import { Box } from "@mui/material";
 
-import {
-  RaceInfo,
-  RaceSelectorProps,
-} from "../types";
-import { CategorySelector } from "./CategorySelector";
+import { RaceInfo } from "../types";
+import * as api from "../api";
 import { DateSelector } from "./DateSelector";
+import { CategorySelector } from "./CategorySelector";
 import { RaceOnDaySelector } from "./RaceOnDaySelector";
 import { CourseSelector } from "./CourseSelector";
 import { UriForm } from "./UriForm";
-import * as api from "../api";
 
 const fetchRaceInfo = async (raceId: string): Promise<RaceInfo | undefined> => {
   if (raceId) {
@@ -32,7 +29,14 @@ const merge = (a: RaceInfo[] | RaceInfo | undefined, b: RaceInfo[] | RaceInfo | 
   return uniqWith([...arrayA, ...arrayB], isEqual)
 }
 
-export function RaceSelector(props: RaceSelectorProps) {
+type Props = {
+  initialRaceId?: string;
+  showControl: boolean;
+  onClearRaceId: () => void;
+  onSetInitialRaceId: (input: string | undefined) => void;
+};
+
+export function RaceSelector(props: Props) {
   const [raceId, setRaceId] = useState<string | undefined>(props.initialRaceId);
   const [raceInfo, setRaceInfo] = useState<RaceInfo | undefined>();
   const [categoryId, setCategoryId] = useState<string | undefined>();

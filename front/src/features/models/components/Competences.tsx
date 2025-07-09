@@ -1,10 +1,11 @@
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 import { Typography } from '@mui/material';
-
-import { CompetenceProps } from '../types';
+import { Competence } from '../types';
 import { PlotlyChart } from '../../../common/components/PlotlyChart';
 
-export function Competences(props: CompetenceProps) {
+type Props = { competences: Array<Competence>, chart: string };
+
+export function Competences(props: Props) {
 
     const rows: GridRowsProp = props.competences.map(rec => ({
         id: rec.contestant,
