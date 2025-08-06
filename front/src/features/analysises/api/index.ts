@@ -19,9 +19,14 @@ export function getProgress(raceId: string) {
     return new EventSourceManager(`${baseUrl}/${raceId}/progress`, "====END====", "====ABEND====");
 }
 
+export async function getModelList(raceId: string) {
+    const response = await axios.get(`${baseUrl}/${raceId}/list`);
+    return response.data;
+}
+
 export async function getAnalysis(raceId: string, modelName: string) {
     const response = await axios.get(`${baseUrl}/${raceId}/${modelName}`);
     return response.data;
 }
 
-export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress };
+export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress, getModelList };
