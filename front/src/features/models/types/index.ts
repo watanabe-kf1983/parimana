@@ -7,3 +7,12 @@ export type ModelData = {
     correlations: Array<CorrelationData>,
     correlations_chart: string,
 }
+
+export const MODELS = ['no_cor', 'ppf_mtx'] as const;
+export const MODEL_LABELS: Record<string, string> = {
+    'no_cor': 'ざっくりモデル',
+    'ppf_mtx': 'ふんわりモデル'
+};
+export const getModelLabel = (name: string) => {
+    return MODEL_LABELS[name] ?? `"${name}"モデル`;
+};
