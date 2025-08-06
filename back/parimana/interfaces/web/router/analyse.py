@@ -35,6 +35,12 @@ def get_status(race_id: str) -> Status:
     )
 
 
+@router.get("/{race_id}/list")
+def get_list(race_id: str) -> Sequence[str]:
+    race = cx.race_selector.select(race_id)
+    return cx.analyse_app.list_analysis(race)
+
+
 @router.get("/{race_id}/{analyser_name}")
 def get_analysis(race_id: str, analyser_name: str) -> Result:
     race = cx.race_selector.select(race_id)

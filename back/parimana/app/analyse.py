@@ -11,6 +11,8 @@ from parimana.io.kvs import Storage
 from parimana.repository.analysis import AnalysisRepository, AnalysisRepositoryImpl
 from parimana.app.exception import ResultNotExistError
 
+_MODEL_LIST = ["no_cor", "ppf_mtx"]
+
 
 class AnalyseApp:
     def __init__(self, store: Storage):
@@ -22,6 +24,17 @@ class AnalyseApp:
     def is_odds_confirmed(self, race: Race) -> bool:
         ct = self.repo.load_latest_charts_time(race)
         return (ct is not None) and ct.is_confirmed
+
+    def list_analysis(self, race: Race) -> Sequence[str]:
+        ts = self.repo.load_latest_charts_time(race)
+        if ts:
+            return [
+                model
+                for model in _MODEL_LIST
+                if self.repo.charts_exists(race=race, ts=ts, model=model)
+            ]
+        else:
+            return []
 
     def get_analysis(
         self, race: Race, analyser_name: str
