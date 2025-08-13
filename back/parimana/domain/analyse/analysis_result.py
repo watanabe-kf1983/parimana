@@ -6,14 +6,14 @@ import pandas as pd
 
 from parimana.io.message import mprint
 from parimana.domain.base import Eye, OddsPool, Contestant
-from parimana.domain.analyse.mvn_model import MvnModel
+from parimana.domain.analyse.mvn_model import Model
 from parimana.domain.analyse.expected import EyeExpectedValue, EyeExpectedValues
 
 
 @dataclass(frozen=True)
 class AnalysisResult:
     odds_pool: OddsPool
-    model: MvnModel[Contestant]
+    model: Model[Contestant]
     chances: Mapping[Eye, float]
 
     @property

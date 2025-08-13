@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Generic, Iterator, Mapping, Sequence, Tuple, TypeVar
@@ -21,12 +22,46 @@ class Ability:
 
 
 @dataclass
-class MvnModel(Generic[T]):
+class Model(ABC, Generic[T]):
+    name: str
+
+    @abstractmethod
+    def au_df(self) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def cor_df(self) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def plot_box(self) -> plgo.Figure:
+        pass
+
+    @abstractmethod
+    def plot_mds(self) -> plgo.Figure:
+        pass
+
+    @abstractmethod
+    def simulate(self, n: int) -> Mapping[Eye, float]:
+        pass
+
+    @property
+    @abstractmethod
+    def abilities(self) -> Mapping[T, Ability]:
+        pass
+
+    @property
+    @abstractmethod
+    def covariances(self) -> Mapping[Tuple[T, T], float]:
+        pass
+
+
+@dataclass
+class MvnModel(Model[T]):
     cor_sr: pd.Series
     u_map: pd.Series
     a_map: pd.Series
     members: Sequence[T]
-    name: str
 
     @cached_property
     def _member_dict(self) -> Mapping[str, T]:
@@ -63,10 +98,11 @@ class MvnModel(Generic[T]):
         return pd.pivot_table(self.cor_sr.to_frame(), index="a", columns="b")
 
     def plot_box(self) -> plgo.Figure:
-        names = self.a_map.index
-        mean = self.a_map
-        sd = self.u_map
-        iqr = sd * 1.34898
+        fig = self._create_plot_box()
+        self._add_box(fig)
+        return fig
+
+    def _create_plot_box(self) -> plgo.Figure:
         fig = plgo.Figure(
             layout=dict(
                 title=dict(text="Predicted finishing time for all contestants"),
@@ -77,6 +113,13 @@ class MvnModel(Generic[T]):
                 margin=dict(t=50, b=50, r=20, l=50, autoexpand=True),
             )
         )
+        return fig
+
+    def _add_box(self, fig: plgo.Figure, **kwargs) -> None:
+        names = self.a_map.index
+        mean = self.a_map
+        sd = self.u_map
+        iqr = sd * 1.34898
         fig.add_trace(
             plgo.Box(
                 y=names,
@@ -88,12 +131,12 @@ class MvnModel(Generic[T]):
                 upperfence=mean + iqr * 2.0,
                 mean=mean,
                 sd=sd,
+                **kwargs,
             )
         )
         fig.update_layout(
             hovermode="y",
         )
-        return fig
 
     def plot_mds(self, metric: bool = False) -> plgo.Figure:
         dist = self.cor_sr * (-1) + 1
@@ -140,20 +183,7 @@ class MvnModel(Generic[T]):
                 trifecta_df.groupby(columns).size(), fill_value=0
             )
 
-        return self._calc_chance_of_hit(trifecta_count / n)
-
-    def _calc_chance_of_hit(self, trif_prob: pd.Series) -> Mapping[Eye, float]:
-        trif_prob.index = trif_prob.index.map(
-            lambda idxes: tuple(str(self.members[i]) for i in idxes)
-        )
-        prob_by_eye = [
-            (eye.text, p)
-            for trifecta, p in trif_prob.items()
-            for eye in Eye.eyes_from_places(trifecta)
-        ]
-        chance_df = pd.DataFrame(prob_by_eye, columns=["eye", "prob"])
-        sr = chance_df.groupby(["eye"])["prob"].sum()
-        return {Eye(e): v for e, v in sr.items()}
+        return calc_chance_of_hit(self.members, trifecta_count / n)
 
     @cached_property
     def correlations(self) -> Mapping[Tuple[T, T], float]:
@@ -176,3 +206,19 @@ class MvnModel(Generic[T]):
             (self._member_from_name(a), self._member_from_name(b)): cov
             for (a, b), cov in self._covariance_sr.items()
         }
+
+
+def calc_chance_of_hit(
+    members: Sequence[T], trif_prob: pd.Series
+) -> Mapping[Eye, float]:
+    trif_prob.index = trif_prob.index.map(
+        lambda idxes: tuple(str(members[i]) for i in idxes)
+    )
+    prob_by_eye = [
+        (eye.text, p)
+        for trifecta, p in trif_prob.items()
+        for eye in Eye.eyes_from_places(trifecta)
+    ]
+    chance_df = pd.DataFrame(prob_by_eye, columns=["eye", "prob"])
+    sr = chance_df.groupby(["eye"])["prob"].sum()
+    return {Eye(e): v for e, v in sr.items()}
