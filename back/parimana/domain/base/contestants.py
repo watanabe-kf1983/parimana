@@ -8,7 +8,7 @@ from typing import (
 from dataclasses import dataclass
 
 from parimana.domain.base.eye import Eye
-from parimana.domain.base.situation import Situation, Distribution, TripleDistribution
+from parimana.domain.base.situation import Situation, Distribution
 
 T = TypeVar("T")
 
@@ -72,19 +72,14 @@ class Contestants:
 
     def triple_destribution(
         self, vote_tallies: Mapping[Eye, float]
-    ) -> TripleDistribution[Contestant]:
+    ) -> Sequence[Distribution[Contestant]]:
 
-        return TripleDistribution(
-            *[
-                Distribution(
-                    [
-                        self.situation_by_step(k, step, v)
-                        for k, v in vote_tallies.items()
-                    ]
-                )
-                for step in range(3)
-            ]
-        )
+        return [
+            Distribution(
+                [self.situation_by_step(k, step, v) for k, v in vote_tallies.items()]
+            )
+            for step in range(3)
+        ]
 
     @classmethod
     def from_names(cls, names: Sequence[str]) -> "Contestants":
