@@ -14,6 +14,7 @@ export function Analysis(props: Props) {
 
   useEffect(() => {
     const getAn = async () => {
+      if (props.modelName === "loading") return;
       const r = await getAnalysis(props.raceId, props.modelName);
       setAnalysis(r)
     }

@@ -1,40 +1,46 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tab, Tabs } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { getModelList } from '../api';
 import { Analysis } from './Analysis';
+import { getModelLabel } from '../../models/types';
+
 
 type Props = { raceId: string };
 
 export function RaceAnalysises(props: Props) {
 
-  const [value, setValue] = useState(0);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [modelList, setModelList] = useState(["loading"]);
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+  useEffect(() => {
+    const getList = async () => {
+      const list = await getModelList(props.raceId);
+      setModelList(list)
+    }
+    getList()
+  }, [props.raceId])
+
+  const modelName = modelList[tabIndex];
+  const handleTabChange = (_event: React.SyntheticEvent, newIndex: number) => {
+    setTabIndex(newIndex);
   };
   const theme = useTheme();
+
   return (
     <>
       <Tabs
-        value={value} onChange={handleChange} sx={{
+        value={tabIndex} onChange={handleTabChange} sx={{
           position: 'sticky',
           top: 96,
           zIndex: theme.zIndex.appBar,
           backgroundColor: theme.palette.background.default
         }}>
-        <Tab label="ざっくりモデル" />
-        <Tab label="ふんわりモデル" />
+        {modelList.map(name => (
+          <Tab key={name} label={getModelLabel(name)} />
+        ))}
       </Tabs>
-      <div hidden={value !== 0}>
-        {value === 0 ?
-          <Analysis raceId={props.raceId} modelName="no_cor" />
-          : null}
-      </div>
-      <div hidden={value !== 1}>
-        {value === 1 ?
-          <Analysis raceId={props.raceId} modelName="ppf_mtx" />
-          : null}
-      </div>
+      <Analysis key={`${props.raceId}-${modelName}`} raceId={props.raceId} modelName={modelName} />
     </>
   )
 }

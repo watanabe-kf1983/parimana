@@ -18,6 +18,10 @@ class AnalysisRepository(ABC):
         pass
 
     @abstractmethod
+    def charts_exists(self, race: Race, ts: OddsTimeStamp, model: str) -> bool:
+        pass
+
+    @abstractmethod
     def load_latest_charts(
         self, race: Race, model: str
     ) -> Optional[tuple[AnalysisCharts, OddsTimeStamp]]:
