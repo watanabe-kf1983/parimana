@@ -64,6 +64,23 @@ class Competence(BaseModel):
         )
 
 
+class CompetencesByPlace(BaseModel):
+    place: str
+    competences: Sequence[Competence]
+
+    @staticmethod
+    def from_base_mapping(
+        abilities_by_place: Mapping[str, Mapping[bs.Contestant, an.Ability]],
+    ) -> Sequence["CompetencesByPlace"]:
+
+        return [
+            CompetencesByPlace(
+                place=place, competences=Competence.from_abilities(abilities)
+            )
+            for place, abilities in abilities_by_place.items()
+        ]
+
+
 class Correlations(BaseModel):
     a: str
     row: Mapping[str, float]
@@ -72,6 +89,7 @@ class Correlations(BaseModel):
 class Model(BaseModel):
     type: str
     competences: Sequence[Competence]
+    competences_by_places: Sequence[CompetencesByPlace]
     competences_chart: str
     correlations: Sequence[Correlations]
     correlations_chart: str
@@ -88,7 +106,10 @@ class Model(BaseModel):
 
         return Model(
             type=model.name,
-            competences=Competence.from_abilities(charts.result.model.abilities),
+            competences=Competence.from_abilities(model.abilities),
+            competences_by_places=CompetencesByPlace.from_base_mapping(
+                model.abilities_by_place
+            ),
             competences_chart=charts.model_box,
             correlations=correlations,
             correlations_chart=charts.model_mds,

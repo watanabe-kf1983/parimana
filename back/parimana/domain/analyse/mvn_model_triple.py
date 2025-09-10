@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Iterator, Mapping, Tuple, TypeVar
 
 import numpy as np
@@ -86,15 +87,23 @@ class TripleMvnModel(Model[T]):
 
         return calc_chance_of_hit(self.first.members, trifecta_count / sim_count)
 
-    @property
+    @cached_property
     def abilities(self) -> Mapping[T, Ability]:
         return self.first.abilities
 
-    @property
+    @cached_property
+    def abilities_by_place(self) -> Mapping[str, Mapping[T, Ability]]:
+        return {
+            "1st": self.first.abilities,
+            "2nd": self.second.abilities,
+            "3rd": self.third.abilities,
+        }
+
+    @cached_property
     def covariances(self) -> Mapping[Tuple[T, T], float]:
         return self.first.covariances
 
-    @property
+    @cached_property
     def correlations(self) -> Mapping[Tuple[T, T], float]:
         return self.first.correlations
 

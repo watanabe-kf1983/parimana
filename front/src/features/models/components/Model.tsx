@@ -1,5 +1,6 @@
 import { ModelData } from '../types';
 import { Competences } from './Competences';
+import { CompetencesMulti } from './CompetencesMulti';
 import { Correlation } from './Correlation';
 
 type Props = {
@@ -11,7 +12,7 @@ export function Model(props: Props) {
     case 'ppf_mtx':
       return <CorModel {...props} />;
     case 'yurayura':
-      return <NoCorModel {...props} />;
+      return <YuraModel {...props} />;
     case 'no_cor':
       return <NoCorModel {...props} />;
     default:
@@ -32,6 +33,14 @@ function NoCorModel(props: Props) {
   return (
     <>
       <Competences competences={props.model.competences} chart={props.model.competences_chart} />
+    </>
+  );
+}
+
+function YuraModel(props: Props) {
+  return (
+    <>
+      <CompetencesMulti competences_by_places={props.model.competences_by_places} chart={props.model.competences_chart} />
     </>
   );
 }

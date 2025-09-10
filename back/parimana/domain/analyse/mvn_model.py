@@ -52,6 +52,11 @@ class Model(ABC, Generic[T]):
 
     @property
     @abstractmethod
+    def abilities_by_place(self) -> Mapping[str, Mapping[T, Ability]]:
+        pass
+
+    @property
+    @abstractmethod
     def covariances(self) -> Mapping[Tuple[T, T], float]:
         pass
 
@@ -204,6 +209,10 @@ class MvnModel(Model[T]):
             (self._member_from_name(m)): Ability(ev, unc)
             for m, ev, unc in df.itertuples()
         }
+
+    @cached_property
+    def abilities_by_place(self) -> Mapping[str, Mapping[T, Ability]]:
+        return {}
 
     @cached_property
     def covariances(self) -> Mapping[Tuple[T, T], float]:

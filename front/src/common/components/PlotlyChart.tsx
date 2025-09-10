@@ -2,6 +2,7 @@ import { MathJax } from 'better-react-mathjax';
 import React from 'react';
 import Plot from 'react-plotly.js';
 import { useWindowSize } from '../hooks/useWindowSize';
+import { Box } from '@mui/material';
 
 // Propsの型を定義
 interface PlotlyChartProps {
@@ -32,14 +33,16 @@ export const PlotlyChart: React.FC<PlotlyChartProps> = ({ chartJSON }) => {
     graphData.layout.autosize = true;
 
     return (
-        <MathJax>
-            <Plot
-                data={graphData.data}
-                useResizeHandler={true}
-                layout={graphData.layout}
-                config={{ displayModeBar: graphWidth > 700 }}
-            />
-        </MathJax>
+        <Box my={2}>
+            <MathJax>
+                <Plot
+                    data={graphData.data}
+                    useResizeHandler={true}
+                    layout={graphData.layout}
+                    config={{ displayModeBar: graphWidth > 700 }}
+                />
+            </MathJax>
+        </Box>
     );
 };
 
