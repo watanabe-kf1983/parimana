@@ -11,7 +11,7 @@ from parimana.io.kvs import Storage
 from parimana.repository.analysis import AnalysisRepository, AnalysisRepositoryImpl
 from parimana.app.exception import ResultNotExistError
 
-_MODEL_LIST = ["no_cor", "ppf_mtx"]
+_MODEL_LIST = ["no_cor", "ppf_mtx", "bukubuku"]
 
 
 class AnalyseApp:

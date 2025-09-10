@@ -2,12 +2,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence, Tuple
 
+from parimana.domain.analyse.mvn_model_triple import TripleMvnModel
 from parimana.io.message import mprint
 from parimana.domain.base import BettingType, Distribution, OddsPool, Contestant
 from parimana.domain.analyse.analysis_result import AnalysisResult
 from parimana.domain.analyse.regression import RegressionModel
 from parimana.domain.analyse.correlation import (
     cor_mapping_to_sr,
+    cor_none,
 )
 from parimana.domain.analyse.win_rate import extract_win_rate, df_from_win_rate
 from parimana.domain.analyse.ability import (
@@ -37,6 +39,38 @@ class Analyser(ABC):
 
 
 @dataclass(frozen=True)
+class TripleAnalyser(Analyser):
+    _name: str
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def analyse(self, odds_pool: OddsPool, simulation_count: int) -> AnalysisResult:
+        mprint(f"extract_destribution by '{self.name}' ...")
+        vote_tallies = calc_vote_tally(odds_pool.odds, odds_pool.vote_ratio)
+        dists = odds_pool.contestants.triple_destribution(vote_tallies)
+        mprint(f"estimating model by '{self.name}' ...")
+        model = self.estimate_model(dists)
+        mprint(f"simulating '{model.name}' ...")
+        chances = model.simulate(simulation_count)
+        return AnalysisResult(odds_pool, model, chances)
+
+    def estimate_model(
+        self, dists: Sequence[Distribution[Contestant]]
+    ) -> TripleMvnModel[Contestant]:
+
+        models = {
+            name: estimate_mvn_model(
+                dist, lambda d: cor_none(d.members), f"{self.name}-{name}"
+            )
+            for dist, name in zip(dists, ["first", "second", "third"])
+        }
+
+        return TripleMvnModel(name=self.name, **models)
+
+
+@dataclass(frozen=True)
 class OnePassAnalyser(Analyser):
     _name: str
     cor_extractor: Callable[
@@ -63,14 +97,27 @@ class OnePassAnalyser(Analyser):
         return AnalysisResult(odds_pool, model, chances)
 
     def estimate_model(self, dist: Distribution[Contestant]) -> MvnModel[Contestant]:
-        win_rates = extract_win_rate(dist.relations, dist.members)
-        wr_df = df_from_win_rate(win_rates)
-        cor = self.cor_extractor(dist)
-        cor_sr = cor_mapping_to_sr(cor)
-        corwr_df = cor_sr.to_frame().join(wr_df)
-        u_map = find_uncertainty_map(corwr_df)
-        a_map = estimate_ability_map(corwr_df, u_map)
-        return MvnModel(cor_sr, u_map, a_map, dist.members, self.name)
+        return estimate_mvn_model(dist, self.cor_extractor, self.name)
+
+
+def estimate_mvn_model(
+    dist: Distribution[Contestant],
+    cor_extractor: Callable[
+        [Distribution[Contestant]], Mapping[Tuple[Contestant, Contestant], float]
+    ],
+    name: str,
+) -> MvnModel[Contestant]:
+
+    win_rates = extract_win_rate(dist.relations, dist.members)
+    wr_df = df_from_win_rate(win_rates)
+    cor = cor_extractor(dist)
+    cor_sr = cor_mapping_to_sr(cor)
+    corwr_df = cor_sr.to_frame().join(wr_df)
+    u_map = find_uncertainty_map(corwr_df)
+    a_map = estimate_ability_map(corwr_df, u_map)
+    return MvnModel(
+        name=name, cor_sr=cor_sr, u_map=u_map, a_map=a_map, members=dist.members
+    )
 
 
 @dataclass(frozen=True)

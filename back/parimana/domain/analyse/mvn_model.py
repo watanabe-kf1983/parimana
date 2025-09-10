@@ -55,6 +55,11 @@ class Model(ABC, Generic[T]):
     def covariances(self) -> Mapping[Tuple[T, T], float]:
         pass
 
+    @property
+    @abstractmethod
+    def correlations(self) -> Mapping[Tuple[T, T], float]:
+        pass
+
 
 @dataclass
 class MvnModel(Model[T]):
