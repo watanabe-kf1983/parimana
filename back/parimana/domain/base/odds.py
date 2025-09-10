@@ -7,6 +7,10 @@ from parimana.domain.base.eye import BettingType, Eye
 from parimana.domain.base.contestants import Contestants
 
 
+def text2float(text: str) -> float:
+    return float(text.strip().replace(",", ""))
+
+
 class Odds(ABC):
     @property
     @abstractmethod
@@ -15,11 +19,12 @@ class Odds(ABC):
 
     @classmethod
     def from_text(cls, text: str) -> "Odds":
+
         if "-" in text:
-            sp = text.split("-")
-            return PlaceOdds(float(sp[0]), float(sp[1]))
+            min, max, *_ = text.split("-")
+            return PlaceOdds(text2float(min), text2float(max))
         else:
-            return NormalOdds(float(text))
+            return NormalOdds(text2float(text))
 
 
 @dataclass
