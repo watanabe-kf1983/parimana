@@ -29,4 +29,4 @@ analyser_names: Sequence[str] = [a.name for a in _analysers]
 
 
 def default_analyser_names():
-    return ["no_cor", "ppf_mtx"]
+    return ["no_cor", "ppf_mtx", "yurayura"]
