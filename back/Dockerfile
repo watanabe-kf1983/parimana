@@ -3,18 +3,21 @@ FROM public.ecr.aws/docker/library/python:3.11-slim AS python-base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# install chrome
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends wget gnupg \
-  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends google-chrome-stable \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/
+# Chromium + Chromedriver
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      chromium \
+      chromium-driver \
+      # dependency for headless
+      libnss3 libatk-bridge2.0-0 libxss1 libgtk-3-0 libasound2 \
+      fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
 
+# locate chromedriver to PATH
+RUN ln -sf /usr/lib/chromium/chromedriver /usr/local/bin/chromedriver || \
+    ln -sf /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
 
-
+    
 FROM python-base AS poetry
 
 # install curl
