@@ -11,7 +11,7 @@ export type ModelData = {
 export const MODEL_LABELS: Record<string, string> = {
     'no_cor': 'ざっくりモデル',
     'ppf_mtx': 'ふんわりモデル',
-    'bukubuku': 'ぶくぶくモデル',
+    'yurayura': 'ゆらゆらモデル',
     'loading': 'Loading...',
 };
 

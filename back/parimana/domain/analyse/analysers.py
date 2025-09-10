@@ -20,7 +20,7 @@ _no_cor = OnePassAnalyser("no_cor", lambda d: cor_none(d.members))
 _multi = MultiPassAnalyser("multi", [_no_cor, _ppf_mtx])
 _twice = MultiPassAnalyser("twice", [_no_cor, _no_cor])
 
-_triple = TripleAnalyser("bukubuku")
+_triple = TripleAnalyser("yurayura")
 
 _analysers: Sequence[Analyser] = [_ppf_smpl, _ppf_mtx, _no_cor, _multi, _twice, _triple]
 

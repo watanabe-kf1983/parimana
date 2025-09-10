@@ -10,7 +10,7 @@ export function Model(props: Props) {
   switch (props.model.type) {
     case 'ppf_mtx':
       return <CorModel {...props} />;
-    case 'bukubuku':
+    case 'yurayura':
       return <NoCorModel {...props} />;
     case 'no_cor':
       return <NoCorModel {...props} />;
