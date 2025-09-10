@@ -77,13 +77,14 @@ class TripleMvnModel(Model[T]):
         trifecta_count = pd.Series(
             [], index=pd.MultiIndex.from_tuples([], names=columns)
         )
-        for results in self.simulate_values_iter(n, step=1_000_000):
+        sim_count = n // 3
+        for results in self.simulate_values_iter(sim_count, step=1_000_000):
             trifecta_df = pd.DataFrame(pick_unique_min3(*results), columns=columns)
             trifecta_count = trifecta_count.add(
                 trifecta_df.groupby(columns).size(), fill_value=0
             )
 
-        return calc_chance_of_hit(self.first.members, trifecta_count / n)
+        return calc_chance_of_hit(self.first.members, trifecta_count / sim_count)
 
     @property
     def abilities(self) -> Mapping[T, Ability]:
