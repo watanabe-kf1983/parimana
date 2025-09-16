@@ -26,7 +26,16 @@ export function Analysis(props: Props) {
       {analysis
         ?
         <>
-          <SourceInfo source={analysis.source} />
+          {
+            analysis.source
+              ? <SourceInfo source={analysis.source} />
+              : <Typography variant="body1"> No source data available.</Typography>
+          }
+          {
+            analysis.model
+              ? <Model model={analysis.model} />
+              : <Typography variant="body1"> No model data available.</Typography>
+          }
           <Model model={analysis.model} />
           {
             analysis.simulation
