@@ -21,22 +21,24 @@ export function Analysis(props: Props) {
     getAn()
   }, [props.raceId])
 
+
   return (
-    <>
-      <Box sx={{ m: 2 }}>
-        {analysis
-          ? <>
-            <SourceInfo source={analysis.source} />
-            <br />
-            <Model model={analysis.model} />
-            <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
-          </>
-          : <Typography variant="body1">
-            Loading...
-          </Typography>
-        }
-      </Box>
-    </>
+    <Box m={2}>
+      {analysis
+        ?
+        <>
+          <SourceInfo source={analysis.source} />
+          <Model model={analysis.model} />
+          {
+            analysis.simulation.odds_chance_chart
+              ? <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
+              : <Typography variant="body1"> No simulation data available.</Typography>
+          }
+        </>
+
+        : <Typography variant="body1"> Loading... </Typography>
+      }
+    </Box>
   );
 }
 
@@ -46,7 +48,7 @@ function SourceInfo(props: { source: SourceData }) {
   const uri = props.source.source_uri
 
   return (
-    <>
+    <Box my={2} >
       <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
         オッズ情報源
       </Typography>
@@ -54,6 +56,6 @@ function SourceInfo(props: { source: SourceData }) {
         <Link target="_blank" href={uri}>{uri}</Link>
         （{updateTime === "confirmed" ? "確定オッズ" : updateTime.replace("updated at ", "") + " 更新オッズ"}）
       </Typography>
-    </>
+    </Box>
   );
 }
