@@ -19,7 +19,7 @@ export function getProgress(raceId: string) {
     return new EventSourceManager(`${baseUrl}/${raceId}/progress`, "====END====", "====ABEND====");
 }
 
-export async function getModelList(raceId: string) {
+export async function getModelList(raceId: string): Promise<string[]> {
     const response = await axios.get(`${baseUrl}/${raceId}/list`);
     return response.data;
 }
