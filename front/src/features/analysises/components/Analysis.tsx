@@ -29,7 +29,7 @@ export function Analysis(props: Props) {
           <SourceInfo source={analysis.source} />
           <Model model={analysis.model} />
           {
-            analysis.simulation.odds_chance_chart
+            analysis.simulation
               ? <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
               : <Typography variant="body1"> No simulation data available.</Typography>
           }
