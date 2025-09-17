@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material';
 import { ModelData } from '../types';
 import { Competences } from './Competences';
 import { CompetencesMulti } from './CompetencesMulti';
@@ -9,9 +8,6 @@ type Props = {
 }
 
 export function Model(props: Props) {
-  if (!props.model) {
-    return <Typography variant="body1"> No model data available.</Typography>
-  }
   switch (props.model.type) {
     case 'ppf_mtx':
       return <CorModel {...props} />;

@@ -36,7 +36,6 @@ export function Analysis(props: Props) {
               ? <Model model={analysis.model} />
               : <Typography variant="body1"> No model data available.</Typography>
           }
-          <Model model={analysis.model} />
           {
             analysis.simulation
               ? <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
