@@ -1,3 +1,67 @@
+resource "aws_cloudfront_function" "spa_rewrite" {
+  name    = "${var.project_name}-${var.env}-spa-rewrite"
+  runtime = "cloudfront-js-1.0"
+  publish = true
+  code    = <<EOF
+function handler(event) {
+  var req = event.request;
+  var uri = req.uri || "/";
+  var h   = req.headers || {};
+  var m   = req.method || "GET";
+
+  // 非GET/HEAD、/.well-known/*、拡張子ありを素通し
+  if (m !== "GET" && m !== "HEAD") return req;
+  if (uri.startsWith("/.well-known/")) return req;
+  if (/\.[a-zA-Z0-9]+$/.test(uri)) return req;
+
+  // HTMLナビゲーションだけ index.html へ
+  var accept = (h.accept && h.accept.value) || "";
+  var dest   = (h["sec-fetch-dest"] && h["sec-fetch-dest"].value) || "";
+  if (dest === "document" || accept.includes("text/html")) {
+    req.uri = "/index.html";
+  }
+  return req;
+}
+EOF
+}
+
+# SPA (S3) 用 Cache Policy（短TTL・Acceptで分岐）
+resource "aws_cloudfront_cache_policy" "spa_cache" {
+  name        = "${var.project_name}-${var.env}-spa-cache"
+  comment     = "SPA html: short TTL; vary on Accept; no query/cookies"
+  default_ttl = 60
+  max_ttl     = 300
+  min_ttl     = 0
+  parameters_in_cache_key_and_forwarded_to_origin {
+    enable_accept_encoding_brotli = true
+    enable_accept_encoding_gzip   = true
+    cookies_config { cookie_behavior = "none" }
+    headers_config {
+      header_behavior = "whitelist"
+      headers { items = ["Accept"] }
+    }
+    query_strings_config { query_string_behavior = "none" }
+  }
+}
+
+# SPA (S3) 用 Origin Request Policy（極小転送）
+resource "aws_cloudfront_origin_request_policy" "spa_origin_req" {
+  name    = "${var.project_name}-${var.env}-spa-origin-req"
+  comment = "SPA: minimal forwarding"
+  cookies_config { cookie_behavior = "none" }
+  headers_config { header_behavior = "none" }
+  query_strings_config { query_string_behavior = "none" }
+}
+
+data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+data "aws_cloudfront_origin_request_policy" "managed_all_viewer_except_host" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
+
 resource "aws_cloudfront_distribution" "web_distribution" {
   enabled = true
 
@@ -23,6 +87,7 @@ resource "aws_cloudfront_distribution" "web_distribution" {
     }
   }
 
+  # --- Default (/* → S3 / SPA) ---
   default_cache_behavior {
     target_origin_id       = "S3-${aws_s3_bucket.web.id}"
     viewer_protocol_policy = "redirect-to-https"
@@ -30,14 +95,17 @@ resource "aws_cloudfront_distribution" "web_distribution" {
     allowed_methods = ["GET", "HEAD"]
     cached_methods  = ["GET", "HEAD"]
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
+    cache_policy_id          = aws_cloudfront_cache_policy.spa_cache.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.spa_origin_req.id
+
+    # SPA用リクエストリライト
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.spa_rewrite.arn
     }
   }
 
+  # --- /api/* (API Gateway) ---
   ordered_cache_behavior {
     path_pattern           = "/api/*"
     target_origin_id       = "APIGatewayOrigin-${var.env}"
@@ -46,32 +114,10 @@ resource "aws_cloudfront_distribution" "web_distribution" {
     allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods  = ["GET", "HEAD"]
 
-    forwarded_values {
-      query_string = true
-      headers      = ["Authorization"]
-      cookies {
-        forward = "all"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 0
-    max_ttl     = 0
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_all_viewer_except_host.id
   }
 
-  custom_error_response {
-    error_code            = 403
-    response_page_path    = "/"
-    response_code         = 200
-    error_caching_min_ttl = 0
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_page_path    = "/"
-    response_code         = 200
-    error_caching_min_ttl = 0
-  }
 
   default_root_object = "index.html"
 
