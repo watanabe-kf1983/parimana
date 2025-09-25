@@ -85,9 +85,9 @@ class CachedStorage(Storage):
     cache: Storage
 
     def _original_to_cache(self, key: str) -> None:
-        self.cache.write_binary(f"fetched:{key}", b"T")
         if self.original.exists(key):
             self.cache.write_binary(f"cache:{key}", self.original.read_binary(key))
+        self.cache.write_binary(f"fetched:{key}", b"T")
 
     def _fetch(self, key: str) -> None:
         if not self.cache.exists(f"fetched:{key}"):
@@ -114,6 +114,6 @@ class CachedStorage(Storage):
         return self.cache.read_binary(f"cache:{key}")
 
     def write_binary(self, key: str, binary: bytes) -> None:
-        self.cache.write_binary(f"fetched:{key}", b"T")
-        self.cache.write_binary(f"cache:{key}", binary)
         self.original.write_binary(key, binary)
+        self.cache.write_binary(f"cache:{key}", binary)
+        self.cache.write_binary(f"fetched:{key}", b"T")
