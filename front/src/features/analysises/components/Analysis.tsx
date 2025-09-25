@@ -14,35 +14,25 @@ export function Analysis(props: Props) {
 
   useEffect(() => {
     const getAn = async () => {
-      const r = await getAnalysis(props.raceId, props.modelName);
-      setAnalysis(r)
+      try {
+        const r = await getAnalysis(props.raceId, props.modelName);
+        setAnalysis(r)
+      } catch (e) {
+        console.error(e)
+      }
     }
     getAn()
   }, [props.raceId])
-
 
   return (
     <Box m={2}>
       {analysis
         ?
         <>
-          {
-            analysis.source
-              ? <SourceInfo source={analysis.source} />
-              : <Typography variant="body1"> No source data available.</Typography>
-          }
-          {
-            analysis.model
-              ? <Model model={analysis.model} />
-              : <Typography variant="body1"> No model data available.</Typography>
-          }
-          {
-            analysis.simulation
-              ? <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
-              : <Typography variant="body1"> No simulation data available.</Typography>
-          }
+          <SourceInfo source={analysis.source} />
+          <Model model={analysis.model} />
+          <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
         </>
-
         : <Typography variant="body1"> Loading... </Typography>
       }
     </Box>

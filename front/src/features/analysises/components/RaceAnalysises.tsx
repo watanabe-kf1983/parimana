@@ -14,10 +14,10 @@ export function RaceAnalysises(props: Props) {
   const [modelList, setModelList] = useState<string[] | false>(false);
 
   useEffect(() => {
+    const previousModel = model;
+    setModel(false)
+    setModelList(false)
     const getList = async () => {
-      const previousModel = model;
-      setModelList(false)
-      setModel(false)
       const list = await getModelList(props.raceId);
       if (list.length) {
         if (previousModel && list.includes(previousModel)) {
