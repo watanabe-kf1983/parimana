@@ -34,6 +34,7 @@ class S3Storage(Storage):
             return response["Body"].read()
 
         else:
+            mprint(f"s3://{self.bucket}/{self._get_key(key)} not found")
             return None
 
     def write_binary(self, key: str, binary: bytes) -> None:
