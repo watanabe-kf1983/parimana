@@ -1,10 +1,3 @@
-export type RaceSelectorProps = {
-  initialRaceId?: string;
-  showControl: boolean;
-  onClearRaceId: () => void;
-  onSetInitialRaceId: (input: string | undefined) => void;
-};
-
 export type Category = { id: string; name: string };
 export type Course = {
   id: string;
