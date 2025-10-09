@@ -1,9 +1,10 @@
 import { Typography } from '@mui/material';
 
 import { PlotlyChart } from '../../../common/components/PlotlyChart';
+import { ModelKey } from '../../analysises/types';
 import { Betting } from './Betting';
 
-type Props = { raceId: string, modelName: string, chart: string };
+type Props = { modelKey: ModelKey, chart: string };
 
 export function Simulation(props: Props) {
 
@@ -12,7 +13,7 @@ export function Simulation(props: Props) {
             <Typography variant="h5" gutterBottom sx={{ borderBottom: "thin solid" }}>
                 的中確率と払戻期待値
             </Typography>
-            <Betting raceId={props.raceId} modelName={props.modelName} />
+            <Betting modelKey={props.modelKey} />
             <PlotlyChart chartJSON={props.chart} />
         </>
     )

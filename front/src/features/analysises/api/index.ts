@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AnalysisStatus } from "../types";
+import { AnalysisStatus, ModelKey } from "../types";
 import { EventSourceManager } from "./eventSourceManager";
 
 
@@ -24,8 +24,8 @@ export async function getModelList(raceId: string): Promise<string[]> {
     return response.data;
 }
 
-export async function getAnalysis(raceId: string, modelName: string) {
-    const response = await axios.get(`${baseUrl}/${raceId}/${modelName}`);
+export async function getAnalysis(modelKey: ModelKey) {
+    const response = await axios.get(`${baseUrl}/${modelKey.raceId}/${modelKey.modelName}`);
     return response.data;
 }
 

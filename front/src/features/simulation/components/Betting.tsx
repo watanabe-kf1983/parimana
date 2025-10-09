@@ -3,8 +3,9 @@ import { Candidate } from '../types';
 import { getCandidates } from '../api';
 import { Candidates } from './Candidates';
 import { QuerySelector } from './QuerySelector';
+import { ModelKey } from '../../analysises/types';
 
-type Props = { raceId: string, modelName: string }
+type Props = { modelKey: ModelKey }
 
 export function Betting(props: Props) {
   const [query, setQuery] = useState<string>("");
@@ -12,11 +13,11 @@ export function Betting(props: Props) {
 
   useEffect(() => {
     const getRecs = async () => {
-      const r = await getCandidates(props.raceId, props.modelName, query);
+      const r = await getCandidates(props.modelKey, query);
       setRecs(r)
     }
     getRecs()
-  }, [props.raceId, props.modelName, query])
+  }, [props.modelKey, query])
 
   return (
     <>

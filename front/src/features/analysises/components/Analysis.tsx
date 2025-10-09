@@ -2,40 +2,44 @@ import { useState, useEffect } from 'react'
 import { Box, Link, Typography } from '@mui/material';
 import { Simulation } from '../../simulation/components/Simulation';
 import { Model } from '../../models/components/Model';
-import { AnalysisData, SourceData } from '../types';
+import { AnalysisData, ModelKey, SourceData } from '../types';
 import { getAnalysis } from '../api';
+import { LoadingOverlay } from '../../../common/components/LoadingOverlay';
 
-type Props = { raceId: string, modelName: string };
+type Props = { modelKey: ModelKey };
 
 export function Analysis(props: Props) {
 
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
-
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     const getAn = async () => {
+      setFetching(true);
       try {
-        const r = await getAnalysis(props.raceId, props.modelName);
+        const r = await getAnalysis(props.modelKey);
         setAnalysis(r)
       } catch (e) {
         console.error(e)
+      } finally {
+        setFetching(false);
       }
     }
-    getAn()
-  }, [props.raceId])
+    getAn();
+  }, [props.modelKey]);
 
   return (
-    <Box m={2}>
-      {analysis
-        ?
+    <Box m={2} sx={{ position: "relative" }}>
+      {analysis &&
         <>
           <SourceInfo source={analysis.source} />
           <Model model={analysis.model} />
-          <Simulation raceId={props.raceId} modelName={props.modelName} chart={analysis.simulation.odds_chance_chart} />
+          <Simulation modelKey={props.modelKey} chart={analysis.simulation.odds_chance_chart} />
         </>
-        : <Typography variant="body1"> Loading... </Typography>
       }
+      <LoadingOverlay loading={fetching} />
     </Box>
+
   );
 }
 
@@ -56,3 +60,5 @@ function SourceInfo(props: { source: SourceData }) {
     </Box>
   );
 }
+
+

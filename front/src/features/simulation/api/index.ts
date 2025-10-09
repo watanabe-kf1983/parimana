@@ -1,13 +1,14 @@
 import axios from "axios";
 import { Candidate } from "../types";
+import { ModelKey } from "../../analysises/types";
 
 
 const hostname = window.location.hostname;
 const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('<hostname>', hostname) + "/analyses";
 
-export async function getCandidates(raceId: string, modelName: string, query: string)
+export async function getCandidates(modelKey: ModelKey, query: string)
     : Promise<Array<Candidate>> {
-    const response = await axios.get(`${baseUrl}/${raceId}/${modelName}/candidates`, {
+    const response = await axios.get(`${baseUrl}/${modelKey.raceId}/${modelKey.modelName}/candidates`, {
         params: {
             query: serverQuery(query)
         }
