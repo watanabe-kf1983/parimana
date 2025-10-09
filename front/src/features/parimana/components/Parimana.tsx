@@ -99,21 +99,8 @@ function ParimanaContent() {
   const initialRaceId = useParams().raceId || undefined;
   const navigate = useNavigate();
   const [showControl, setShowControl] = useState<boolean>(false);
+  const [raceSelected, setRaceSelected] = useState<boolean>(true);
   const [raceId, setRaceId] = useState<string | undefined>(initialRaceId);
-
-  const setInitialRaceId = (rid: string | undefined) => {
-    setRaceId(rid)
-    if (rid) {
-      navigate(`/analysis/${rid}`)
-    }
-    else {
-      navigate(`/`)
-    }
-  };
-
-  const clearRaceId = () => {
-    setRaceId(undefined)
-  };
 
   useEffect(() => {
     const getAppInfo = async () => {
@@ -122,6 +109,21 @@ function ParimanaContent() {
     };
     getAppInfo();
   }, []);
+
+  if (!initialRaceId && raceSelected) {
+    setRaceSelected(false);
+  }
+
+  const onSetRaceId = (rid: string) => {
+    setRaceId(rid)
+    setRaceSelected(true);
+    navigate(`/analysis/${rid}`);
+  };
+
+  const clearRaceId = () => {
+    setRaceSelected(false)
+  };
+
 
   const theme = useTheme();
 
@@ -137,13 +139,16 @@ function ParimanaContent() {
         <RaceSelector
           initialRaceId={initialRaceId}
           showControl={showControl}
-          onSetInitialRaceId={setInitialRaceId}
+          onSetRaceId={onSetRaceId}
           onClearRaceId={clearRaceId}
         />
-      </Box >
+      </Box>
       {
-        raceId ?
-          <Race raceId={raceId} showControl={showControl} /> : null
+        raceId && (
+          <Box sx={{ display: !raceSelected ? "none" : undefined }}>
+            <Race raceId={raceId} showControl={showControl} />
+          </Box>
+        )
       }
     </>
   )

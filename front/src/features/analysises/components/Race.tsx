@@ -61,9 +61,11 @@ export function Race(props: Props) {
             onAbort={() => { }}
           />
         )}
-        {status.has_analysis && !(status.is_processing && props.showControl) && (
+
+        <Box sx={{ display: (!status.has_analysis || (status.is_processing && props.showControl)) ? "none" : undefined }}>
           <RaceAnalysises raceId={props.raceId} />
-        )}
+        </Box>
+
         <LoadingOverlay loading={fetching} />
       </Box>
     </>

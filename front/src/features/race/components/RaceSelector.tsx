@@ -33,7 +33,7 @@ type Props = {
   initialRaceId?: string;
   showControl: boolean;
   onClearRaceId: () => void;
-  onSetInitialRaceId: (input: string | undefined) => void;
+  onSetRaceId: (input: string) => void;
 };
 
 export function RaceSelector(props: Props) {
@@ -151,7 +151,7 @@ export function RaceSelector(props: Props) {
   };
   const onSetRaceId = (rid: string) => {
     setRaceId(rid);
-    props.onSetInitialRaceId(rid);
+    props.onSetRaceId(rid);
   };
 
 
