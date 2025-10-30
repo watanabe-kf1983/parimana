@@ -5,7 +5,7 @@ import { Candidates } from './Candidates';
 import { QuerySelector } from './QuerySelector';
 import { ModelKey } from '../../analysises/types';
 
-type Props = { modelKey: ModelKey }
+type Props = { modelKey: ModelKey, timeId: string };
 
 export function Betting(props: Props) {
   const [query, setQuery] = useState<string>("");
@@ -13,11 +13,11 @@ export function Betting(props: Props) {
 
   useEffect(() => {
     const getRecs = async () => {
-      const r = await getCandidates(props.modelKey, query);
+      const r = await getCandidates(props.modelKey, props.timeId, query);
       setRecs(r)
     }
     getRecs()
-  }, [props.modelKey, query])
+  }, [props.modelKey, props.timeId, query])
 
   return (
     <>

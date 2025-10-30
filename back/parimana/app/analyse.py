@@ -1,11 +1,11 @@
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 from parimana.domain.analyse import (
     analysers,
     AnalysisCharts,
-    EyeExpectedValue,
     AnalysisResult,
 )
+from parimana.domain.analyse.expected import EyeExpectedValue, EyeExpectedValues
 from parimana.domain.race import Race, OddsTimeStamp, RaceOddsPool
 from parimana.io.kvs import Storage
 from parimana.repository.analysis import AnalysisRepository, AnalysisRepositoryImpl
@@ -25,37 +25,89 @@ class AnalyseApp:
         ct = self.repo.load_latest_charts_time(race)
         return (ct is not None) and ct.is_confirmed
 
-    def list_analysis(self, race: Race) -> Sequence[str]:
+    def list_latest_analysis(
+        self, race: Race
+    ) -> Tuple[Sequence[str], Optional[OddsTimeStamp]]:
+
         ts = self.repo.load_latest_charts_time(race)
         if ts:
-            return [
-                model
-                for model in _MODEL_LIST
-                if self.repo.charts_exists(race=race, ts=ts, model=model)
-            ]
+            return self._list_analysis(race, ts), ts
         else:
-            return []
+            return [], None
 
-    def get_analysis(
+    def _list_analysis(self, race: Race, ts: OddsTimeStamp) -> Sequence[str]:
+        return [
+            model
+            for model in _MODEL_LIST
+            if self.repo.charts_exists(race=race, ts=ts, model=model)
+        ]
+
+    def get_latest_analysis(
         self, race: Race, analyser_name: str
-    ) -> Tuple[AnalysisCharts, Race, OddsTimeStamp]:
-        return self._get_charts(race, analyser_name)
+    ) -> Tuple[AnalysisCharts, OddsTimeStamp]:
+
+        return self._get_latest_charts(race, analyser_name)
+
+    def get_latest_time_stamp(self, race: Race) -> OddsTimeStamp:
+        return self.repo.load_latest_charts_time(race)
 
     def get_candidates(
-        self, race: Race, analyser_name: str, query: str
+        self,
+        race: Race,
+        ts: OddsTimeStamp,
+        analyser_name: str,
+        query: Optional[str] = None,
     ) -> Sequence[EyeExpectedValue]:
-        charts, _, __ = self._get_charts(race, analyser_name)
-        return charts.result.recommend2(query=query)
 
-    def _get_charts(
-        self, race: Race, analyser_name: str
-    ) -> Tuple[AnalysisCharts, Race, OddsTimeStamp]:
-        if loaded := self.repo.load_latest_charts(race, analyser_name):
-            charts, timestamp = loaded
-            return charts, race, timestamp
+        eevs = self._get_eevs(race, ts, analyser_name)
+        return eevs.filter(query=query).values()
+
+    # def get_combined_candidates(
+    #     self, race: Race, ts: OddsTimeStamp, query: Optional[str] = None
+    # ) -> Sequence[EyeExpectedValue]:
+
+    #     eevs = EyeExpectedValues.combine(
+    #         {
+    #             name: self._get_eevs(race, ts, name)
+    #             for name in self.list_latest_analysis(race)
+    #         }
+    #     )
+    #     return eevs.filter(query=query).values()
+
+    def _get_eevs(
+        self, race: Race, ts: OddsTimeStamp, analyser_name: str
+    ) -> EyeExpectedValues:
+        charts = self.repo.load_charts(race, ts, analyser_name)
+        if charts:
+            return charts.result.eev
         else:
             raise ResultNotExistError(
                 f"{race.race_id}-{analyser_name} 's result not exists"
+            )
+
+    def _get_latest_charts(
+        self, race: Race, analyser_name: str
+    ) -> Tuple[AnalysisCharts, OddsTimeStamp]:
+
+        ts = self.repo.load_latest_charts_time(race)
+        if ts:
+            charts = self._get_charts(race, ts, analyser_name)
+            return charts, ts
+
+        else:
+            raise ResultNotExistError(
+                f"{race.race_id}-{analyser_name} 's result not exists"
+            )
+
+    def _get_charts(
+        self, race: Race, ts: OddsTimeStamp, analyser_name: str
+    ) -> AnalysisCharts:
+        charts = self.repo.load_charts(race, ts, analyser_name)
+        if charts:
+            return charts
+        else:
+            raise ResultNotExistError(
+                f"{race.race_id}-{analyser_name}-{ts} 's result not exists"
             )
 
     def analyse(

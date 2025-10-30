@@ -43,7 +43,7 @@ export async function postRaceInfo(raceId: string): Promise<RaceInfo> {
 export async function findRaceIdByUri(uri: string): Promise<string> {
   const params = new URLSearchParams()
   params.append("url", uri)
-  const response = await axios.get(`${baseUrl}/analyses/race_id`, { params: params });
+  const response = await axios.get(`${baseUrl}/race_id`, { params: params });
   return response.data;
 }
 

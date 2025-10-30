@@ -6,9 +6,9 @@ import { ModelKey } from "../../analysises/types";
 const hostname = window.location.hostname;
 const baseUrl = import.meta.env.VITE_API_URL_BASE.replace('<hostname>', hostname) + "/analyses";
 
-export async function getCandidates(modelKey: ModelKey, query: string)
+export async function getCandidates(modelKey: ModelKey, timestampId: string, query: string)
     : Promise<Array<Candidate>> {
-    const response = await axios.get(`${baseUrl}/${modelKey.raceId}/${modelKey.modelName}/candidates`, {
+    const response = await axios.get(`${baseUrl}/${modelKey.raceId}/${timestampId}/${modelKey.modelName}/candidates`, {
         params: {
             query: serverQuery(query)
         }

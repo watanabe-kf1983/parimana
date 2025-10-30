@@ -24,12 +24,6 @@ class AnalysisRepository(ABC):
         pass
 
     @abstractmethod
-    def load_latest_charts(
-        self, race: Race, model: str
-    ) -> Optional[tuple[AnalysisCharts, OddsTimeStamp]]:
-        pass
-
-    @abstractmethod
     def save_latest_charts_time(self, race: Race, ts: OddsTimeStamp) -> None:
         pass
 
@@ -62,17 +56,6 @@ class AnalysisRepositoryImpl(AnalysisRepository):
     def charts_exists(self, race: Race, ts: OddsTimeStamp, model: str) -> bool:
         prefix = f"analysis/{race.race_id}/{ts}/{model}"
         return self.store.exists(f"{prefix}/charts.pickle")
-
-    def load_latest_charts(
-        self, race: Race, model: str
-    ) -> Optional[tuple[AnalysisCharts, OddsTimeStamp]]:
-        ts = self.load_latest_charts_time(race)
-        if ts:
-            charts = self.load_charts(race, ts, model)
-            if charts:
-                return charts, ts
-
-        return None
 
     def save_latest_charts_time(self, race: Race, ts: OddsTimeStamp) -> None:
         self.store.write_object(f"analysis/{race.race_id}/charts_ts.pickle", ts)

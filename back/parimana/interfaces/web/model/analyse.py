@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Mapping, Sequence
+from typing import Mapping, Optional, Sequence, Tuple
 
 from pydantic import BaseModel
 
@@ -14,9 +14,23 @@ class Status(BaseModel):
     is_odds_confirmed: bool
 
 
+class OddsTimeStamp(BaseModel):
+    id: str
+    description: str
+
+    @staticmethod
+    def from_base(
+        timestamp: rc.OddsTimeStamp,
+    ):
+        return OddsTimeStamp(
+            id=str(timestamp),
+            description=timestamp.long_str(),
+        )
+
+
 class OddsSourceInfo(BaseModel):
     source_uri: str
-    odds_update_time: str
+    odds_update_time: OddsTimeStamp
 
     @staticmethod
     def from_base(
@@ -25,7 +39,7 @@ class OddsSourceInfo(BaseModel):
     ):
         return OddsSourceInfo(
             source_uri=odds_source.get_uri(),
-            odds_update_time=timestamp.long_str(),
+            odds_update_time=OddsTimeStamp.from_base(timestamp),
         )
 
 
@@ -130,6 +144,7 @@ class EyeExpectedValue(BaseModel):
     odds: float
     chance: float
     expected: float
+    others: Sequence[Tuple[str, float]]
 
     @staticmethod
     def from_base(eev: an.EyeExpectedValue):
@@ -138,21 +153,36 @@ class EyeExpectedValue(BaseModel):
             odds=eev.odds,
             chance=eev.chance,
             expected=eev.expected,
+            others=list(eev.others.items()),
         )
 
 
 class Simulation(BaseModel):
     eev: Sequence[EyeExpectedValue]
-    odds_chance_chart: str
+    odds_chance_chart: Optional[str] = None
+    odds_update_time: OddsTimeStamp
 
     @staticmethod
-    def from_base(
+    def from_charts(
         charts: an.AnalysisCharts,
+        timestamp: rc.OddsTimeStamp,
     ):
         return Simulation(
-            eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.recommend2()],
+            eev=[EyeExpectedValue.from_base(eev) for eev in charts.result.eev.values()],
             odds_chance_chart=charts.odds_chance,
+            odds_update_time=OddsTimeStamp.from_base(timestamp),
         )
+
+    # @staticmethod
+    # def from_candidates(
+    #     candidates: Sequence[an.EyeExpectedValue],
+    #     timestamp: rc.OddsTimeStamp,
+    # ):
+    #     return Simulation(
+    #         eev=[EyeExpectedValue.from_base(eev) for eev in candidates],
+    #         odds_chance_chart=None,
+    #         odds_update_time=OddsTimeStamp.from_base(timestamp),
+    #     )
 
 
 class Result(BaseModel):
@@ -164,13 +194,32 @@ class Result(BaseModel):
     def from_base(
         charts: an.AnalysisCharts,
         race: rc.Race,
-        ost: rc.OddsTimeStamp,
+        ots: rc.OddsTimeStamp,
     ):
 
         return Result(
             source=OddsSourceInfo.from_base(
-                odds_source=race.odds_source, timestamp=ost
+                odds_source=race.odds_source, timestamp=ots
             ),
             model=Model.from_base(charts),
-            simulation=Simulation.from_base(charts),
+            simulation=Simulation.from_charts(charts, timestamp=ots),
         )
+
+
+# class NoModelResult(BaseModel):
+#     source: OddsSourceInfo
+#     simulation: Simulation
+
+#     @staticmethod
+#     def from_base(
+#         candidates: Sequence[an.EyeExpectedValue],
+#         race: rc.Race,
+#         ots: rc.OddsTimeStamp,
+#     ) -> "NoModelResult":
+
+#         return NoModelResult(
+#             source=OddsSourceInfo.from_base(
+#                 odds_source=race.odds_source, timestamp=ots
+#             ),
+#             simulation=Simulation.from_candidates(candidates, ots),
+#         )

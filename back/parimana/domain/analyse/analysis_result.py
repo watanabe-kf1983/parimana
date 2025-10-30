@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 import io
-from typing import Mapping, Optional, Sequence
+from typing import Mapping, Optional
 
 import pandas as pd
 
 from parimana.io.message import mprint
 from parimana.domain.base import Eye, OddsPool, Contestant
 from parimana.domain.analyse.mvn_model import Model
-from parimana.domain.analyse.expected import EyeExpectedValue, EyeExpectedValues
+from parimana.domain.analyse.expected import EyeExpectedValues
 
 
 @dataclass(frozen=True)
@@ -21,9 +21,6 @@ class AnalysisResult:
         return EyeExpectedValues.from_odds_and_chances(
             self.odds_pool.odds, self.chances
         )
-
-    def recommend2(self, query: Optional[str] = None) -> Sequence[EyeExpectedValue]:
-        return self.eev.filter(query).values()
 
     def recommend(
         self, query: Optional[str] = None, size: Optional[int] = None

@@ -1,5 +1,6 @@
-from dataclasses import dataclass
-from typing import Mapping, Optional, Sequence
+from dataclasses import dataclass, field
+from types import MappingProxyType
+from typing import Any, Mapping, Optional, Sequence
 
 import pandas as pd
 import numpy as np
@@ -19,11 +20,29 @@ class EyeExpectedValue:
     odds: float
     chance: float
     expected: float
+    others: Mapping[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_record(
+        cls,
+        eye: str,
+        type: str,
+        odds: float,
+        chance: float,
+        expected: float,
+        **rest_kwargs
+    ) -> "EyeExpectedValue":
+        return cls(Eye(eye), odds, chance, expected, MappingProxyType(rest_kwargs))
 
 
 def eye_expected_df(
     odds: Mapping[Eye, Odds], chances: Mapping[Eye, float]
 ) -> pd.DataFrame:
+    """
+    odds: {Eye: Odds}
+    chances: {Eye: chance(float)}
+    return: DataFrame with columns: eye(index), type, tid, odds, chance, expected
+    """
     odds_df = odds_to_df(odds)
     odds_sr = odds_df["odds"]
     chance_sr = chance_to_sr(chances)
@@ -31,7 +50,34 @@ def eye_expected_df(
     return odds_df.join(chance_sr, how="left").join(expected_sr, how="left").fillna(0)
 
 
+# def combine_with_mean(named_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+#     """
+#     named_dfs = {"modelA": eye_expected_df_A, "modelB": eye_expected_df_B, ...}
+#     return: DataFrame with columns: eye(index), type, tid, odds,
+#                                     MultiIndex (name_or_mean, {chance, expected})。
+#     """
+
+#     if not named_dfs:
+#         return pd.DataFrame()
+
+#     first_df = next(iter(named_dfs.values()))
+#     base_df = first_df[["eye", "type", "tid", "odds"]]
+
+#     value_dfs = {name: df[["chance", "expected"]] for name, df in named_dfs.items()}
+#     values_wide = pd.concat(value_dfs, axis=1)  # columns: MultiIndex(model, variable)
+#     values_flat = values_wide.copy()
+#     values_flat.columns = [f"{m}_{v}" for m, v in values_wide.columns]
+
+#     mean = values_wide.T.groupby(level=1).mean().T  # columns: chance/expected
+
+#     return pd.concat([base_df, mean, values_flat], axis="columns")
+
+
 def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
+    """
+    odds: {Eye: Odds}
+    return: DataFrame with columns: eye(index), type, tid, odds
+    """
     return pd.DataFrame.from_records(
         [
             {
@@ -47,6 +93,10 @@ def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
 
 
 def chance_to_sr(chances: Mapping[Eye, float]) -> pd.Series:
+    """
+    chances: {Eye: chance(float)}
+    return: Series with index: eye, name: chance
+    """
     return pd.DataFrame.from_records(
         [{"eye": e.text, "chance": o} for e, o in chances.items()],
         index="eye",
@@ -80,10 +130,15 @@ class EyeExpectedValues:
         cls, odds: Mapping[Eye, Odds], chances: Mapping[Eye, float]
     ) -> "EyeExpectedValues":
         df = eye_expected_df(odds, chances)
-        return EyeExpectedValues(df, calc_regression_model(df))
+        return cls(df, calc_regression_model(df))
+
+    # @classmethod
+    # def combine(cls, dict: Mapping[str, "EyeExpectedValues"]) -> "EyeExpectedValues":
+    #     df = combine_with_mean({name: eev.df for name, eev in dict.items()})
+    #     return cls(df, {})
 
     def filter(
-        self, query: str = "", size: Optional[int] = None
+        self, query: Optional[str] = None, size: Optional[int] = None
     ) -> "EyeExpectedValues":
         df = self.df.sort_values("expected", ascending=False)
         if query:
@@ -95,8 +150,8 @@ class EyeExpectedValues:
 
     def values(self) -> Sequence[EyeExpectedValue]:
         return [
-            EyeExpectedValue(Eye(rec.Index), rec.odds, rec.chance, rec.expected)
-            for rec in self.df.itertuples()
+            EyeExpectedValue.from_record(**d)
+            for d in self.df.reset_index().to_dict(orient="records")
         ]
 
     def chart(self) -> Figure:
@@ -114,7 +169,7 @@ class EyeExpectedValues:
                 x=0,
                 y=-0.1,
                 orientation="h",
-            )
+            ),
             # hoverlabel=dict(align="right"),
         )
         ply_draw(fig, df, rgms)
