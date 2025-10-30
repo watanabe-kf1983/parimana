@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Mapping, Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence
 
 from pydantic import BaseModel
 
@@ -139,12 +139,17 @@ class Eye(BaseModel):
         return Eye(text=eye.text, type=eye.type.name)
 
 
+class EevField(BaseModel):
+    name: str
+    value: float
+
+
 class EyeExpectedValue(BaseModel):
     eye: Eye
     odds: float
     chance: float
     expected: float
-    others: Sequence[Tuple[str, float]]
+    others: Sequence[EevField]
 
     @staticmethod
     def from_base(eev: an.EyeExpectedValue):
@@ -153,7 +158,7 @@ class EyeExpectedValue(BaseModel):
             odds=eev.odds,
             chance=eev.chance,
             expected=eev.expected,
-            others=list(eev.others.items()),
+            others=[EevField(name=k, value=v) for k, v in eev.others.items()],
         )
 
 
@@ -173,16 +178,16 @@ class Simulation(BaseModel):
             odds_update_time=OddsTimeStamp.from_base(timestamp),
         )
 
-    # @staticmethod
-    # def from_candidates(
-    #     candidates: Sequence[an.EyeExpectedValue],
-    #     timestamp: rc.OddsTimeStamp,
-    # ):
-    #     return Simulation(
-    #         eev=[EyeExpectedValue.from_base(eev) for eev in candidates],
-    #         odds_chance_chart=None,
-    #         odds_update_time=OddsTimeStamp.from_base(timestamp),
-    #     )
+    @staticmethod
+    def from_candidates(
+        candidates: Sequence[an.EyeExpectedValue],
+        timestamp: rc.OddsTimeStamp,
+    ):
+        return Simulation(
+            eev=[EyeExpectedValue.from_base(eev) for eev in candidates],
+            odds_chance_chart=None,
+            odds_update_time=OddsTimeStamp.from_base(timestamp),
+        )
 
 
 class Result(BaseModel):
@@ -206,20 +211,20 @@ class Result(BaseModel):
         )
 
 
-# class NoModelResult(BaseModel):
-#     source: OddsSourceInfo
-#     simulation: Simulation
+class NoModelResult(BaseModel):
+    source: OddsSourceInfo
+    simulation: Simulation
 
-#     @staticmethod
-#     def from_base(
-#         candidates: Sequence[an.EyeExpectedValue],
-#         race: rc.Race,
-#         ots: rc.OddsTimeStamp,
-#     ) -> "NoModelResult":
+    @staticmethod
+    def from_base(
+        candidates: Sequence[an.EyeExpectedValue],
+        race: rc.Race,
+        ots: rc.OddsTimeStamp,
+    ) -> "NoModelResult":
 
-#         return NoModelResult(
-#             source=OddsSourceInfo.from_base(
-#                 odds_source=race.odds_source, timestamp=ots
-#             ),
-#             simulation=Simulation.from_candidates(candidates, ots),
-#         )
+        return NoModelResult(
+            source=OddsSourceInfo.from_base(
+                odds_source=race.odds_source, timestamp=ots
+            ),
+            simulation=Simulation.from_candidates(candidates, ots),
+        )

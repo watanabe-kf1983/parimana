@@ -23,6 +23,7 @@ export function ModelSelector(props: Props) {
     const getList = async () => {
       props.onSetFetching(true);
       const list = await getLatestModelList(props.raceId);
+      list.push("combined");
       onModelListSet(list);
       props.onSetFetching(false);
     }

@@ -62,17 +62,17 @@ class AnalyseApp:
         eevs = self._get_eevs(race, ts, analyser_name)
         return eevs.filter(query=query).values()
 
-    # def get_combined_candidates(
-    #     self, race: Race, ts: OddsTimeStamp, query: Optional[str] = None
-    # ) -> Sequence[EyeExpectedValue]:
+    def get_combined_candidates(
+        self, race: Race, ts: OddsTimeStamp, query: Optional[str] = None
+    ) -> Sequence[EyeExpectedValue]:
 
-    #     eevs = EyeExpectedValues.combine(
-    #         {
-    #             name: self._get_eevs(race, ts, name)
-    #             for name in self.list_latest_analysis(race)
-    #         }
-    #     )
-    #     return eevs.filter(query=query).values()
+        eevs = EyeExpectedValues.combine(
+            {
+                name: self._get_eevs(race, ts, name)
+                for name in self._list_analysis(race, ts)
+            }
+        )
+        return eevs.filter(query=query).values()
 
     def _get_eevs(
         self, race: Race, ts: OddsTimeStamp, analyser_name: str

@@ -30,7 +30,7 @@ class EyeExpectedValue:
         odds: float,
         chance: float,
         expected: float,
-        **rest_kwargs
+        **rest_kwargs,
     ) -> "EyeExpectedValue":
         return cls(Eye(eye), odds, chance, expected, MappingProxyType(rest_kwargs))
 
@@ -50,33 +50,33 @@ def eye_expected_df(
     return odds_df.join(chance_sr, how="left").join(expected_sr, how="left").fillna(0)
 
 
-# def combine_with_mean(named_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
-#     """
-#     named_dfs = {"modelA": eye_expected_df_A, "modelB": eye_expected_df_B, ...}
-#     return: DataFrame with columns: eye(index), type, tid, odds,
-#                                     MultiIndex (name_or_mean, {chance, expected})。
-#     """
+def combine_with_mean(named_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """
+    named_dfs = {"modelA": eye_expected_df_A, "modelB": eye_expected_df_B, ...}
+    return: DataFrame with columns: eye(index), type, tid, odds,
+                                    MultiIndex (name_or_mean, {chance, expected})。
+    """
 
-#     if not named_dfs:
-#         return pd.DataFrame()
+    if not named_dfs:
+        return pd.DataFrame()
 
-#     first_df = next(iter(named_dfs.values()))
-#     base_df = first_df[["eye", "type", "tid", "odds"]]
+    first_df = next(iter(named_dfs.values()))
+    base_df = first_df[["type", "odds"]]
 
-#     value_dfs = {name: df[["chance", "expected"]] for name, df in named_dfs.items()}
-#     values_wide = pd.concat(value_dfs, axis=1)  # columns: MultiIndex(model, variable)
-#     values_flat = values_wide.copy()
-#     values_flat.columns = [f"{m}_{v}" for m, v in values_wide.columns]
+    value_dfs = {name: df[["chance", "expected"]] for name, df in named_dfs.items()}
+    values_wide = pd.concat(value_dfs, axis=1)  # columns: MultiIndex(model, variable)
+    values_flat = values_wide.copy()
+    values_flat.columns = [f"{m}_{v}" for m, v in values_wide.columns]
 
-#     mean = values_wide.T.groupby(level=1).mean().T  # columns: chance/expected
+    mean = values_wide.T.groupby(level=1).mean().T  # columns: chance/expected
 
-#     return pd.concat([base_df, mean, values_flat], axis="columns")
+    return pd.concat([base_df, mean, values_flat], axis="columns")
 
 
 def odds_to_df(odds: Mapping[Eye, Odds]) -> pd.DataFrame:
     """
     odds: {Eye: Odds}
-    return: DataFrame with columns: eye(index), type, tid, odds
+    return: DataFrame with columns: eye(index), type, odds
     """
     return pd.DataFrame.from_records(
         [
@@ -132,10 +132,10 @@ class EyeExpectedValues:
         df = eye_expected_df(odds, chances)
         return cls(df, calc_regression_model(df))
 
-    # @classmethod
-    # def combine(cls, dict: Mapping[str, "EyeExpectedValues"]) -> "EyeExpectedValues":
-    #     df = combine_with_mean({name: eev.df for name, eev in dict.items()})
-    #     return cls(df, {})
+    @classmethod
+    def combine(cls, dict: Mapping[str, "EyeExpectedValues"]) -> "EyeExpectedValues":
+        df = combine_with_mean({name: eev.df for name, eev in dict.items()})
+        return cls(df, {})
 
     def filter(
         self, query: Optional[str] = None, size: Optional[int] = None

@@ -8,7 +8,7 @@ export type ModelKey = {
 export type AnalysisStatus = { is_processing: boolean, has_analysis: boolean, is_odds_confirmed: boolean }
 export type AnalysisData = {
     source: SourceData,
-    model: ModelData,
+    model?: ModelData,
     simulation: SimulationData,
 }
 export type SourceData = {

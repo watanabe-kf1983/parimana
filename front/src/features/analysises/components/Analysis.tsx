@@ -33,7 +33,7 @@ export function Analysis(props: Props) {
       {analysis &&
         <>
           <SourceInfo source={analysis.source} />
-          <Model model={analysis.model} />
+          {analysis.model && <Model model={analysis.model} />}
           <Simulation modelKey={props.modelKey} simulation={analysis.simulation} />
         </>
       }

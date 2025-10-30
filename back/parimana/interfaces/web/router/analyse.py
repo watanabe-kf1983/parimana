@@ -9,7 +9,7 @@ from parimana.interfaces.web.model.analyse import (
     EyeExpectedValue,
     Result,
     Status,
-    # NoModelResult,
+    NoModelResult,
 )
 from parimana.context import context as cx
 
@@ -67,11 +67,11 @@ def get_latest_list(race: RaceDeps) -> Sequence[str]:
     return items
 
 
-# @router.get("/{race_id}/latest/combined")
-# def get_latest_combined(race: RaceDeps) -> NoModelResult:
-#     ots = cx.analyse_app.get_latest_time_stamp(race)
-#     candidates = cx.analyse_app.get_combined_candidates(race, ots)
-#     return NoModelResult.from_base(candidates=candidates, race=race, ots=ots)
+@router.get("/{race_id}/latest/combined")
+def get_latest_combined(race: RaceDeps) -> NoModelResult:
+    ots = cx.analyse_app.get_latest_time_stamp(race)
+    candidates = cx.analyse_app.get_combined_candidates(race, ots)
+    return NoModelResult.from_base(candidates=candidates, race=race, ots=ots)
 
 
 @router.get("/{race_id}/latest/{analyser_name}")
@@ -80,13 +80,13 @@ def get_latest_analysis(race: RaceDeps, analyser_name: str) -> Result:
     return Result.from_base(charts=charts, race=race, ots=ots)
 
 
-# @router.get("/{race_id}/{timestamp_id}/combined/candidates")
-# def get_combined_candidates(
-#     race: RaceDeps, timestamp: TimestampDeps, query: Optional[str] = Query(None)
-# ) -> Sequence[EyeExpectedValue]:
+@router.get("/{race_id}/{timestamp_id}/combined/candidates")
+def get_combined_candidates(
+    race: RaceDeps, timestamp: TimestampDeps, query: Optional[str] = Query(None)
+) -> Sequence[EyeExpectedValue]:
 
-#     candidates = cx.analyse_app.get_combined_candidates(race, timestamp, query)
-#     return [EyeExpectedValue.from_base(eev) for eev in candidates]
+    candidates = cx.analyse_app.get_combined_candidates(race, timestamp, query)
+    return [EyeExpectedValue.from_base(eev) for eev in candidates]
 
 
 @router.get("/{race_id}/{timestamp_id}/{analyser_name}/candidates")
