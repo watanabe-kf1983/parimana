@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AnalysisStatus, ModelKey } from "../types";
+import { AnalysisData, AnalysisStatus, ModelKey } from "../types";
 import { EventSourceManager } from "./eventSourceManager";
 
 
@@ -19,14 +19,14 @@ export function getProgress(raceId: string) {
     return new EventSourceManager(`${baseUrl}/${raceId}/progress`, "====END====", "====ABEND====");
 }
 
-export async function getModelList(raceId: string): Promise<string[]> {
-    const response = await axios.get(`${baseUrl}/${raceId}/list`);
+export async function getLatestModelList(raceId: string): Promise<string[]> {
+    const response = await axios.get(`${baseUrl}/${raceId}/latest/list`);
     return response.data;
 }
 
-export async function getAnalysis(modelKey: ModelKey) {
-    const response = await axios.get(`${baseUrl}/${modelKey.raceId}/${modelKey.modelName}`);
+export async function getLatestAnalysis(modelKey: ModelKey): Promise<AnalysisData> {
+    const response = await axios.get(`${baseUrl}/${modelKey.raceId}/latest/${modelKey.modelName}`);
     return response.data;
 }
 
-export default { getAnalysis, getAnalysisStatus, requestAnalyse, getProgress, getModelList };
+export default { getAnalysis: getLatestAnalysis, getAnalysisStatus, requestAnalyse, getProgress, getModelList: getLatestModelList };

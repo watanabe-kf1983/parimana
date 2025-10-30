@@ -3,7 +3,7 @@ import { Box, Link, Typography } from '@mui/material';
 import { Simulation } from '../../simulation/components/Simulation';
 import { Model } from '../../models/components/Model';
 import { AnalysisData, ModelKey, SourceData } from '../types';
-import { getAnalysis } from '../api';
+import { getLatestAnalysis } from '../api';
 import { LoadingOverlay } from '../../../common/components/LoadingOverlay';
 
 type Props = { modelKey: ModelKey };
@@ -17,7 +17,7 @@ export function Analysis(props: Props) {
     const getAn = async () => {
       setFetching(true);
       try {
-        const r = await getAnalysis(props.modelKey);
+        const r = await getLatestAnalysis(props.modelKey);
         setAnalysis(r)
       } catch (e) {
         console.error(e)
@@ -33,8 +33,8 @@ export function Analysis(props: Props) {
       {analysis &&
         <>
           <SourceInfo source={analysis.source} />
-          <Model model={analysis.model} />
-          <Simulation modelKey={props.modelKey} chart={analysis.simulation.odds_chance_chart} />
+          {analysis.model && <Model model={analysis.model} />}
+          <Simulation modelKey={props.modelKey} simulation={analysis.simulation} />
         </>
       }
       <LoadingOverlay loading={fetching} />
@@ -45,7 +45,7 @@ export function Analysis(props: Props) {
 
 
 function SourceInfo(props: { source: SourceData }) {
-  const updateTime = props.source.odds_update_time
+  const updateTime = props.source.odds_update_time.description
   const uri = props.source.source_uri
 
   return (

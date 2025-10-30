@@ -3,7 +3,7 @@ import { Tab, Tabs, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import { getModelLabel } from '../../models/types';
-import { getModelList } from '../api';
+import { getLatestModelList } from '../api';
 import { ModelKey } from '../types';
 
 
@@ -22,7 +22,8 @@ export function ModelSelector(props: Props) {
   useEffect(() => {
     const getList = async () => {
       props.onSetFetching(true);
-      const list = await getModelList(props.raceId);
+      const list = await getLatestModelList(props.raceId);
+      list.push("combined");
       onModelListSet(list);
       props.onSetFetching(false);
     }

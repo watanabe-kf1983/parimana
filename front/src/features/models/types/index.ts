@@ -14,6 +14,7 @@ export const MODEL_LABELS: Record<string, string> = {
     'no_cor': 'ざっくりモデル',
     'ppf_mtx': 'ふんわりモデル',
     'yurayura': 'ゆらゆらモデル',
+    'combined': 'まとめ',
     'loading': 'Loading...',
 };
 

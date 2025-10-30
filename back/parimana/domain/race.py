@@ -110,7 +110,15 @@ class OddsTimeStamp:
 
     @classmethod
     def confirmed(cls) -> "OddsTimeStamp":
-        return OddsTimeStamp(None)
+        return cls(None)
+
+    @classmethod
+    def from_str(cls, s: str) -> "OddsTimeStamp":
+        if s == "Confirmed":
+            return cls.confirmed()
+        else:
+            dt = datetime.strptime(s, "%Y%m%d%H%M")
+            return cls(updatetime=dt)
 
 
 @dataclass
