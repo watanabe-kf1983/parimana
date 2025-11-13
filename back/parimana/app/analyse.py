@@ -66,13 +66,13 @@ class AnalyseApp:
         self, race: Race, ts: OddsTimeStamp, query: Optional[str] = None
     ) -> Sequence[EyeExpectedValue]:
 
-        eevs = EyeExpectedValues.combine(
-            {
-                name: self._get_eevs(race, ts, name)
-                for name in self._list_analysis(race, ts)
-            }
-        )
-        return eevs.filter(query=query).values()
+        if names := self._list_analysis(race, ts):
+            eevs = EyeExpectedValues.combine(
+                {name: self._get_eevs(race, ts, name) for name in names}
+            )
+            return eevs.filter(query=query).values()
+        else:
+            raise ResultNotExistError(f"{race.race_id}'s result not exists")
 
     def _get_eevs(
         self, race: Race, ts: OddsTimeStamp, analyser_name: str
