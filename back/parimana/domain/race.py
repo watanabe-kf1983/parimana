@@ -118,7 +118,7 @@ class OddsTimeStamp:
             return cls.confirmed()
         else:
             dt = datetime.strptime(s, "%Y%m%d%H%M")
-            return cls(updatetime=dt)
+            return cls(update_time=dt)
 
 
 @dataclass
