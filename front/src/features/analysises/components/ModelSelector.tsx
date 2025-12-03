@@ -65,11 +65,21 @@ export function ModelSelector(props: Props) {
   return (
     <>
       <Tabs
-        value={modelName} onChange={handleTabChange} sx={{
+        value={modelName}
+        onChange={handleTabChange}
+        sx={{
           position: 'sticky',
           top: 96,
           zIndex: theme.zIndex.appBar,
-          backgroundColor: theme.palette.background.default
+          backgroundColor: theme.palette.background.default,
+          '& .MuiTabs-flexContainer': {
+            flexWrap: 'wrap',
+          },
+          '& .MuiTab-root': {
+            minWidth: 0,
+            minHeight: 40,
+            py: 0.3
+          },
         }}>
         {modelList.map(e => (
           <Tab key={e} value={e} label={getModelLabel(e)} />
