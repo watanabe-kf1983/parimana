@@ -1,4 +1,4 @@
-# 既存の back / front 用 (../compose.yaml) とは別プロジェクトとして起動する
+# プロジェクト名を固定する（変えるとボリューム名が変わり、資格情報や Claude Code の設定が引き継がれない）
 name: parimana-dev
 
 services:

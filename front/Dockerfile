@@ -2,18 +2,6 @@ FROM public.ecr.aws/docker/library/node:20 AS node-base
 
 
 
-FROM node-base AS vscode-devcontainer
-
-# install git sudo
-RUN apt-get update \
-    && apt-get -y install git sudo git-secrets \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-USER node
-
-
-
 FROM node-base AS build-stage
 
 ARG BUILD_OPT="dev" 

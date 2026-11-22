@@ -6,7 +6,7 @@
 
 - back / front / infra の3つに分かれていた開発コンテナのうち、back と front を1つにまとめたものが `dev` です。
 - 定義は `devcontainer.json` と `compose.yaml`、それに features のバージョンを固定する `devcontainer-lock.json`（初回ビルドで生成）です。作業ブランチは `feature/unified-devcontainer` でした。
-- infra コンテナは別に残しています。back / front コンテナは、「確認が済んだあと」の手順で片付けるまで併存します。
+- infra コンテナは別に残しています。旧 back / front コンテナの定義は削除済みです。
 - 土台は `back/Dockerfile` の `vscode-devcontainer` ステージ（Python + Chromium + Poetry）。Node 20、Terraform 1.10.3、AWS CLI、GitHub CLI、Claude Code は features で追加しています。
 - ホストの `~/.aws`、`~/.ssh`、`docker.sock` は意図的にマウントしていません。
 - features のインストールと `onCreateCommand` は、VS Code で開いたときに初めて走ります。`docker compose` でビルドと起動ができても、それだけでは確認になりません。
@@ -15,8 +15,6 @@
 ## 開き方
 
 VS Code のコマンドパレットで「Dev Containers: Reopen in Container」を実行し、`Dev Container` を選びます。
-
-既存の back / front コンテナが動いたままでも開けます。ただしポート 5005 / 5173 が重なるので、VS Code が別のローカルポートに振り替えることがあります。
 
 ## 1. ビルドが通るか
 
@@ -180,8 +178,8 @@ gh auth login                 # リビルドのたびに必要（意図どおり
 
 ## 確認が済んだあと
 
-1. `devcontainer.json`、`compose.yaml`、`devcontainer-lock.json` と、このメモをコミットする。
-2. 既存の back / front コンテナを片付ける。
+1. （済）`devcontainer.json`、`compose.yaml`、`devcontainer-lock.json` と、このメモをコミットする。
+2. （済）旧 back / front コンテナを片付ける。
    - `.devcontainer/back/`、`.devcontainer/front/`、`.devcontainer/compose.yaml` を削除
    - `front/Dockerfile` の `vscode-devcontainer` ステージを削除
    - ホストで `docker compose -p parimana_devcontainer down` を実行して、古いコンテナを止める
