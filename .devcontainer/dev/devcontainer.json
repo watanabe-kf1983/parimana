@@ -1,0 +1,50 @@
+// back / front / IaC の編集をまとめて行う開発用コンテナ。
+// ホストの ~/.aws, ~/.ssh, docker.sock はマウントしない。
+{
+	"name": "Dev Container",
+	"dockerComposeFile": [
+		"./compose.yaml"
+	],
+	"service": "dev",
+	"shutdownAction": "none",
+	"workspaceFolder": "/workspace",
+	"remoteUser": "vscode",
+
+	// named volume は root 所有で作られるので、最初に vscode へ付け替える
+	"onCreateCommand": "sudo chown vscode:vscode /home/vscode/.aws /home/vscode/.claude",
+
+	// ベースイメージは back/Dockerfile の vscode-devcontainer ステージ（Python + Chromium + Poetry）。
+	// それ以外のツールは features で追加する。
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20"
+		},
+		"ghcr.io/devcontainers/features/terraform:1": {
+			"version": "1.10.3",
+			"tflint": "none",
+			"terragrunt": "none"
+		},
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+	},
+
+	// 5005: Web API / 5173: vite dev / 4173: vite preview
+	"forwardPorts": [5005, 5173, 4173],
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"ms-python.flake8",
+				"ms-python.debugpy",
+				"dbaeumer.vscode-eslint",
+				"hashicorp.terraform",
+				"anthropic.claude-code",
+				"mhutchie.git-graph"
+			]
+		}
+	}
+}
