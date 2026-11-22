@@ -16,6 +16,7 @@ def get(uri: str, attempt: str):
     mprint(f"opening {uri} ...")
     res = requests.get(
         uri,
+        timeout=(10, 30),
     )
     res.raise_for_status()
     text = res.text
