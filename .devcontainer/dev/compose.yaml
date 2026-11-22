@@ -1,0 +1,36 @@
+# プロジェクト名を固定する（変えるとボリューム名が変わり、資格情報や Claude Code の設定が引き継がれない）
+name: parimana-dev
+
+services:
+  dev:
+    build:
+      context: ../../back
+      target: vscode-devcontainer
+      args:
+        - USER_ID=1000
+        - GROUP_ID=1000
+    volumes:
+      - ../..:/workspace:cached
+      # 資格情報・Claude Code の設定はホストと共有せず、コンテナ専用のボリュームに置く
+      - aws-config:/home/vscode/.aws
+      - claude-config:/home/vscode/.claude
+    environment:
+      REDIS_ENDPOINT: "task-db:6379"
+      WEB_API_PORT: "5005"
+      VITE_API_URL_BASE: "http://<hostname>:5005/api/v1"
+      # ~/.claude.json もボリューム内に置かせる（リビルドで消えないように）
+      CLAUDE_CONFIG_DIR: "/home/vscode/.claude"
+    command: ["tail", "-f", "/dev/null"]
+    # PID 1 を tini にする。tail は孤児プロセスを回収せず、SIGTERM も無視するため
+    init: true
+    restart: always
+    depends_on:
+      - task-db
+
+  task-db:
+    image: redis
+    restart: always
+
+volumes:
+  aws-config:
+  claude-config:
