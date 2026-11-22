@@ -21,6 +21,8 @@ services:
       # ~/.claude.json もボリューム内に置かせる（リビルドで消えないように）
       CLAUDE_CONFIG_DIR: "/home/vscode/.claude"
     command: ["tail", "-f", "/dev/null"]
+    # PID 1 を tini にする。tail は孤児プロセスを回収せず、SIGTERM も無視するため
+    init: true
     restart: always
     depends_on:
       - task-db
