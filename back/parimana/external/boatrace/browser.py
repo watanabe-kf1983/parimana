@@ -20,6 +20,7 @@ def get(uri: str, attempt: str):
             # デフォルト（gzip, deflate だけ）だと boatrace.jpからのレスが遅くなる
             "Accept-Encoding": "gzip, deflate, br, zstd",
         },
+        timeout=(10, 30),
     )
     res.raise_for_status()
     text = res.text
