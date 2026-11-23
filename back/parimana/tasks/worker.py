@@ -40,9 +40,12 @@ class Worker:
         self.celery.start(argv)
 
     def start(self, queue_prefix: str = "", start_beat: bool = False):
+        # The targets are bound methods of this object, which cannot be pickled,
+        # so the children must be forked (Python 3.14 defaults to forkserver).
+        mp = multiprocessing.get_context("fork")
 
         workers = [
-            multiprocessing.Process(
+            mp.Process(
                 name=f"Worker_for_{queue}", target=self._start, args=[queue]
             )
             for queue in self.queues
@@ -50,7 +53,7 @@ class Worker:
         ]
         if start_beat:
             workers.append(
-                multiprocessing.Process(name="Celery_Beat", target=self._start_beat)
+                mp.Process(name="Celery_Beat", target=self._start_beat)
             )
 
         for worker in workers:
