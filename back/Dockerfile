@@ -18,7 +18,7 @@ RUN ln -sf /usr/lib/chromium/chromedriver /usr/local/bin/chromedriver || \
     ln -sf /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
 
     
-FROM python-base AS poetry
+FROM python-base AS uv
 
 # install curl
 RUN apt-get update \
@@ -26,19 +26,16 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# install poetry
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_VERSION=1.7.1 \
-    POETRY_HOME="/opt/poetry"
+# install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN curl -sSL https://install.python-poetry.org | python -
-ENV PATH="${POETRY_HOME}/bin:$PATH"
+# use the base image's Python, so that /app/.venv still works when copied into prod-base
+ENV UV_PYTHON_DOWNLOADS=never \
+    UV_LINK_MODE=copy
 
 
 
-FROM poetry AS vscode-devcontainer
+FROM uv AS vscode-devcontainer
 
 # install git sudo
 RUN apt-get update \
@@ -61,16 +58,16 @@ WORKDIR /home/$USERNAME/
 
 
 
-FROM poetry AS prod-build
+FROM uv AS prod-build
 
-# poetry install
+# uv sync
 WORKDIR /app
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --without dev --no-root
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-install-project
 
 COPY README.md ./
 COPY parimana ./parimana
-RUN poetry install --without dev
+RUN uv sync --locked --no-dev
 
 
 

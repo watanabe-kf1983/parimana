@@ -13,7 +13,7 @@
 	// named volume は root 所有で作られるので、最初に vscode へ付け替える
 	"onCreateCommand": "sudo chown vscode:vscode /home/vscode/.aws /home/vscode/.claude",
 
-	// ベースイメージは back/Dockerfile の vscode-devcontainer ステージ（Python + Chromium + Poetry）。
+	// ベースイメージは back/Dockerfile の vscode-devcontainer ステージ（Python + Chromium + uv）。
 	// それ以外のツールは features で追加する。
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
