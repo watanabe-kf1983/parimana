@@ -18,7 +18,7 @@
 	// それ以外のツールは features で追加する。
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
-			"version": "20"
+			"version": "24"
 		},
 		"ghcr.io/devcontainers/features/terraform:1": {
 			"version": "1.10.3",

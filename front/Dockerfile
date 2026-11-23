@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:20 AS node-base
+FROM public.ecr.aws/docker/library/node:24 AS node-base
 
 
 
