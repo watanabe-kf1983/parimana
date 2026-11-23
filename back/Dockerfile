@@ -1,6 +1,8 @@
-FROM public.ecr.aws/docker/library/python:3.11-slim AS python-base
+# Python is not part of the base image: uv installs the version in .python-version
+FROM public.ecr.aws/docker/library/debian:trixie-slim AS base
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
+ENV LANG=C.UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Chromium + Chromedriver
@@ -18,7 +20,7 @@ RUN ln -sf /usr/lib/chromium/chromedriver /usr/local/bin/chromedriver || \
     ln -sf /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
 
     
-FROM python-base AS uv
+FROM base AS uv
 
 # install curl
 RUN apt-get update \
@@ -29,8 +31,8 @@ RUN apt-get update \
 # install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# use the base image's Python, so that /app/.venv still works when copied into prod-base
-ENV UV_PYTHON_DOWNLOADS=never \
+# always use the Python that uv installs, never one that apt happens to pull in
+ENV UV_PYTHON_PREFERENCE=only-managed \
     UV_LINK_MODE=copy
 
 
@@ -60,9 +62,12 @@ WORKDIR /home/$USERNAME/
 
 FROM uv AS prod-build
 
-# uv sync
+# install Python to a fixed path, so that /app/.venv still works when both are copied into prod-base
+ENV UV_PYTHON_INSTALL_DIR=/opt/python
+
+# uv sync (installs the Python in .python-version first)
 WORKDIR /app
-COPY pyproject.toml uv.lock ./
+COPY .python-version pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 
 COPY README.md ./
@@ -71,13 +76,14 @@ RUN uv sync --locked --no-dev
 
 
 
-FROM python-base AS prod-base
+FROM base AS prod-base
 
-# install parimana
+# install Python and parimana
 ENV APP_PATH="/app" \
     PATH="/app/.venv/bin:$PATH" \
     FILE_STORAGE_ROOT_PATH="/var/parimana/repo"
 
+COPY --from=prod-build /opt/python /opt/python
 COPY --from=prod-build ${APP_PATH} ${APP_PATH}
 
 
